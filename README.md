@@ -1,2 +1,24 @@
-# cnstap-app
-Front end web app for the CNS-TAP project. This app will use CNS-TAP knowledge objects to compute patient-specific information about drug agents used to treat brain tumors.
+# cnstapbeta
+
+## Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
