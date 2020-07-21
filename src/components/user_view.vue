@@ -100,7 +100,7 @@
   <v-data-table
       :headers="computedHeaders"
       :items="filteredItems"
-      class="elevation-0 bluebg"
+      class="elevation-0 bluebg customtable"
       hide-default-footer
       hide-actions
       disable-pagination
@@ -157,7 +157,13 @@
            </v-tooltip>
         </template>
 
-        <template v-slot:item.cln="props">
+        <!-- Example Code for styling the column - Start -->
+        <template v-slot:item.subt="{ item }">
+          <div :class="getStyle('subt')">{{ item.subt }}</div>
+        </template>
+        <!-- Example Code for styling the column - End -->
+
+        <template v-slot:item.cln="props" class="grey darken-2 white--text">
           <template v-if="props.item.editable === 0">
             <v-tooltip top color="amber lighten-4" >
               <template v-slot:activator="{ on }">
@@ -507,6 +513,17 @@
             this.PathwaysGraphData.datasets[0].data.push({ x: '', y: '0', r: '0', name: '' });
             this.PathwaysGraphData.datasets[1].data.push({ x: '', y: '0', r: '0', name: '' });
         },
+        // Example Code for styling the column - Start
+        getStyle (column) {
+          switch(column){
+            case 'subt':
+              return 'grey darken-1 white--text';
+            default:
+              return '';
+          }
+        },
+        // Example Code for styling the column - End
+
     },
 //    watch: {
 //           PathwaysGraphData: function () {
@@ -520,7 +537,7 @@
 
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 
 .cellhighlight {
   background-color: grey;
