@@ -108,6 +108,7 @@
   <v-data-table
       :headers="computedHeaders"
       :items="filteredItems"
+      item-class='orange'
       class="elevation-0 bluebg customtable"
       hide-default-footer
        disable-pagination
@@ -166,7 +167,7 @@
 
         <!-- Example Code for styling the column - Start -->
         <template v-slot:item.subt="{ item }">
-          <div :class="getStyle('subt')">{{ item.subt }}</div>
+          <div :class="getStyle('subt')"><p>{{ item.subt }}</p></div>
         </template>
         <!-- Example Code for styling the column - End -->
 
@@ -174,7 +175,7 @@
           <template v-if="props.item.editable === 0">
             <v-tooltip top color="amber lighten-4" >
               <template v-slot:activator="{ on }">
-                  <div v-on="on" class="grey darken-2 white--text">{{ props.item.cln }}</div>
+                  <div v-on="on" class="grey darken-2 white--text"><p>{{ props.item.cln }}</p></div>
                 </template>
                   <div class="tooltip">
                     <span>{{ ttCLNrow }}</span>
@@ -193,7 +194,7 @@
               >
               <v-tooltip top color="amber lighten-4" >
               <template v-slot:activator="{ on }">
-                    <div v-on="on" >{{ props.item.cln }}</div>
+                    <div v-on="on" ><p>{{ props.item.cln }}</p></div>
               </template>
               <div class="tooltip">
                  <span>{{ ttCLNrow }}</span>
@@ -220,7 +221,7 @@
           <template v-if="props.item.editable === 0">
             <v-tooltip top color="amber lighten-4" >
             <template v-slot:activator="{ on }">
-                  <div v-on="on" class="grey darken-2 white--text">{{ props.item.tier }}</div>
+                  <div v-on="on" class="grey darken-2 white--text"><p>{{ props.item.tier }}</p></div>
             </template>
             <div class="tooltip">
                <span>{{ ttTIERrow }}</span>
@@ -240,7 +241,7 @@
 
                  <v-tooltip top color="amber lighten-4" >
                  <template v-slot:activator="{ on }">
-                       <div v-on="on">{{ props.item.tier }}</div>
+                       <div v-on="on"><p>{{ props.item.tier }}</p></div>
                  </template>
                  <div class="tooltip">
                     <span>{{ ttTIERrow }}</span>
@@ -267,7 +268,7 @@
               <template v-if="props.item.editable === 0">
                 <v-tooltip top color="amber lighten-4" >
                 <template v-slot:activator="{ on }">
-                      <div v-on="on" class="grey darken-2 white--text">{{ props.item.trl }}</div>
+                      <div v-on="on" class="grey darken-2 white--text"><p>{{ props.item.trl }}</p></div>
                 </template>
                 <div class="tooltip">
                    <span>{{ ttTRLrow }}</span>
@@ -287,7 +288,7 @@
 
                      <v-tooltip top color="amber lighten-4" >
                      <template v-slot:activator="{ on }">
-                           <div v-on="on">{{ props.item.trl }}</div>
+                           <div v-on="on"><p>{{ props.item.trl }}</p></div>
                      </template>
                      <div class="tooltip">
                         <span>{{ ttTRLrow }}</span>
@@ -713,5 +714,8 @@
       margin-top: 0;
       margin-bottom: 0;
     }
-
+td p {
+  margin: 0;
+  padding:10px;
+}
 </style>

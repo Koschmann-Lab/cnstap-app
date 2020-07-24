@@ -32,11 +32,11 @@ export default {
     background-color: #E4ECFF;
 }
 .v-data-table.customtable td {
-  font-size: 1rem;
+  font-size: 0.8rem;
   padding: 0;
 }
 .v-data-table.customtable th {
-  font-size: 1rem;
+  font-size: 0.8rem;
   padding: 0;
 }
 </style>
