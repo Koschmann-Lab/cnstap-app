@@ -85,21 +85,13 @@
               tile
             >
 
-            <PathwaysGraph :data="PathwaysGraphData" :options="PathwaysGraphOptions" ></PathwaysGraph>
+            <PathwaysGraph :chartData="PathwaysGraphData" :options="PathwaysGraphOptions" ></PathwaysGraph>
+
           </v-card>
           </div>
           <br><br>
         </template>
-        <v-row>
-          <v-col
-            v-for="testsetobj in testset"
-            :key="testsetobj.agent"
-            cols="12"
-            sm="3"
-          >
-            <testLineGraph></testLineGraph>
-          </v-col>
-        </v-row>
+
        </div>
 
 
@@ -110,13 +102,13 @@
       :items="filteredItems"
       class="elevation-0 bluebg customtable"
       hide-default-footer
-       disable-pagination
+      disable-pagination
       dense
     >
 
-    <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }" ref = "h.value">
-      <template v-if="header.tt === ''" >
-              <span :key="h.text" >{{header.text}}</span>
+    <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }">
+      <template v-if="header.tt === ''">
+              <span :key="h.text">{{header.text}}</span>
       </template>
       <template v-else>
       <v-tooltip top :key="h.text" color="amber lighten-4 black--text">
@@ -128,6 +120,14 @@
         </span>
       </v-tooltip>
     </template>
+    </template>
+
+    <template v-slot:item.subt="{ item }">
+          <div class="grey darken-1 white--text">{{ item.subt }}</div>
+    </template>
+
+    <template v-slot:item.total="{ item }">
+          <div class="grey darken-1 white--text">{{ item.total }}</div>
     </template>
 
     <template v-slot:item.cns="{ item }">
@@ -164,13 +164,7 @@
            </v-tooltip>
         </template>
 
-        <!-- Example Code for styling the column - Start -->
-        <template v-slot:item.subt="{ item }">
-          <div :class="getStyle('subt')">{{ item.subt }}</div>
-        </template>
-        <!-- Example Code for styling the column - End -->
-
-        <template v-slot:item.cln="props" class="grey darken-2 white--text" >
+        <template v-slot:item.cln="props">
           <template v-if="props.item.editable === 0">
             <v-tooltip top color="amber lighten-4" >
               <template v-slot:activator="{ on }">
@@ -325,7 +319,6 @@
 <script>
 
  import PathwaysGraph from '../components/PathwaysGraph.vue'
- import testLineGraph from '../components/testLineGraph.vue'
 // top color="amber lighten-4 black--text"
 
   export default {
@@ -333,12 +326,12 @@
     name: 'UserView',
 
     components: {
-      PathwaysGraph,
-      testLineGraph
+      PathwaysGraph
     },
 
 
     data: () => ({
+
 
       PathwaysGraphData: {
 
@@ -366,7 +359,7 @@
                   yAxes: [{
                     ticks: {
                       beginAtZero: true,
-                      reverse: true
+                      reverse: false
                     },
                     pointLabels: {
                       display: true
@@ -409,7 +402,7 @@
 
               responsive: true,
               maintainAspectRatio: false,
-              height: 2000,
+              height: 200,
             },
 
       pgTitle: 'CNS-TAP',
@@ -445,8 +438,6 @@
       { id:14, pathway: "MET/VEGF2", checked: false },
       { id:15, pathway: "GENERIC CYTOTOXIC", checked: false } ],
 
-
-
     headers: [
       {   text: 'Pathways', align: 'center', sortable: true, value: 'pathways', class: 'grey darken-3 white--text', tt: '' },
       {   width: '150px', text: 'Drug Agents', align: 'center', sortable: true, value: 'drugagents', class: 'grey darken-3 white--text', tt: ''  },
@@ -462,38 +453,31 @@
       {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'lightbg', tt: 'TRL' },
       {   text: 'Total', align: 'center', sortable: true, value: 'total', class: 'grey darken-2 white--text', tt: '' }, ],
 
-    drugs: [
-    { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, cln: 0, tier: 5, trl: 10, total: 31, editable: 1, },
-    { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, cln: 2, tier: 0, trl: 0, total: 10, editable: 0, },
-    { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, cln: 2, tier: 0, trl: 10, total: 40, editable: 1, },
-    { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, cln: 0, tier: 0, trl: 10, total: 36, editable: 0, },
-    { pathways: "ALK", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 4, tier: 0, trl: 0, total: 31, editable: 0, },
-    { pathways: "BRAF", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 0, tier: 5, trl: 20, total: 52, editable: 1, } ],
-
-    testset: [
-      {agent:"MK2006",values:{baseline:20, ptsepcific:40}},
-      {agent:"Perfinosine",values:{baseline:30, ptsepcific:45}},
-      {agent:"Ceritinib",values:{baseline:25, ptsepcific:35}},
-      {agent:"Enrectinib",values:{baseline:25, ptsepcific:35}},
-
-    ]
+      drugs: [
+      { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, cln: 2, tier: 5, trl: 10, total: 33, editable: 1, },
+      { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, cln: 2, tier: 5, trl: 0, total: 15, editable: 0, },
+      { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, cln: 2, tier: 0, trl: 10, total: 40, editable: 1, },
+      { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, cln: 2, tier: 0, trl: 10, total: 38, editable: 0, },
+      { pathways: "ALK", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 2, tier: 0, trl: 10, total: 39, editable: 0, },
+      { pathways: "BRAF", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 0, tier: 5, trl: 20, total: 52, editable: 1, } ]
 
     }),
     computed: {
 
       filteredItems() {
         var p;
-       this.resetGraphData();
+        this.resetGraphData();
+        var self = this;
         return this.drugs.filter((i) => {
-        if (!this.pathwayselection || this.pathwayselection.length == 0) {
-                this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
- //                this.PathwaysGraph.renderChart(this.data, this.options);
-              return true;
-        }
-        if (this.pathwayselection.length > 0) {
-            for (p = 0; p < this.pathwayselection.length; p++) {
-                if (this.pathways[this.pathwayselection[p]].pathway.trim() == i.pathways.trim()) {
-                  this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
+          if (!self.pathwayselection || self.pathwayselection.length == 0) {
+            self.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
+
+            return true;
+          }
+          if (self.pathwayselection.length > 0) {
+            for (p = 0; p < self.pathwayselection.length; p++) {
+                if (self.pathways[this.pathwayselection[p]].pathway.trim() == i.pathways.trim()) {
+                  self.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
  //                 this.PathwaysGraph.renderChart(this.PathwaysGraphData, this.PathwaysGraphOptions);
                   return true;
                 }
@@ -507,9 +491,6 @@
             return this.headers.filter(header => !this.hiddenColumns.includes(header.text))
             }
             return this.headers;
-      },
-      clnleft () {
-        return this.$refs.cln.getBoundingClientRect().left
       }
     },
 
@@ -517,7 +498,6 @@
          switch1_click:function(){this.$router.push("/UserView")   },
          switch2_click:function(){this.$router.push("/UserView")  },
          switch3_click:function(){this.$router.push("/UserView")  },
-         max25chars: v => v.length <= 25 || 'Input too long!',
 
          addGraphData (pPathway,pSubt,pTotal,pRadius,pDrug) {
 
@@ -535,22 +515,6 @@
             this.PathwaysGraphData.datasets[0].data.push({ x: '', y: '0', r: '0', name: '' });
             this.PathwaysGraphData.datasets[1].data.push({ x: '', y: '0', r: '0', name: '' });
         },
-        // Example Code for styling the column - Start
-        getStyle (column) {
-          switch(column){
-            case 'subt':
-              return 'grey darken-1 white--text';
-            default:
-              return '';
-          }
-        },
-        getPos(name) {
-             const left = this.$refs.name.getBoundingClientRect().left
-             const top = this.$refs.name.getBoundingClientRect().top
-             console.log(name+ ": Left - "+ left+"  Top - "+top)
-        }
-        // Example Code for styling the column - End
-
     },
 //    watch: {
 //           PathwaysGraphData: function () {
@@ -564,7 +528,7 @@
 
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 .cellhighlight {
   background-color: grey;

@@ -35,4 +35,8 @@ export default {
   font-size: 1rem;
   padding: 0;
 }
+.v-data-table.customtable th {
+  font-size: 1rem;
+  padding: 0;
+}
 </style>

@@ -8,7 +8,7 @@ export default {
   extends: VueCharts.Bubble,
   mixins: [VueCharts.mixins.reactiveProp],
   props: {
-    data: {
+    chartData: {
       type: Object,
       default: null
     },
@@ -17,7 +17,7 @@ export default {
       default: null
     }
   },  mounted () {
-    this.renderChart(this.data, this.options)
+    this.renderChart(this.chartData, this.options)
   }
 }
 
