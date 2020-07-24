@@ -104,7 +104,7 @@
       hide-default-footer
       hide-actions
       disable-pagination
-      dense
+
     >
 
     <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }">
@@ -121,6 +121,14 @@
         </span>
       </v-tooltip>
     </template>
+    </template>
+
+    <template v-slot:item.subt="{ item }">
+          <div class="grey darken-1 white--text">{{ item.subt }}</div>
+    </template>
+
+    <template v-slot:item.total="{ item }">
+          <div class="grey darken-1 white--text">{{ item.total }}</div>
     </template>
 
     <template v-slot:item.cns="{ item }">
@@ -157,13 +165,7 @@
            </v-tooltip>
         </template>
 
-        <!-- Example Code for styling the column - Start -->
-        <template v-slot:item.subt="{ item }">
-          <div :class="getStyle('subt')">{{ item.subt }}</div>
-        </template>
-        <!-- Example Code for styling the column - End -->
-
-        <template v-slot:item.cln="props" class="grey darken-2 white--text">
+        <template v-slot:item.cln="props">
           <template v-if="props.item.editable === 0">
             <v-tooltip top color="amber lighten-4" >
               <template v-slot:activator="{ on }">
@@ -358,7 +360,7 @@
                   yAxes: [{
                     ticks: {
                       beginAtZero: true,
-                      reverse: true
+                      reverse: false
                     },
                     pointLabels: {
                       display: true
@@ -452,13 +454,13 @@
       {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'lightbg', tt: 'TRL' },
       {   text: 'Total', align: 'center', sortable: true, value: 'total', class: 'grey darken-2 white--text', tt: '' }, ],
 
-    drugs: [
-    { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, cln: 0, tier: 5, trl: 10, total: 31, editable: 1, },
-    { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, cln: 2, tier: 0, trl: 0, total: 10, editable: 0, },
-    { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, cln: 2, tier: 0, trl: 10, total: 40, editable: 1, },
-    { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, cln: 0, tier: 0, trl: 10, total: 36, editable: 0, },
-    { pathways: "ALK", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 4, tier: 0, trl: 0, total: 31, editable: 0, },
-    { pathways: "BRAF", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 0, tier: 5, trl: 20, total: 52, editable: 1, } ]
+      drugs: [
+      { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, cln: 2, tier: 5, trl: 10, total: 33, editable: 1, },
+      { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, cln: 2, tier: 5, trl: 0, total: 15, editable: 0, },
+      { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, cln: 2, tier: 0, trl: 10, total: 40, editable: 1, },
+      { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, cln: 2, tier: 0, trl: 10, total: 38, editable: 0, },
+      { pathways: "ALK", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 2, tier: 0, trl: 10, total: 39, editable: 0, },
+      { pathways: "BRAF", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 0, tier: 5, trl: 20, total: 52, editable: 1, } ]
 
     }),
     computed: {
@@ -513,17 +515,6 @@
             this.PathwaysGraphData.datasets[0].data.push({ x: '', y: '0', r: '0', name: '' });
             this.PathwaysGraphData.datasets[1].data.push({ x: '', y: '0', r: '0', name: '' });
         },
-        // Example Code for styling the column - Start
-        getStyle (column) {
-          switch(column){
-            case 'subt':
-              return 'grey darken-1 white--text';
-            default:
-              return '';
-          }
-        },
-        // Example Code for styling the column - End
-
     },
 //    watch: {
 //           PathwaysGraphData: function () {
@@ -537,7 +528,7 @@
 
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 .cellhighlight {
   background-color: grey;
