@@ -22,19 +22,7 @@
    </v-col>
 </v-row>
 
-<div>
-  <v-row>
-    <v-col cols="2" >
-    </v-col>
-    <v-col cols="10" >
-       <div align="right">
-         Generate Report <v-space></v-space>
-         <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPDF()"  dark>PDF</v-btn> <v-space></v-space>
-         <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPPT()"  dark>PPT</v-btn>
-       </div>
-    </v-col>
-  </v-row>
-</div>
+
 
 <div>
   <v-row>
@@ -46,7 +34,6 @@
             solo
             name="notes"
           label="Friday 26, 2020 10:00 AM"
-          v-model="customNotes"
           ></v-textarea>
        </div>
     </v-col>
@@ -126,7 +113,6 @@
       hide-default-footer
        disable-pagination
       dense
-      id="drugTable"
     >
 
     <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }" ref = "h.value">
@@ -342,10 +328,6 @@
  import PathwaysGraph from '../components/PathwaysGraph.vue'
  import testLineGraph from '../components/testLineGraph.vue'
 // top color="amber lighten-4 black--text"
-import pptxgen from "pptxgenjs";
-import printJS from 'print-js';
-
-
 
   export default {
 
@@ -444,7 +426,6 @@ import printJS from 'print-js';
       switch2: false,
       switch3: false,
 
-      customNotes: "",
       pathwayselection: [],
       hiddenColumns: ['SubT','CLN','TIER','TRL'],
 
@@ -568,54 +549,8 @@ import printJS from 'print-js';
              const left = this.$refs.name.getBoundingClientRect().left
              const top = this.$refs.name.getBoundingClientRect().top
              console.log(name+ ": Left - "+ left+"  Top - "+top)
-        },
+        }
         // Example Code for styling the column - End
-
-        printPDF () {
-         // printJS({printable:'cnstap.pdf', type:'pdf', showModal:true});
-         //  let pdfd = new printJS();
-         //  printJS("drugTable",'html');
-           printJS({printable:['drugTable'],type:'html',header: 'CNS-TAP'});
-          // printJS("drugGraph",'html');
-
-        },
-
-        printPPT () {
-         // alert("Print table");
-
-          // 1. Create a new Presentation
-           let pres = new pptxgen();
-
-           // 2. Add a Slide
-           let slideBanner = pres.addSlide();
-
-           // 3. Add one or more objects (Tables, Shapes, Images, Text and Media) to the Slide
-           let textboxText = "CNS-TAP";
-           let textboxOpts = { x: 1, y: 2, color: "363636", fill: "f1f1f1", align: pres.AlignH.center };
-           slideBanner.addText(textboxText, textboxOpts);
-
-           let slideNotes = pres.addSlide();
-           let textboxText1 = "Notes";
-           let textboxOpts1 = { x: 1, y: 1, color: "363636", fill: "f1f1f1", align: pres.AlignH.center };
-           slideNotes.addText(textboxText1, textboxOpts1);
-           slideNotes.addText("Friday 26, 2020 10:00 AM",{ x: 1, y: 1.5, w: 3, align: pres.AlignH.left, color: "363636", fontSize: 18 });
-           slideNotes.addText("Notes: " + this.customNotes,{ x: 1, y: 2, align: pres.AlignH.left, color: "363636", fontSize: 12 });
-
-           pres.tableToSlides("drugTable");
-
-           // Pass table element ID to tableToSlides function to produce 1-N slides
-           // pres.tableToSlides("drugTable", {
-           //  addText: { text: "Drugs Table", options: { x: 1, y: 0.5, color: "0088CC" } }
-           // });
-
-       //    pres.addChart(pres.ChartType.line,this.PathwaysGraphData,this.PathwaysGraphOptions);
-
-           // 4. Save the Presentation
-           pres.writeFile("CNSTAP.pptx");
-
-        },
-
-
 
     },
 //    watch: {

@@ -22,19 +22,7 @@
    </v-col>
 </v-row>
 
-<div>
-  <v-row>
-    <v-col cols="2" >
-    </v-col>
-    <v-col cols="10" >
-       <div align="right">
-         Generate Report <v-space></v-space>
-         <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPDF()"  dark>PDF</v-btn> <v-space></v-space>
-         <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPPT()"  dark>PPT</v-btn>
-       </div>
-    </v-col>
-  </v-row>
-</div>
+
 
 <div>
   <v-row>
@@ -46,7 +34,6 @@
             solo
             name="notes"
           label="Friday 26, 2020 10:00 AM"
-          v-model="customNotes"
           ></v-textarea>
        </div>
     </v-col>
@@ -99,20 +86,12 @@
             >
 
             <PathwaysGraph :data="PathwaysGraphData" :options="PathwaysGraphOptions" ></PathwaysGraph>
+
           </v-card>
           </div>
           <br><br>
         </template>
-        <v-row>
-          <v-col
-            v-for="testsetobj in testset"
-            :key="testsetobj.agent"
-            cols="12"
-            sm="3"
-          >
-            <testLineGraph></testLineGraph>
-          </v-col>
-        </v-row>
+
        </div>
 
 
@@ -121,17 +100,16 @@
   <v-data-table
       :headers="computedHeaders"
       :items="filteredItems"
-      item-class='orange'
       class="elevation-0 bluebg customtable"
       hide-default-footer
-       disable-pagination
+      disable-pagination
       dense
-      id="drugTable"
+
     >
 
-    <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }" ref = "h.value">
-      <template v-if="header.tt === ''" >
-              <span :key="h.text" >{{header.text}}</span>
+    <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }">
+      <template v-if="header.tt === ''">
+              <span :key="h.text">{{header.text}}</span>
       </template>
       <template v-else>
       <v-tooltip top :key="h.text" color="amber lighten-4 black--text">
@@ -143,6 +121,14 @@
         </span>
       </v-tooltip>
     </template>
+    </template>
+
+    <template v-slot:item.subt="{ item }">
+          <div class="grey darken-1 white--text">{{ item.subt }}</div>
+    </template>
+
+    <template v-slot:item.total="{ item }">
+          <div class="grey darken-1 white--text">{{ item.total }}</div>
     </template>
 
     <template v-slot:item.cns="{ item }">
@@ -179,17 +165,11 @@
            </v-tooltip>
         </template>
 
-        <!-- Example Code for styling the column - Start -->
-        <template v-slot:item.subt="{ item }">
-          <div :class="getStyle('subt')"><p>{{ item.subt }}</p></div>
-        </template>
-        <!-- Example Code for styling the column - End -->
-
-        <template v-slot:item.cln="props" class="grey darken-2 white--text" >
+        <template v-slot:item.cln="props">
           <template v-if="props.item.editable === 0">
             <v-tooltip top color="amber lighten-4" >
               <template v-slot:activator="{ on }">
-                  <div v-on="on" class="grey darken-2 white--text"><p>{{ props.item.cln }}</p></div>
+                  <div v-on="on" class="grey darken-2 white--text">{{ props.item.cln }}</div>
                 </template>
                   <div class="tooltip">
                     <span>{{ ttCLNrow }}</span>
@@ -208,7 +188,7 @@
               >
               <v-tooltip top color="amber lighten-4" >
               <template v-slot:activator="{ on }">
-                    <div v-on="on" ><p>{{ props.item.cln }}</p></div>
+                    <div v-on="on" >{{ props.item.cln }}</div>
               </template>
               <div class="tooltip">
                  <span>{{ ttCLNrow }}</span>
@@ -235,7 +215,7 @@
           <template v-if="props.item.editable === 0">
             <v-tooltip top color="amber lighten-4" >
             <template v-slot:activator="{ on }">
-                  <div v-on="on" class="grey darken-2 white--text"><p>{{ props.item.tier }}</p></div>
+                  <div v-on="on" class="grey darken-2 white--text">{{ props.item.tier }}</div>
             </template>
             <div class="tooltip">
                <span>{{ ttTIERrow }}</span>
@@ -255,7 +235,7 @@
 
                  <v-tooltip top color="amber lighten-4" >
                  <template v-slot:activator="{ on }">
-                       <div v-on="on"><p>{{ props.item.tier }}</p></div>
+                       <div v-on="on">{{ props.item.tier }}</div>
                  </template>
                  <div class="tooltip">
                     <span>{{ ttTIERrow }}</span>
@@ -282,7 +262,7 @@
               <template v-if="props.item.editable === 0">
                 <v-tooltip top color="amber lighten-4" >
                 <template v-slot:activator="{ on }">
-                      <div v-on="on" class="grey darken-2 white--text"><p>{{ props.item.trl }}</p></div>
+                      <div v-on="on" class="grey darken-2 white--text">{{ props.item.trl }}</div>
                 </template>
                 <div class="tooltip">
                    <span>{{ ttTRLrow }}</span>
@@ -302,7 +282,7 @@
 
                      <v-tooltip top color="amber lighten-4" >
                      <template v-slot:activator="{ on }">
-                           <div v-on="on"><p>{{ props.item.trl }}</p></div>
+                           <div v-on="on">{{ props.item.trl }}</div>
                      </template>
                      <div class="tooltip">
                         <span>{{ ttTRLrow }}</span>
@@ -340,24 +320,19 @@
 <script>
 
  import PathwaysGraph from '../components/PathwaysGraph.vue'
- import testLineGraph from '../components/testLineGraph.vue'
 // top color="amber lighten-4 black--text"
-import pptxgen from "pptxgenjs";
-import printJS from 'print-js';
-
-
 
   export default {
 
     name: 'UserView',
 
     components: {
-      PathwaysGraph,
-      testLineGraph
+      PathwaysGraph
     },
 
 
     data: () => ({
+
 
       PathwaysGraphData: {
 
@@ -385,7 +360,7 @@ import printJS from 'print-js';
                   yAxes: [{
                     ticks: {
                       beginAtZero: true,
-                      reverse: true
+                      reverse: false
                     },
                     pointLabels: {
                       display: true
@@ -428,7 +403,7 @@ import printJS from 'print-js';
 
               responsive: true,
               maintainAspectRatio: false,
-              height: 2000,
+              height: 200,
             },
 
       pgTitle: 'CNS-TAP',
@@ -444,7 +419,6 @@ import printJS from 'print-js';
       switch2: false,
       switch3: false,
 
-      customNotes: "",
       pathwayselection: [],
       hiddenColumns: ['SubT','CLN','TIER','TRL'],
 
@@ -465,8 +439,6 @@ import printJS from 'print-js';
       { id:14, pathway: "MET/VEGF2", checked: false },
       { id:15, pathway: "GENERIC CYTOTOXIC", checked: false } ],
 
-
-
     headers: [
       {   text: 'Pathways', align: 'center', sortable: true, value: 'pathways', class: 'grey darken-3 white--text', tt: '' },
       {   width: '150px', text: 'Drug Agents', align: 'center', sortable: true, value: 'drugagents', class: 'grey darken-3 white--text', tt: ''  },
@@ -482,21 +454,13 @@ import printJS from 'print-js';
       {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'lightbg', tt: 'TRL' },
       {   text: 'Total', align: 'center', sortable: true, value: 'total', class: 'grey darken-2 white--text', tt: '' }, ],
 
-    drugs: [
-    { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, cln: 0, tier: 5, trl: 10, total: 31, editable: 1, },
-    { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, cln: 2, tier: 0, trl: 0, total: 10, editable: 0, },
-    { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, cln: 2, tier: 0, trl: 10, total: 40, editable: 1, },
-    { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, cln: 0, tier: 0, trl: 10, total: 36, editable: 0, },
-    { pathways: "ALK", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 4, tier: 0, trl: 0, total: 31, editable: 0, },
-    { pathways: "BRAF", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 0, tier: 5, trl: 20, total: 52, editable: 1, } ],
-
-    testset: [
-      {agent:"MK2006",values:{baseline:20, ptsepcific:40}},
-      {agent:"Perfinosine",values:{baseline:30, ptsepcific:45}},
-      {agent:"Ceritinib",values:{baseline:25, ptsepcific:35}},
-      {agent:"Enrectinib",values:{baseline:25, ptsepcific:35}},
-
-    ]
+      drugs: [
+      { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, cln: 2, tier: 5, trl: 10, total: 33, editable: 1, },
+      { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, cln: 2, tier: 5, trl: 0, total: 15, editable: 0, },
+      { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, cln: 2, tier: 0, trl: 10, total: 40, editable: 1, },
+      { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, cln: 2, tier: 0, trl: 10, total: 38, editable: 0, },
+      { pathways: "ALK", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 2, tier: 0, trl: 10, total: 39, editable: 0, },
+      { pathways: "BRAF", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 0, tier: 5, trl: 20, total: 52, editable: 1, } ]
 
     }),
     computed: {
@@ -527,9 +491,6 @@ import printJS from 'print-js';
             return this.headers.filter(header => !this.hiddenColumns.includes(header.text))
             }
             return this.headers;
-      },
-      clnleft () {
-        return this.$refs.cln.getBoundingClientRect().left
       }
     },
 
@@ -537,7 +498,6 @@ import printJS from 'print-js';
          switch1_click:function(){this.$router.push("/UserView")   },
          switch2_click:function(){this.$router.push("/UserView")  },
          switch3_click:function(){this.$router.push("/UserView")  },
-         max25chars: v => v.length <= 25 || 'Input too long!',
 
          addGraphData (pPathway,pSubt,pTotal,pRadius,pDrug) {
 
@@ -555,68 +515,6 @@ import printJS from 'print-js';
             this.PathwaysGraphData.datasets[0].data.push({ x: '', y: '0', r: '0', name: '' });
             this.PathwaysGraphData.datasets[1].data.push({ x: '', y: '0', r: '0', name: '' });
         },
-        // Example Code for styling the column - Start
-        getStyle (column) {
-          switch(column){
-            case 'subt':
-              return 'grey darken-1 white--text';
-            default:
-              return '';
-          }
-        },
-        getPos(name) {
-             const left = this.$refs.name.getBoundingClientRect().left
-             const top = this.$refs.name.getBoundingClientRect().top
-             console.log(name+ ": Left - "+ left+"  Top - "+top)
-        },
-        // Example Code for styling the column - End
-
-        printPDF () {
-         // printJS({printable:'cnstap.pdf', type:'pdf', showModal:true});
-         //  let pdfd = new printJS();
-         //  printJS("drugTable",'html');
-           printJS({printable:['drugTable'],type:'html',header: 'CNS-TAP'});
-          // printJS("drugGraph",'html');
-
-        },
-
-        printPPT () {
-         // alert("Print table");
-
-          // 1. Create a new Presentation
-           let pres = new pptxgen();
-
-           // 2. Add a Slide
-           let slideBanner = pres.addSlide();
-
-           // 3. Add one or more objects (Tables, Shapes, Images, Text and Media) to the Slide
-           let textboxText = "CNS-TAP";
-           let textboxOpts = { x: 1, y: 2, color: "363636", fill: "f1f1f1", align: pres.AlignH.center };
-           slideBanner.addText(textboxText, textboxOpts);
-
-           let slideNotes = pres.addSlide();
-           let textboxText1 = "Notes";
-           let textboxOpts1 = { x: 1, y: 1, color: "363636", fill: "f1f1f1", align: pres.AlignH.center };
-           slideNotes.addText(textboxText1, textboxOpts1);
-           slideNotes.addText("Friday 26, 2020 10:00 AM",{ x: 1, y: 1.5, w: 3, align: pres.AlignH.left, color: "363636", fontSize: 18 });
-           slideNotes.addText("Notes: " + this.customNotes,{ x: 1, y: 2, align: pres.AlignH.left, color: "363636", fontSize: 12 });
-
-           pres.tableToSlides("drugTable");
-
-           // Pass table element ID to tableToSlides function to produce 1-N slides
-           // pres.tableToSlides("drugTable", {
-           //  addText: { text: "Drugs Table", options: { x: 1, y: 0.5, color: "0088CC" } }
-           // });
-
-       //    pres.addChart(pres.ChartType.line,this.PathwaysGraphData,this.PathwaysGraphOptions);
-
-           // 4. Save the Presentation
-           pres.writeFile("CNSTAP.pptx");
-
-        },
-
-
-
     },
 //    watch: {
 //           PathwaysGraphData: function () {
@@ -630,7 +528,7 @@ import printJS from 'print-js';
 
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 .cellhighlight {
   background-color: grey;
@@ -779,8 +677,5 @@ import printJS from 'print-js';
       margin-top: 0;
       margin-bottom: 0;
     }
-td p {
-  margin: 0;
-  padding:10px;
-}
+
 </style>
