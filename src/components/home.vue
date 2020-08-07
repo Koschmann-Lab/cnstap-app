@@ -26,6 +26,9 @@
         <p class="title font-weight-regular grey white--text">
              {{ Disclaimer }}
 
+1. tool tip for TRL
+2. Add additional filte for drug table
+
          <br><br><br><br><br>
 
         </p>

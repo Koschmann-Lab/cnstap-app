@@ -1,6 +1,33 @@
 <template>
   <v-container>
 
+
+
+    <template>
+
+      <div class="text-right">
+        <v-btn
+          icon
+          @click="overlay = !overlay">
+        <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
+        </v-btn>
+        <v-overlay :value="overlay">
+
+
+
+                  <v-btn
+                     icon
+                     @click="overlay = false">
+                     <v-icon>mdi-close</v-icon>
+                   </v-btn>
+
+
+        </v-overlay>
+      </div>
+    </template>
+
+
+
 <v-row class="justify-center align-center">
    <v-col cols="3">
        <h1 class="display-3 font-weight-bold grey--text text--darken-2">
@@ -22,7 +49,19 @@
    </v-col>
 </v-row>
 
-
+<div>
+  <v-row>
+    <v-col cols="2" >
+    </v-col>
+    <v-col cols="10" >
+       <div align="right">
+         Generate Report <v-space></v-space>
+         <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPDF()"  dark>PDF</v-btn> <v-space></v-space>
+         <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPPT()"  dark>PPT</v-btn>
+       </div>
+    </v-col>
+  </v-row>
+</div>
 
 <div>
   <v-row>
@@ -34,6 +73,7 @@
             solo
             name="notes"
           label="Friday 26, 2020 10:00 AM"
+
           ></v-textarea>
        </div>
     </v-col>
@@ -86,50 +126,53 @@
             >
 
             <PathwaysGraph :data="PathwaysGraphData" :options="PathwaysGraphOptions" ></PathwaysGraph>
-
           </v-card>
           </div>
           <br><br>
         </template>
-
+        <v-row>
+          <v-col
+            v-for="testsetobj in testset"
+            :key="testsetobj.agent"
+            cols="12"
+            sm="3"
+          >
+            <testLineGraph></testLineGraph>
+          </v-col>
+        </v-row>
        </div>
 
 
 <div>
 
+
   <v-data-table
       :headers="computedHeaders"
       :items="filteredItems"
+
       class="elevation-0 bluebg customtable"
       hide-default-footer
-      disable-pagination
+       disable-pagination
       dense
-
+      id="drugTable"
     >
 
-    <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }">
-      <template v-if="header.tt === ''">
-              <span :key="h.text">{{header.text}}</span>
-      </template>
-      <template v-else>
-      <v-tooltip top :key="h.text" color="amber lighten-4 black--text">
-        <template v-slot:activator="{ on }" >
-          <span v-on="on">{{h.text}}</span>
-        </template>
-        <span>
-          {{ header.tt }}
-        </span>
-      </v-tooltip>
-    </template>
-    </template>
-
-    <template v-slot:item.subt="{ item }">
-          <div class="grey darken-1 white--text">{{ item.subt }}</div>
+    <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }" ref = "h.value">
+            <template v-if="header.tt === ''" >
+                    <span :key="h.text" >{{header.text}}</span>
+            </template>
+            <template v-else>
+                            <v-tooltip top :key="h.text" color="amber lighten-4 black--text">
+                              <template v-slot:activator="{ on }" >
+                                <span v-on="on">{{h.text}}</span>
+                              </template>
+                              <span>
+                                {{ header.tt }}
+                              </span>
+                            </v-tooltip>
+          </template>
     </template>
 
-    <template v-slot:item.total="{ item }">
-          <div class="grey darken-1 white--text">{{ item.total }}</div>
-    </template>
 
     <template v-slot:item.cns="{ item }">
       <v-tooltip top color="amber lighten-4" >
@@ -165,11 +208,21 @@
            </v-tooltip>
         </template>
 
-        <template v-slot:item.cln="props">
+        <!-- Example Code for styling the column - Start -->
+        <template v-slot:item.subt="{ item }">
+          <div :class="getStyle('subt')"><p>{{ item.subt }}</p></div>
+        </template>
+        <template v-slot:item.total="{ item }">
+          <div :class="getStyle('total')"><p>{{ item.total }}</p></div>
+        </template>
+
+        <!-- Example Code for styling the column - End -->
+
+        <template v-slot:item.icln="props">
           <template v-if="props.item.editable === 0">
             <v-tooltip top color="amber lighten-4" >
               <template v-slot:activator="{ on }">
-                  <div v-on="on" class="grey darken-2 white--text">{{ props.item.cln }}</div>
+                  <div v-on="on" class="grey darken-1 white--text"><p>{{ props.item.icln }}</p></div>
                 </template>
                   <div class="tooltip">
                     <span>{{ ttCLNrow }}</span>
@@ -177,45 +230,48 @@
             </v-tooltip>
           </template>
           <template v-else>
-              <v-edit-dialog
-                :return-value.sync="props.item.cln"
-                large
-                persistent
-                @save="save"
-                @cancel="cancel"
-                @open="open"
-                @close="close"
-              >
-              <v-tooltip top color="amber lighten-4" >
-              <template v-slot:activator="{ on }">
-                    <div v-on="on" >{{ props.item.cln }}</div>
-              </template>
-              <div class="tooltip">
-                 <span>{{ ttCLNrow }}</span>
-              </div>
-              </v-tooltip>
-                <template v-slot:input>
-                  <div class="mt-4 title">Update Clonality</div>
-                </template>
-                <template v-slot:input>
-                  <v-text-field
-                    v-model="props.item.cln"
-                    :rules="[max25chars]"
-                    label="Edit"
-                    single-line
-                    counter
-                    autofocus
-                  ></v-text-field>
-                </template>
-              </v-edit-dialog>
+            <div :class="getStyle('icln')"><p>
+                    <v-edit-dialog
+                      :return-value.sync="props.item.icln"
+                      large
+                      persistent
+                      @save="save"
+                      @cancel="cancel"
+                      @open="open"
+                      @close="close"
+                    >
+                    <v-tooltip top color="amber lighten-4" >
+                    <template v-slot:activator="{ on }">
+                          <div v-on="on">{{ props.item.icln }}</div>
+                    </template>
+                    <div class="tooltip">
+                       <span>{{ ttCLNrow }}</span>
+                    </div>
+                    </v-tooltip>
+
+                      <template v-slot:input>
+                        <div class="mt-4 title">Update Clonality</div>
+                      </template>
+                      <template v-slot:input>
+                        <v-text-field
+                          v-model="props.item.icln"
+                          :rules="[max25chars]"
+                          label="Edit"
+                          single-line
+                          counter
+                          autofocus
+                        ></v-text-field>
+                      </template>
+                    </v-edit-dialog>
+              </p></div>
           </template>
         </template>
 
-        <template v-slot:item.tier="props">
+        <template v-slot:item.itier="props">
           <template v-if="props.item.editable === 0">
             <v-tooltip top color="amber lighten-4" >
             <template v-slot:activator="{ on }">
-                  <div v-on="on" class="grey darken-2 white--text">{{ props.item.tier }}</div>
+                  <div v-on="on" class="grey darken-1 white--text"><p>{{ props.item.itier }}</p></div>
             </template>
             <div class="tooltip">
                <span>{{ ttTIERrow }}</span>
@@ -223,92 +279,125 @@
             </v-tooltip>
           </template>
           <template v-else>
-               <v-edit-dialog
-                 :return-value.sync="props.item.tier"
-                 large
-                 persistent
-                 @save="save"
-                 @cancel="cancel"
-                 @open="open"
-                 @close="close"
-               >
+            <div :class="getStyle('itier')"><p>
+                         <v-edit-dialog
+                           :return-value.sync="props.item.itier"
+                           large
+                           persistent
+                           @save="save"
+                           @cancel="cancel"
+                           @open="open"
+                           @close="close"
+                         >
 
-                 <v-tooltip top color="amber lighten-4" >
-                 <template v-slot:activator="{ on }">
-                       <div v-on="on">{{ props.item.tier }}</div>
-                 </template>
-                 <div class="tooltip">
-                    <span>{{ ttTIERrow }}</span>
-                 </div>
-                 </v-tooltip>
+                           <v-tooltip top color="amber lighten-4" >
+                           <template v-slot:activator="{ on }">
+                                 <div v-on="on">{{ props.item.itier }}</div>
+                           </template>
+                           <div class="tooltip">
+                              <span>{{ ttTIERrow }}</span>
+                           </div>
+                           </v-tooltip>
 
-                 <template v-slot:input>
-                   <div class="mt-4 title">Update Variant Tier
-                   </div>
-                   <v-text-field
-                     v-model="props.item.tier"
-                     :rules="[max25chars]"
-                     label="Edit"
-                     single-line
-                     counter
-                     autofocus
-                   ></v-text-field>
-                 </template>
-               </v-edit-dialog>
+                           <template v-slot:input>
+                             <div class="mt-4 title">Update Variant Tier
+                             </div>
+                             <v-text-field
+                               v-model="props.item.itier"
+                               :rules="[max25chars]"
+                               label="Edit"
+                               single-line
+                               counter
+                               autofocus
+                             ></v-text-field>
+                           </template>
+                         </v-edit-dialog>
+                </p></div>
              </template>
           </template>
 
-            <template v-slot:item.trl="props">
-              <template v-if="props.item.editable === 0">
-                <v-tooltip top color="amber lighten-4" >
+
+          <template v-slot:item.itrl="props">
+            <div :class="getStyle('itrl')"><p>
+                  <v-edit-dialog
+                    :return-value.sync="props.item.itrl"
+                    large
+                    persistent
+                    @save="save"
+                    @cancel="cancel"
+                    @open="open"
+                    @close="close"
+                  >
+
+                  <v-tooltip top color="amber lighten-4" >
+                  <template v-slot:activator="{ on }">
+                        <div v-on="on" :class="getStyle('icln')">{{ props.item.itrl }}</div>
+                  </template>
+                  <div class="tooltip">
+                     <span>{{ ttTRLrow }}</span>
+                  </div>
+                  </v-tooltip>
+
+                    <template v-slot:input>
+                      <div class="mt-4 title">Update Clinical Trial</div>
+                    </template>
+                    <template v-slot:input>
+                      <v-text-field
+                        v-model="props.item.itrl"
+                        :rules="[max25chars]"
+                        label="Edit"
+                        single-line
+                        counter
+                        autofocus
+                      ></v-text-field>
+                    </template>
+                  </v-edit-dialog>
+          </p></div>
+          </template>
+
+
+
+
+            <template v-slot:item.cln="{ item }">
+              <v-tooltip top color="amber lighten-4" >
                 <template v-slot:activator="{ on }">
-                      <div v-on="on" class="grey darken-2 white--text">{{ props.item.trl }}</div>
-                </template>
-                <div class="tooltip">
-                   <span>{{ ttTRLrow }}</span>
-                </div>
-                </v-tooltip>
-              </template>
-              <template v-else>
-                   <v-edit-dialog
-                     :return-value.sync="props.item.trl"
-                     large
-                     persistent
-                     @save="save"
-                     @cancel="cancel"
-                     @open="open"
-                     @close="close"
-                   >
-
-                     <v-tooltip top color="amber lighten-4" >
-                     <template v-slot:activator="{ on }">
-                           <div v-on="on">{{ props.item.trl }}</div>
-                     </template>
-                     <div class="tooltip">
-                        <span>{{ ttTRLrow }}</span>
-                     </div>
-                     </v-tooltip>
-
-                     <template v-slot:input>
-                       <div class="mt-4 title">Update Clinical Trial
-                       </div>
-                       <v-text-field
-                         v-model="props.item.trl"
-                         :rules="[max25chars]"
-                         label="Edit"
-                         single-line
-                         counter
-                         autofocus
-                       ></v-text-field>
-                     </template>
-                   </v-edit-dialog>
-              </template>
+                  <div v-on="on">{{ item.cln }}</div>
+                 </template>
+                 <div class="tooltip">
+                 <span >{{  ttCLNrow }}</span>
+               </div>
+               </v-tooltip>
             </template>
+
+            <template v-slot:item.tier="{ item }">
+              <v-tooltip top color="amber lighten-4" >
+                <template v-slot:activator="{ on }">
+                  <div v-on="on">{{ item.tier }}</div>
+                 </template>
+                 <div class="tooltip">
+                 <span >{{  ttTIERrow }}</span>
+               </div>
+               </v-tooltip>
+            </template>
+
+
+            <template v-slot:item.trl="{ item }">
+              <v-tooltip top color="amber lighten-4" >
+                <template v-slot:activator="{ on }">
+                  <div v-on="on">{{ item.trl }}</div>
+                 </template>
+                 <div class="tooltip">
+                 <span >{{  ttTRLrow }}</span>
+               </div>
+               </v-tooltip>
+            </template>
+
+
 
   </v-data-table>
 </div>
 
-      </v-col>
+</v-col>
 
 
 </v-row>
@@ -320,18 +409,26 @@
 <script>
 
  import PathwaysGraph from '../components/PathwaysGraph.vue'
+ import testLineGraph from '../components/testLineGraph.vue'
 // top color="amber lighten-4 black--text"
+import pptxgen from "pptxgenjs";
+import printJS from 'print-js';
+
+
 
   export default {
 
     name: 'UserView',
 
     components: {
-      PathwaysGraph
+      PathwaysGraph,
+      testLineGraph
     },
 
 
+
     data: () => ({
+
 
 
       PathwaysGraphData: {
@@ -360,7 +457,7 @@
                   yAxes: [{
                     ticks: {
                       beginAtZero: true,
-                      reverse: false
+                      reverse: true
                     },
                     pointLabels: {
                       display: true
@@ -419,8 +516,11 @@
       switch2: false,
       switch3: false,
 
+      overlay: true,
+
+      customNotes: "",
       pathwayselection: [],
-      hiddenColumns: ['SubT','CLN','TIER','TRL'],
+      hiddenColumns: ['SubT','iCLN','CLN','TIER','TRL','iTIER','iTRL'],
 
       pathways: [
       { id:1, pathway: "AKT", checked: false },
@@ -439,6 +539,8 @@
       { id:14, pathway: "MET/VEGF2", checked: false },
       { id:15, pathway: "GENERIC CYTOTOXIC", checked: false } ],
 
+
+
     headers: [
       {   text: 'Pathways', align: 'center', sortable: true, value: 'pathways', class: 'grey darken-3 white--text', tt: '' },
       {   width: '150px', text: 'Drug Agents', align: 'center', sortable: true, value: 'drugagents', class: 'grey darken-3 white--text', tt: ''  },
@@ -448,19 +550,30 @@
       {   text: 'CNS', align: 'center', sortable: true, value: 'cns', class: 'grey darken-3 white--text', tt: 'CNS' },
       {   text: 'BBB', align: 'center', sortable: true, value: 'bbb', class: 'grey darken-3 white--text', tt: 'BBB' },
       {   text: 'FDA', align: 'center', sortable: true, value: 'fda', class: 'grey darken-3 white--text', tt: 'FDA' },
-      {   text: 'SubT', align: 'center', sortable: true, value: 'subt', class: 'grey darken-2 white--text', tt: '' },
-      {   text: 'CLN', align: 'center', sortable: true, value: 'cln', class: 'lightbg', tt: 'CLN' },
-      {   text: 'TIER', align: 'center', sortable: true, value: 'tier', class: 'lightbg', tt: 'TIER' },
-      {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'lightbg', tt: 'TRL' },
-      {   text: 'Total', align: 'center', sortable: true, value: 'total', class: 'grey darken-2 white--text', tt: '' }, ],
+      {   text: 'SubT', align: 'center', sortable: true, value: 'subt', class: 'grey darken-1 white--text', tt: '' },
+      {   text: 'iCLN', align: 'center', sortable: true, value: 'icln', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'iCLN' },
+      {   text: 'iTIER', align: 'center', sortable: true, value: 'itier', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'iTIER' },
+      {   text: 'iTRL', align: 'center', sortable: true, value: 'itrl', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'iTRL' },
+      {   text: 'CLN', align: 'center', sortable: true, value: 'cln', class: 'grey darken-3 white--text', tt: 'CLN' },
+      {   text: 'TIER', align: 'center', sortable: true, value: 'tier', class: 'grey darken-3 white--text', tt: 'TIER' },
+      {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'grey darken-3 white--text', tt: 'TRL' },
+      {   text: 'Total', align: 'center', sortable: true, value: 'total', class: 'grey darken-1 white--text', tt: '' }, ],
 
-      drugs: [
-      { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, cln: 2, tier: 5, trl: 10, total: 33, editable: 1, },
-      { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, cln: 2, tier: 5, trl: 0, total: 15, editable: 0, },
-      { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, cln: 2, tier: 0, trl: 10, total: 40, editable: 1, },
-      { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, cln: 2, tier: 0, trl: 10, total: 38, editable: 0, },
-      { pathways: "ALK", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 2, tier: 0, trl: 10, total: 39, editable: 0, },
-      { pathways: "BRAF", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, cln: 0, tier: 5, trl: 20, total: 52, editable: 1, } ]
+    drugs: [
+    { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, icln: 0, itier: 5, itrl: 10, cln: 0, tier: 5, trl: 10, total: 31, editable: 1, },
+    { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, icln: 2, itier: 0, itrl: 0,  cln: 2, tier: 0, trl: 0, total: 10, editable: 0, },
+    { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, icln: 2, itier: 0, itrl: 10,  cln: 2, tier: 0, trl: 10, total: 40, editable: 1, },
+    { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, icln: 0, itier: 0, itrl: 10,  cln: 0, tier: 0, trl: 10, total: 36, editable: 0, },
+    { pathways: "ALK", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, icln: 4, itier: 0, itrl: 0,  cln: 4, tier: 0, trl: 0, total: 31, editable: 0, },
+    { pathways: "BRAF", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, icln: 0, itier: 5, itrl: 20,  cln: 0, tier: 5, trl: 20, total: 52, editable: 1, } ],
+
+    testset: [
+      {agent:"MK2006",values:{baseline:20, ptsepcific:40}},
+      {agent:"Perfinosine",values:{baseline:30, ptsepcific:45}},
+      {agent:"Ceritinib",values:{baseline:25, ptsepcific:35}},
+      {agent:"Enrectinib",values:{baseline:25, ptsepcific:35}},
+
+    ]
 
     }),
     computed: {
@@ -491,6 +604,9 @@
             return this.headers.filter(header => !this.hiddenColumns.includes(header.text))
             }
             return this.headers;
+      },
+      clnleft () {
+        return this.$refs.cln.getBoundingClientRect().left
       }
     },
 
@@ -498,6 +614,7 @@
          switch1_click:function(){this.$router.push("/UserView")   },
          switch2_click:function(){this.$router.push("/UserView")  },
          switch3_click:function(){this.$router.push("/UserView")  },
+         max25chars: v => v.length <= 25 || 'Input too long!',
 
          addGraphData (pPathway,pSubt,pTotal,pRadius,pDrug) {
 
@@ -515,6 +632,76 @@
             this.PathwaysGraphData.datasets[0].data.push({ x: '', y: '0', r: '0', name: '' });
             this.PathwaysGraphData.datasets[1].data.push({ x: '', y: '0', r: '0', name: '' });
         },
+        // Example Code for styling the column - Start
+        getStyle (column) {
+          switch(column){
+            case 'subt':
+              return 'blue-grey lighten-4 grey--text-darken-4';
+            case 'total':
+                return 'blue-grey lighten-4 grey--text-darken-4';
+            case 'icln':
+                return 'white grey--text-darken-4';
+            case 'itier':
+                    return 'white grey--text-darken-4';
+            case 'itrl':
+                    return 'white grey--text-darken-4';
+            default:
+                    return '';
+          }
+        },
+        getPos(name) {
+             const left = this.$refs.name.getBoundingClientRect().left
+             const top = this.$refs.name.getBoundingClientRect().top
+             console.log(name+ ": Left - "+ left+"  Top - "+top)
+        },
+        // Example Code for styling the column - End
+
+        printPDF () {
+         // printJS({printable:'cnstap.pdf', type:'pdf', showModal:true});
+         //  let pdfd = new printJS();
+         //  printJS("drugTable",'html');
+           printJS({printable:['drugTable'],type:'html',header: 'CNS-TAP'});
+          // printJS("drugGraph",'html');
+
+        },
+
+        printPPT () {
+         // alert("Print table");
+
+          // 1. Create a new Presentation
+           let pres = new pptxgen();
+
+           // 2. Add a Slide
+           let slideBanner = pres.addSlide();
+
+           // 3. Add one or more objects (Tables, Shapes, Images, Text and Media) to the Slide
+           let textboxText = "CNS-TAP";
+           let textboxOpts = { x: 1, y: 2, color: "363636", fill: "f1f1f1", align: pres.AlignH.center };
+           slideBanner.addText(textboxText, textboxOpts);
+
+           let slideNotes = pres.addSlide();
+           let textboxText1 = "Notes";
+           let textboxOpts1 = { x: 1, y: 1, color: "363636", fill: "f1f1f1", align: pres.AlignH.center };
+           slideNotes.addText(textboxText1, textboxOpts1);
+           slideNotes.addText("Friday 26, 2020 10:00 AM",{ x: 1, y: 1.5, w: 3, align: pres.AlignH.left, color: "363636", fontSize: 18 });
+           slideNotes.addText("Notes: " + this.customNotes,{ x: 1, y: 2, align: pres.AlignH.left, color: "363636", fontSize: 12 });
+
+           pres.tableToSlides("drugTable");
+
+           // Pass table element ID to tableToSlides function to produce 1-N slides
+           // pres.tableToSlides("drugTable", {
+           //  addText: { text: "Drugs Table", options: { x: 1, y: 0.5, color: "0088CC" } }
+           // });
+
+       //    pres.addChart(pres.ChartType.line,this.PathwaysGraphData,this.PathwaysGraphOptions);
+
+           // 4. Save the Presentation
+           pres.writeFile("CNSTAP.pptx");
+
+        },
+
+
+
     },
 //    watch: {
 //           PathwaysGraphData: function () {
@@ -528,7 +715,7 @@
 
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 
 .cellhighlight {
   background-color: grey;
@@ -677,5 +864,11 @@
       margin-top: 0;
       margin-bottom: 0;
     }
+td p {
+  margin: 0;
+  padding:10px;
+}
+
+
 
 </style>

@@ -42,21 +42,17 @@
 </v-row>
 <!-- Switches for Notes, Graph and Patient Data - End -->
 
+<!-- Print buttons for PDF and PPT - Start -->
 <div>
   <v-row>
     <v-col cols="2" >
     </v-col>
     <v-col cols="10" >
-<!-- Print buttons for PDF and PPT - Start -->
         <div align="right" v-intro="'Print report with Data table, Notes and Graph'" v-intro-step="6">
-          <span>Generate Report &nbsp; &nbsp;
-          <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPDF()"  dark>PDF</v-btn>
-          &nbsp; &nbsp;
-          <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPPT()"  dark>PPT</v-btn>
-          &nbsp; &nbsp;
-          </span>
+         Generate Report <v-space></v-space>
+         <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPDF()"  dark>PDF</v-btn> <v-space></v-space>
+         <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPPT()"  dark>PPT</v-btn>
        </div>
-<!-- Print buttons for PDF and PPT - Start -->
     </v-col>
   </v-row>
 </div>
@@ -72,7 +68,6 @@
           <v-textarea
             solo
             name="notes"
-            v-model="customNotes"
           label="Friday 26, 2020 10:00 AM"
 
           ></v-textarea>
@@ -86,31 +81,6 @@
    <v-row>
       <v-col cols="2" >
 <!-- Pathways multi selection - Start -->
-<!-- Pathway Filter - Start -->
-      <div align="center" v-intro="'Filteration based on Selection mode for common drugs across Pathways'" v-intro-step="7">
-        <span>Selection mode <v-spacer></v-spacer>
-          <v-chip-group
-            column
-            active-class="white black--text"
-            outlined
-            align="center"
-          >
-            <v-chip class="def ma-2">
-              <v-btn icon
-                @click="alert('Set all');">
-              <v-icon large color="grey darken-2">mdi-set-all</v-icon>
-              </v-btn>
-              </v-chip>
-            <v-chip class="def ma-2">
-              <v-btn icon
-                @click="alert('Set center');">
-              <v-icon large color="grey darken-2">mdi-set-center</v-icon>
-              </v-btn>
-            </v-chip>
-          </v-chip-group>
-        </span>
-     </div>
-<!-- Pathway Filter - End -->
         <div v-intro="'Select your relevant Pathways. If no Pathway is selected, data for all the Pathways will be displayed in the Data table.'" v-intro-step="1">
           <v-card
              class="pa-1 bluebg"
@@ -143,7 +113,7 @@
       </v-col>
 
       <v-col cols="10" >
-<!-- Pathway Graph display - Start -->
+<!-- Graph display - Start -->
         <div id="pathwayGraph" v-if="switch2">
         <template>
           <div >
@@ -168,7 +138,7 @@
           </v-col>
         </v-row>
        </div>
-<!-- Pathway Graph display - End -->
+<!-- Graph display - End -->
 
 <!-- Main Drug Table - Start -->
   <div v-intro="'Data table that displays Pathway/Drug attributes'" v-intro-step="5">
@@ -309,7 +279,7 @@
               </p></div>
           </template>
           <template v-if="props.item.editable === 2">
-            <div colspan=3 class="grey darken-3 white--text"><p>{{ props.item.icln }}</p>
+            <div class="grey darken-3 white--text"><p>{{ props.item.icln }}</p>
             </div>
           </template>
         </template>
@@ -612,10 +582,10 @@ import printJS from 'print-js';
       {   text: 'SubT', align: 'center', sortable: true, value: 'subt', class: 'grey darken-1 white--text', tt: '' },
       {   text: 'iCLN', align: 'center', sortable: true, value: 'icln', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'iCLN' },
       {   text: 'iTIER', align: 'center', sortable: true, value: 'itier', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'iTIER' },
-      {   text: 'iTRL', align: 'center', sortable: true, value: 'itrl', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'Here is a <a href="www.clinicaltrials.gov">link</a> to identify applicable trials' },
+      {   text: 'iTRL', align: 'center', sortable: true, value: 'itrl', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'iTRL' },
       {   text: 'CLN', align: 'center', sortable: true, value: 'cln', class: 'grey darken-3 white--text', tt: 'CLN' },
       {   text: 'TIER', align: 'center', sortable: true, value: 'tier', class: 'grey darken-3 white--text', tt: 'TIER' },
-      {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'grey darken-3 white--text', tt: 'Here is a link to identify applicable trials' },
+      {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'grey darken-3 white--text', tt: 'TRL' },
       {   text: 'Total', align: 'center', sortable: true, value: 'total', class: 'grey darken-1 white--text', tt: '' }, ],
 
     drugs: [
@@ -644,7 +614,6 @@ import printJS from 'print-js';
         return this.drugs.filter((i) => {
         if (!this.pathwayselection || this.pathwayselection.length == 0) {
             if (i.pathways.trim() != "") {
-      //        alert('ssss');
                 this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
                 return true;
             } else if (this.switch3) {
@@ -708,6 +677,45 @@ import printJS from 'print-js';
             this.PathwaysGraphData.datasets[0].data.push({ x: '', y: '0', r: '0', name: '' });
             this.PathwaysGraphData.datasets[1].data.push({ x: '', y: '0', r: '0', name: '' });
         },
+        // Example Code for styling the column - Start
+        getStyle (column, dat) {
+            // alert(dat);
+            if (dat.trim() != "y") {
+                switch(column){
+                  case 'subt':
+                    return 'blue-grey lighten-4 grey--text-darken-4';
+                  case 'total':
+                      return 'blue-grey lighten-4 grey--text-darken-4';
+                  case 'icln':
+                      return 'white grey--text-darken-4';
+                  case 'itier':
+                          return 'white grey--text-darken-4';
+                  case 'itrl':
+                          return 'white grey--text-darken-4';
+                  default:
+                          return '';
+                }
+            } else if (dat.trim() === "y") {
+              switch(column){
+                case 'icln':
+                      return 'grey darken-3 white--text';
+                case 'itier':
+                      return 'grey darken-3 white--text';
+                case 'itrl':
+                      return 'grey darken-3 white--text';
+                default:
+                        return '';
+                }
+            }
+
+
+        },
+        getPos(name) {
+             const left = this.$refs.name.getBoundingClientRect().left
+             const top = this.$refs.name.getBoundingClientRect().top
+             console.log(name+ ": Left - "+ left+"  Top - "+top)
+        },
+        // Example Code for styling the column - End
 
         printPDF () {
          // printJS({printable:'cnstap.pdf', type:'pdf', showModal:true});
@@ -921,7 +929,6 @@ td p {
   margin: 0;
   padding:10px;
 }
-
 
 
 
