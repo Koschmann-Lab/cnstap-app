@@ -27,11 +27,11 @@
                           <v-card
                           v-scroll.self="onScroll"
                           class="overflow-y-auto blue-grey lighten-3"
-                          max-height="180"
+                          max-height="200"
                           >
 
 
-                          <v-card-text>
+                          <v-card-text class="blue--text text--lighten-5">
                           <div class="mb-4">
                             <b><u>DISCLAIMER:</u></b>&nbsp;By using the CNS-TAP site, you signify your assent to the following terms and conditions. These terms and conditions may be amended or updated at any time by the creators and it is the prevailing terms and conditions from time to time that are agreed to apply.
 

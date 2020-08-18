@@ -1,16 +1,16 @@
-
 <template>
   <v-container>
 
+
 <!-- Introduction button - Start -->
     <template>
-          <div class="text-right">
-                <v-btn
-                  icon
-                  @click="startIntro();">
-                        <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
-                </v-btn>
-          </div>
+      <div class="text-right">
+        <v-btn
+          icon
+          @click="startIntro();">
+        <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
+        </v-btn>
+      </div>
     </template>
 <!-- Introduction button - End -->
 
@@ -22,27 +22,22 @@
       </h1>
    </v-col>
    <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
-        <v-simple-table>
-            <tbody>
-                <tr>
-                    <td class="lightbluecenter">
-                          <div v-intro="'Switch to enter your custom Notes'" v-intro-step="2">
-                                <v-switch v-model="switch1" inset :label="`Note Space`"></v-switch>
-                          </div>
-                    </td>
-                    <td class="lightbluecenter">
-                          <div v-intro="'Switch to view Graph that compares different Drugs for Pathways'" v-intro-step="3">
-                                <v-switch v-model="switch2" inset :label="`Pathway Graphs`"></v-switch>
-                          </div>
-                    </td>
-                    <td class="lightbluecenter">
-                          <div v-intro="'Switch to view and/or edit Patient relevant data'" v-intro-step="4">
-                                <v-switch v-model="switch3" inset :label="`Patient Data Columns`"></v-switch>
-                          </div>
-                    </td>
-                </tr>
-            </tbody>
-        </v-simple-table>
+      <v-simple-table>
+      <tbody><tr><td class="lightbluecenter">
+        <div v-intro="'Switch to enter your custom Notes'" v-intro-step="2">
+          <v-switch v-model="switch1" inset :label="`Note Space`"></v-switch>
+          </div>
+      </td><td class="lightbluecenter">
+        <div v-intro="'Switch to view Graph that compares different Drugs for Pathways'" v-intro-step="3">
+          <v-switch v-model="switch2" inset :label="`Pathway Graphs`"></v-switch>
+        </div>
+        </td><td class="lightbluecenter">
+          <div v-intro="'Switch to view and/or edit Patient relevant data'" v-intro-step="4">
+          <v-switch v-model="switch3" inset :label="`Patient Data Columns`"></v-switch>
+        </div>
+      </td>
+      </tr></tbody>
+      </v-simple-table>
    </v-col>
 </v-row>
 <!-- Switches for Notes, Graph and Patient Data - End -->
@@ -79,6 +74,7 @@
             name="notes"
             v-model="customNotes"
           label="Friday 26, 2020 10:00 AM"
+
           ></v-textarea>
        </div>
     </v-col>
@@ -171,7 +167,6 @@
             <testLineGraph></testLineGraph>
           </v-col>
         </v-row>
-
        </div>
 <!-- Pathway Graph display - End -->
 
@@ -182,7 +177,7 @@
       :items="filteredItems"
       class="elevation-0 bluebg customtable"
       hide-default-footer
-      disable-pagination
+       disable-pagination
       dense
       id="drugTable"
     >
@@ -190,14 +185,6 @@
     <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }" ref = "h.value">
             <template v-if="header.tt === ''" >
                     <span :key="h.text" >{{header.text}}</span>
-            </template>
-            <template v-else-if="header.text === 'iTRL' || header.text === 'TRL'">
-                        <v-tooltip top close-delay=2000 :key="h.text" color="amber lighten-4 black--text">
-                          <template v-slot:activator="{ on }" >
-                                <span v-on="on">{{h.text}}</span>
-                          </template>
-                          <span>Here is a <a href="www.clinicaltrials.gov">link</a> to identify applicable trials</span>
-                        </v-tooltip>
             </template>
             <template v-else>
                             <v-tooltip top :key="h.text" color="amber lighten-4 black--text">
@@ -208,20 +195,20 @@
                                 {{ header.tt }}
                               </span>
                             </v-tooltip>
-            </template>
+          </template>
     </template>
 <!-- Main Drug Table - Print headers - End -->
 
 <!-- Main Drug Table - Configure CNS column - Start -->
     <template v-slot:item.cns="{ item }">
-          <v-tooltip top color="amber lighten-4" >
-                <template v-slot:activator="{ on }">
-                        <div v-on="on">{{ item.cns }}</div>
-                 </template>
-                 <div class="tooltip">
-                        <span >{{  ttCNSrow }}</span>
-               </div>
-           </v-tooltip>
+      <v-tooltip top color="amber lighten-4" >
+        <template v-slot:activator="{ on }">
+          <div v-on="on">{{ item.cns }}</div>
+         </template>
+         <div class="tooltip">
+         <span >{{  ttCNSrow }}</span>
+       </div>
+       </v-tooltip>
     </template>
 <!-- Main Drug Table - Configure CNS column - End -->
 
@@ -467,37 +454,11 @@
                </v-tooltip>
             </template>
 <!-- Main Drug Table - Configure TRL column - End -->
-
         </v-data-table>
       </div>
 <!-- Main Drug Table - End -->
     </v-col>
 </v-row>
-
-
-<!-- Page Footer - Start -->
-   <template>
-         <v-footer padless>
-               <v-col
-                 class="text-center bluebg"
-                 cols="12">
-                      <table align="center" width="100%">
-                          <tr>
-                                <td align="left">
-                                      <img src="../assets/Signature-Marketing.png" style="width:400px;">
-                                </td>
-                                <td align="right">
-                                      <img src="../assets/Rogel-Vertical.png" style="height:80px;">
-                                </td>
-                          </tr>
-                      </table>
-               </v-col>
-         </v-footer>
-   </template>
-<!-- Page Footer - End -->
-
-
-
 </v-container>
 </template>
 
@@ -527,6 +488,8 @@ import printJS from 'print-js';
      },
 
     data: () => ({
+
+
 
       PathwaysGraphData: {
 
@@ -649,10 +612,10 @@ import printJS from 'print-js';
       {   text: 'SubT', align: 'center', sortable: true, value: 'subt', class: 'grey darken-1 white--text', tt: '' },
       {   text: 'iCLN', align: 'center', sortable: true, value: 'icln', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'iCLN' },
       {   text: 'iTIER', align: 'center', sortable: true, value: 'itier', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'iTIER' },
-      {   text: 'iTRL', align: 'center', sortable: true, value: 'itrl', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'iTRL' },
+      {   text: 'iTRL', align: 'center', sortable: true, value: 'itrl', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'Here is a <a href="www.clinicaltrials.gov">link</a> to identify applicable trials' },
       {   text: 'CLN', align: 'center', sortable: true, value: 'cln', class: 'grey darken-3 white--text', tt: 'CLN' },
       {   text: 'TIER', align: 'center', sortable: true, value: 'tier', class: 'grey darken-3 white--text', tt: 'TIER' },
-      {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'grey darken-3 white--text', tt: 'TRL' },
+      {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'grey darken-3 white--text', tt: 'Here is a link to identify applicable trials' },
       {   text: 'Total', align: 'center', sortable: true, value: 'total', class: 'grey darken-1 white--text', tt: '' }, ],
 
     drugs: [
@@ -669,44 +632,11 @@ import printJS from 'print-js';
       {agent:"Perfinosine",values:{baseline:30, ptsepcific:45}},
       {agent:"Ceritinib",values:{baseline:25, ptsepcific:35}},
       {agent:"Enrectinib",values:{baseline:25, ptsepcific:35}},
+
     ]
 
     }),
-
     computed: {
-
-
-
-      filteredItems1() {
-        var p;
-        return this.drugs.filter((i) => {
-        // load all rows, if no Pathway is selected
-        if (!this.pathwayselection || this.pathwayselection.length == 0) {
-            // Do not show the first dummy row, if switch3 is not selected
-            if (i.pathways.trim() != "") {
-                return true;
-            } else if (this.switch3) {
-                return true;
-            }
-        }
-        // load only rows for the Pathways selected
-        if (this.pathwayselection.length > 0) {
-            for (p = 0; p < this.pathwayselection.length; p++) {
-                // if pathway is the drug table matches the pathway selected
-                if (i.pathways.trim() === "" || this.pathways[this.pathwayselection[p]].pathway.trim() == i.pathways.trim()) {
-                  // Do not show the first dummy row, if switch3 is not selected
-                  if (i.pathways.trim() != "") {
-                      return true;
-                  } else if (this.switch3) {
-                    return true;
-                  }
-                }
-              }
-          }
-          this.loadGraphData();
-        })
-      },
-
 
       filteredItems() {
         var p;
@@ -714,6 +644,7 @@ import printJS from 'print-js';
         return this.drugs.filter((i) => {
         if (!this.pathwayselection || this.pathwayselection.length == 0) {
             if (i.pathways.trim() != "") {
+      //        alert('ssss');
                 this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
                 return true;
             } else if (this.switch3) {
@@ -761,24 +692,6 @@ import printJS from 'print-js';
            }
          },
 
-         loadGraphData(){
-              this.resetGraphData();
-
-    //        var dtableElement = this.document.getElementById("drugTable");
-    //        alert(dtableElement.rows[2].cells[1]);
-
-    //        for (var i = 0, row; row = dtableElement.rows[i]; i++) {
-               //iterate through rows
-               //rows would be accessed using the "row" variable assigned in the for loop
-    //           for (var j = 0, col; col = row.cells[j]; j++) {
-                 //iterate through columns
-                 //columns would be accessed using the "col" variable assigned in the for loop
-    //             alert(row.cells[1]);
-    //           }
-    //        }
-
-         },
-
          addGraphData (pPathway,pSubt,pTotal,pRadius,pDrug) {
            if (pPathway != "") {
                   this.PathwaysGraphOptions.scales.xAxes[0].labels.push(pPathway + ' (' + pDrug + ')');
@@ -787,13 +700,10 @@ import printJS from 'print-js';
                   this.PathwaysGraphData.datasets[1].data.push({ x: pPathway + 'P (' + pDrug + ')', y: pTotal, r: pRadius, name: pDrug });
            }
          },
-
          resetGraphData(){
-            // detele all Graph data from the two datasets and x-axis labels
             this.PathwaysGraphData.datasets[0].data.splice(0,this.PathwaysGraphData.datasets[0].data.length);
             this.PathwaysGraphData.datasets[1].data.splice(0,this.PathwaysGraphData.datasets[1].data.length);
             this.PathwaysGraphOptions.scales.xAxes[0].labels.splice(0,this.PathwaysGraphOptions.scales.xAxes[0].labels.length);
-            // add a dummy array element to move the first data points from x-axis
             this.PathwaysGraphOptions.scales.xAxes[0].labels.push('');
             this.PathwaysGraphData.datasets[0].data.push({ x: '', y: '0', r: '0', name: '' });
             this.PathwaysGraphData.datasets[1].data.push({ x: '', y: '0', r: '0', name: '' });
@@ -975,7 +885,6 @@ import printJS from 'print-js';
   color: #000000;
   white-space: nowrap;
   word-wrap: normal;
-
 }
 
 .tooltip span {
@@ -1007,12 +916,12 @@ import printJS from 'print-js';
       left: calc(50% - 5px);
       margin-top: 0;
       margin-bottom: 0;
-      z-index: 1;
     }
 td p {
   margin: 0;
   padding:10px;
 }
+
 
 
 

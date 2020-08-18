@@ -2,9 +2,8 @@
   <v-container>
 
 
-
+<!-- Introduction button - Start -->
     <template>
-
       <div class="text-right">
         <v-btn
           icon
@@ -13,9 +12,9 @@
         </v-btn>
       </div>
     </template>
+<!-- Introduction button - End -->
 
-
-
+<!-- Switches for Notes, Graph and Patient Data - Start -->
 <v-row class="justify-center align-center">
    <v-col cols="3">
        <h1 class="display-3 font-weight-bold grey--text text--darken-2">
@@ -23,8 +22,6 @@
       </h1>
    </v-col>
    <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
-
-
       <v-simple-table>
       <tbody><tr><td class="lightbluecenter">
         <div v-intro="'Switch to enter your custom Notes'" v-intro-step="2">
@@ -43,22 +40,29 @@
       </v-simple-table>
    </v-col>
 </v-row>
+<!-- Switches for Notes, Graph and Patient Data - End -->
 
 <div>
   <v-row>
     <v-col cols="2" >
     </v-col>
     <v-col cols="10" >
+<!-- Print buttons for PDF and PPT - Start -->
         <div align="right" v-intro="'Print report with Data table, Notes and Graph'" v-intro-step="6">
-
-         Generate Report <v-space></v-space>
-         <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPDF()"  dark>PDF</v-btn> <v-space></v-space>
-         <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPPT()"  dark>PPT</v-btn>
+          <span>Generate Report &nbsp; &nbsp;
+          <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPDF()"  dark>PDF</v-btn>
+          &nbsp; &nbsp;
+          <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPPT()"  dark>PPT</v-btn>
+          &nbsp; &nbsp;
+          </span>
        </div>
+<!-- Print buttons for PDF and PPT - Start -->
     </v-col>
   </v-row>
 </div>
+<!-- Print buttons for PDF and PPT - End -->
 
+<!-- Notes area - Start -->
 <div>
   <v-row>
     <v-col cols="2" >
@@ -68,6 +72,7 @@
           <v-textarea
             solo
             name="notes"
+            v-model="customNotes"
           label="Friday 26, 2020 10:00 AM"
 
           ></v-textarea>
@@ -75,11 +80,37 @@
     </v-col>
   </v-row>
 </div>
+<!-- Notes area - End -->
 
 
    <v-row>
       <v-col cols="2" >
-
+<!-- Pathways multi selection - Start -->
+<!-- Pathway Filter - Start -->
+      <div align="center" v-intro="'Filteration based on Selection mode for common drugs across Pathways'" v-intro-step="7">
+        <span>Selection mode <v-spacer></v-spacer>
+          <v-chip-group
+            column
+            active-class="white black--text"
+            outlined
+            align="center"
+          >
+            <v-chip class="def ma-2">
+              <v-btn icon
+                @click="alert('Set all');">
+              <v-icon large color="grey darken-2">mdi-set-all</v-icon>
+              </v-btn>
+              </v-chip>
+            <v-chip class="def ma-2">
+              <v-btn icon
+                @click="alert('Set center');">
+              <v-icon large color="grey darken-2">mdi-set-center</v-icon>
+              </v-btn>
+            </v-chip>
+          </v-chip-group>
+        </span>
+     </div>
+<!-- Pathway Filter - End -->
         <div v-intro="'Select your relevant Pathways. If no Pathway is selected, data for all the Pathways will be displayed in the Data table.'" v-intro-step="1">
           <v-card
              class="pa-1 bluebg"
@@ -88,7 +119,6 @@
           >
             Select your pathways
           </v-card>
-
           <v-row>
                 <v-col>
                   <v-sheet elevation="0" class="pa-4 bluebg">
@@ -106,16 +136,15 @@
                       </v-chip>
                     </v-chip-group>
                   </v-sheet>
-
                 </v-col>
           </v-row>
         </div>
+<!-- Pathways multi selection - End -->
       </v-col>
 
       <v-col cols="10" >
-
+<!-- Pathway Graph display - Start -->
         <div id="pathwayGraph" v-if="switch2">
-
         <template>
           <div >
             <v-card
@@ -123,7 +152,6 @@
               outlined
               tile
             >
-
             <PathwaysGraph :data="PathwaysGraphData" :options="PathwaysGraphOptions" ></PathwaysGraph>
           </v-card>
           </div>
@@ -140,10 +168,10 @@
           </v-col>
         </v-row>
        </div>
+<!-- Pathway Graph display - End -->
 
-
+<!-- Main Drug Table - Start -->
   <div v-intro="'Data table that displays Pathway/Drug attributes'" v-intro-step="5">
-
   <v-data-table
       :headers="computedHeaders"
       :items="filteredItems"
@@ -153,10 +181,18 @@
       dense
       id="drugTable"
     >
-
+<!-- Main Drug Table - Print headers - Start -->
     <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }" ref = "h.value">
             <template v-if="header.tt === ''" >
                     <span :key="h.text" >{{header.text}}</span>
+            </template>
+            <template v-else-if="header.text === 'iTRL' || header.text === 'TRL'">
+                        <v-tooltip top close-delay=2000 :key="h.text" color="amber lighten-4 black--text">
+                          <template v-slot:activator="{ on }" >
+                            <span v-on="on">{{h.text}}</span>
+                          </template>
+                          <span>Here is a <a href="www.clinicaltrials.gov">link</a> to identify applicable trials</span>
+                        </v-tooltip>
             </template>
             <template v-else>
                             <v-tooltip top :key="h.text" color="amber lighten-4 black--text">
@@ -169,8 +205,9 @@
                             </v-tooltip>
           </template>
     </template>
+<!-- Main Drug Table - Print headers - End -->
 
-
+<!-- Main Drug Table - Configure CNS column - Start -->
     <template v-slot:item.cns="{ item }">
       <v-tooltip top color="amber lighten-4" >
         <template v-slot:activator="{ on }">
@@ -181,8 +218,9 @@
        </div>
        </v-tooltip>
     </template>
+<!-- Main Drug Table - Configure CNS column - End -->
 
-
+<!-- Main Drug Table - Configure BBB column - Start -->
         <template v-slot:item.bbb="{ item }">
           <v-tooltip top color="amber lighten-4" >
             <template v-slot:activator="{ on }">
@@ -193,7 +231,9 @@
            </div>
            </v-tooltip>
         </template>
+<!-- Main Drug Table - Configure BBB column - End -->
 
+<!-- Main Drug Table - Configure FDA column - Start -->
         <template v-slot:item.fda="{ item }">
           <v-tooltip top color="amber lighten-4" >
             <template v-slot:activator="{ on }">
@@ -204,17 +244,31 @@
            </div>
            </v-tooltip>
         </template>
+<!-- Main Drug Table - Configure FDA column - End -->
 
-        <!-- Example Code for styling the column - Start -->
-        <template v-slot:item.subt="{ item }">
-          <div :class="getStyle('subt')"><p>{{ item.subt }}</p></div>
+<!-- Main Drug Table - Configure SubT column - Start -->
+        <template v-slot:item.subt="props">
+          <template v-if="props.item.editable != 2">
+                      <div class="blue-grey lighten-4 grey--text-darken-4"><p>{{ props.item.subt }}</p></div>
+          </template>
+          <template v-else>
+                      <div><p>{{ props.item.subt }}</p></div>
+          </template>
+      </template>
+<!-- Main Drug Table - Configure SubT column - End -->
+
+<!-- Main Drug Table - Configure Total column - Start -->
+      <template v-slot:item.total="props">
+        <template v-if="props.item.editable != 2">
+                    <div class="blue-grey lighten-4 grey--text-darken-4"><p>{{ props.item.total }}</p></div>
         </template>
-        <template v-slot:item.total="{ item }">
-          <div :class="getStyle('total')"><p>{{ item.total }}</p></div>
+        <template v-else>
+                    <div><p>{{ props.item.total }}</p></div>
         </template>
+    </template>
+<!-- Main Drug Table - Configure Total column - End -->
 
-        <!-- Example Code for styling the column - End -->
-
+<!-- Main Drug Table - Configure iCLN column - Start -->
         <template v-slot:item.icln="props">
           <template v-if="props.item.editable === 0">
             <v-tooltip top color="amber lighten-4" >
@@ -226,8 +280,8 @@
                   </div>
             </v-tooltip>
           </template>
-          <template v-else>
-            <div :class="getStyle('icln')"><p>
+          <template v-if="props.item.editable === 1">
+            <div class="white grey--text-darken-4"><p>
                     <v-edit-dialog
                       :return-value.sync="props.item.icln"
                       large
@@ -262,8 +316,14 @@
                     </v-edit-dialog>
               </p></div>
           </template>
+          <template v-if="props.item.editable === 2">
+            <div colspan=3 class="grey darken-3 white--text"><p>{{ props.item.icln }}</p>
+            </div>
+          </template>
         </template>
+<!-- Main Drug Table - Configure iCLN column - End -->
 
+<!-- Main Drug Table - Configure iTIER column - Start -->
         <template v-slot:item.itier="props">
           <template v-if="props.item.editable === 0">
             <v-tooltip top color="amber lighten-4" >
@@ -275,8 +335,8 @@
             </div>
             </v-tooltip>
           </template>
-          <template v-else>
-            <div :class="getStyle('itier')"><p>
+          <template v-if="props.item.editable === 1">
+            <div class="white grey--text-darken-4"><p>
                          <v-edit-dialog
                            :return-value.sync="props.item.itier"
                            large
@@ -311,11 +371,17 @@
                          </v-edit-dialog>
                 </p></div>
              </template>
+             <template v-if="props.item.editable === 2">
+               <div class="grey darken-3 white--text"><p>{{ props.item.itier }}</p>
+               </div>
+             </template>
           </template>
+<!-- Main Drug Table - Configure iTIER column - End -->
 
-
+<!-- Main Drug Table - Configure iTRL column - Start -->
           <template v-slot:item.itrl="props">
-            <div :class="getStyle('itrl')"><p>
+            <template v-if="props.item.editable != 2">
+            <div class="white grey--text-darken-4"><p>
                   <v-edit-dialog
                     :return-value.sync="props.item.itrl"
                     large
@@ -328,7 +394,7 @@
 
                   <v-tooltip top color="amber lighten-4" >
                   <template v-slot:activator="{ on }">
-                        <div v-on="on" :class="getStyle('icln')">{{ props.item.itrl }}</div>
+                        <div v-on="on">{{ props.item.itrl }}</div>
                   </template>
                   <div class="tooltip">
                      <span>{{ ttTRLrow }}</span>
@@ -350,11 +416,15 @@
                     </template>
                   </v-edit-dialog>
           </p></div>
-          </template>
+        </template>
+        <template v-if="props.item.editable === 2">
+          <div class="grey darken-3 white--text"><p>{{ props.item.itrl }}</p>
+          </div>
+        </template>
+      </template>
+<!-- Main Drug Table - Configure iTRL column - End -->
 
-
-
-
+<!-- Main Drug Table - Configure CLN column - Start -->
             <template v-slot:item.cln="{ item }">
               <v-tooltip top color="amber lighten-4" >
                 <template v-slot:activator="{ on }">
@@ -365,7 +435,9 @@
                </div>
                </v-tooltip>
             </template>
+<!-- Main Drug Table - Configure CLN column - End -->
 
+<!-- Main Drug Table - Configure TIER column - Start -->
             <template v-slot:item.tier="{ item }">
               <v-tooltip top color="amber lighten-4" >
                 <template v-slot:activator="{ on }">
@@ -376,8 +448,9 @@
                </div>
                </v-tooltip>
             </template>
+<!-- Main Drug Table - Configure TIER column - End -->
 
-
+<!-- Main Drug Table - Configure TRL column - Start -->
             <template v-slot:item.trl="{ item }">
               <v-tooltip top color="amber lighten-4" >
                 <template v-slot:activator="{ on }">
@@ -388,19 +461,40 @@
                </div>
                </v-tooltip>
             </template>
-
-
-
-  </v-data-table>
-</div>
-
-</v-col>
-
-
+<!-- Main Drug Table - Configure TRL column - End -->
+        </v-data-table>
+      </div>
+<!-- Main Drug Table - End -->
+    </v-col>
 </v-row>
 
 
-  </v-container>
+<!-- Page Footer - Start -->
+   <template>
+     <v-footer padless>
+       <v-col
+         class="text-center bluebg"
+         cols="12"
+       >
+            <table align="center" width="100%">
+            <tr>
+            <td align="left">
+                  <img src="../assets/Signature-Marketing.png" style="width:400px;">
+            </td>
+            <td align="right">
+                  <img src="../assets/Rogel-Vertical.png" style="height:80px;">
+            </td>
+            </tr>
+            </table>
+
+       </v-col>
+     </v-footer>
+   </template>
+<!-- Page Footer - End -->
+
+
+
+</v-container>
 </template>
 
 <script>
@@ -517,6 +611,7 @@ import printJS from 'print-js';
       switch2: false,
       switch3: false,
 
+      TRLtt: "",
 
       customNotes: "",
       pathwayselection: [],
@@ -560,6 +655,7 @@ import printJS from 'print-js';
       {   text: 'Total', align: 'center', sortable: true, value: 'total', class: 'grey darken-1 white--text', tt: '' }, ],
 
     drugs: [
+    { pathways: "", drugagents: "", vitro: "", vivo: "", safety: "", cns: "", bbb: "", fda: "", subt:"", icln: "INPUT", itier: "PATIENT", itrl: "DATA", cln: "", tier: "", trl: "", total: "", editable: 2, },
     { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, icln: 0, itier: 5, itrl: 10, cln: 0, tier: 5, trl: 10, total: 31, editable: 1, },
     { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, icln: 2, itier: 0, itrl: 0,  cln: 2, tier: 0, trl: 0, total: 10, editable: 0, },
     { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, icln: 2, itier: 0, itrl: 10,  cln: 2, tier: 0, trl: 10, total: 40, editable: 1, },
@@ -583,16 +679,25 @@ import printJS from 'print-js';
        this.resetGraphData();
         return this.drugs.filter((i) => {
         if (!this.pathwayselection || this.pathwayselection.length == 0) {
+            if (i.pathways.trim() != "") {
+      //        alert('ssss');
                 this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
- //                this.PathwaysGraph.renderChart(this.data, this.options);
+                return true;
+            } else if (this.switch3) {
+              this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
               return true;
+            }
         }
         if (this.pathwayselection.length > 0) {
             for (p = 0; p < this.pathwayselection.length; p++) {
-                if (this.pathways[this.pathwayselection[p]].pathway.trim() == i.pathways.trim()) {
-                  this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
- //                 this.PathwaysGraph.renderChart(this.PathwaysGraphData, this.PathwaysGraphOptions);
-                  return true;
+                if (i.pathways.trim() === "" || this.pathways[this.pathwayselection[p]].pathway.trim() == i.pathways.trim()) {
+                  if (i.pathways.trim() != "") {
+                      this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
+                      return true;
+                  } else if (this.switch3) {
+                    this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
+                    return true;
+                  }
                 }
               }
           }
@@ -624,12 +729,12 @@ import printJS from 'print-js';
          },
 
          addGraphData (pPathway,pSubt,pTotal,pRadius,pDrug) {
-
-            this.PathwaysGraphOptions.scales.xAxes[0].labels.push(pPathway + ' (' + pDrug + ')');
-            this.PathwaysGraphOptions.scales.xAxes[0].labels.push(pPathway + 'P (' + pDrug + ')');
-            this.PathwaysGraphData.datasets[0].data.push({ x: pPathway + ' (' + pDrug + ')', y: pSubt, r: pRadius, name: pDrug });
-            this.PathwaysGraphData.datasets[1].data.push({ x: pPathway + 'P (' + pDrug + ')', y: pTotal, r: pRadius, name: pDrug });
-
+           if (pPathway != "") {
+                  this.PathwaysGraphOptions.scales.xAxes[0].labels.push(pPathway + ' (' + pDrug + ')');
+                  this.PathwaysGraphOptions.scales.xAxes[0].labels.push(pPathway + 'P (' + pDrug + ')');
+                  this.PathwaysGraphData.datasets[0].data.push({ x: pPathway + ' (' + pDrug + ')', y: pSubt, r: pRadius, name: pDrug });
+                  this.PathwaysGraphData.datasets[1].data.push({ x: pPathway + 'P (' + pDrug + ')', y: pTotal, r: pRadius, name: pDrug });
+           }
          },
          resetGraphData(){
             this.PathwaysGraphData.datasets[0].data.splice(0,this.PathwaysGraphData.datasets[0].data.length);
@@ -639,29 +744,6 @@ import printJS from 'print-js';
             this.PathwaysGraphData.datasets[0].data.push({ x: '', y: '0', r: '0', name: '' });
             this.PathwaysGraphData.datasets[1].data.push({ x: '', y: '0', r: '0', name: '' });
         },
-        // Example Code for styling the column - Start
-        getStyle (column) {
-          switch(column){
-            case 'subt':
-              return 'blue-grey lighten-4 grey--text-darken-4';
-            case 'total':
-                return 'blue-grey lighten-4 grey--text-darken-4';
-            case 'icln':
-                return 'white grey--text-darken-4';
-            case 'itier':
-                    return 'white grey--text-darken-4';
-            case 'itrl':
-                    return 'white grey--text-darken-4';
-            default:
-                    return '';
-          }
-        },
-        getPos(name) {
-             const left = this.$refs.name.getBoundingClientRect().left
-             const top = this.$refs.name.getBoundingClientRect().top
-             console.log(name+ ": Left - "+ left+"  Top - "+top)
-        },
-        // Example Code for styling the column - End
 
         printPDF () {
          // printJS({printable:'cnstap.pdf', type:'pdf', showModal:true});
@@ -839,6 +921,7 @@ import printJS from 'print-js';
   color: #000000;
   white-space: nowrap;
   word-wrap: normal;
+
 }
 
 .tooltip span {
@@ -870,6 +953,7 @@ import printJS from 'print-js';
       left: calc(50% - 5px);
       margin-top: 0;
       margin-bottom: 0;
+      z-index: 1;
     }
 td p {
   margin: 0;
