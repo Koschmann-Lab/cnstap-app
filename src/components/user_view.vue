@@ -867,8 +867,6 @@ this.loadGraphData();
 
                   // Cleanup Dataset for individual LineGraphs
                   this.LineGraphDataset.push({pathway:pPathway,agent:pDrug,values:{baseline:pSubt, ptspecific:pTotal}});
-
-
            }
          },
 
