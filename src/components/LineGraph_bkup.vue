@@ -5,23 +5,9 @@ import { Line } from 'vue-chartjs'
 export default {
   extends: Line,
   data: () => ({
-
-//    props: {
-//      label: { type: String, default: null},
-//      data: { type: Array, default: null},
-//    },
-
     chartdata: {
-            labels: ['','BaseLine','Patient Specific',''],
-            datasets: [{
-                label: 'MK2006',
-                data: [null,20,40,null],
-                borderColor: '#666',
-                backgroundColor:['#000','#000','#fff','#fff'],
-                fill:false,
-                pointRadius: 10,
-                pointHoverRadius: 10
-            }]
+      type: Object,
+      default: null
     },
     options: {
       responsive: true,

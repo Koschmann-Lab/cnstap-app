@@ -91,7 +91,7 @@
       <v-col cols="2" >
 <!-- Pathways multi selection - Start -->
 <!-- Pathway Filter - Start -->
-      <div align="center" v-intro="'Filteration based on Selection mode for common drugs across Pathways'" v-intro-step="7">
+      <!-- div align="center" v-intro="'Filteration based on Selection mode for common drugs across Pathways'" v-intro-step="7">
         <span>Selection mode <v-spacer></v-spacer>
           <v-chip-group
             column
@@ -113,7 +113,7 @@
             </v-chip>
           </v-chip-group>
         </span>
-     </div>
+     </div -->
 <!-- Pathway Filter - End -->
         <div v-intro="'Select your relevant Pathways. If no Pathway is selected, data for all the Pathways will be displayed in the Data table.'" v-intro-step="1">
           <v-card
@@ -147,33 +147,6 @@
       </v-col>
 
       <v-col cols="10" >
-<!-- Pathway Graph display - Start -->
-        <div id="pathwayGraph" v-if="switch2">
-        <template>
-          <div >
-            <v-card
-              class="pa-2 bluebg"
-              outlined
-              tile
-            >
-            <PathwaysGraph :data="PathwaysGraphData" :options="PathwaysGraphOptions" ></PathwaysGraph>
-          </v-card>
-          </div>
-          <br><br>
-        </template>
-        <v-row>
-          <v-col
-            v-for="testsetobj in testset"
-            :key="testsetobj.agent"
-            cols="12"
-            sm="3"
-          >
-            <testLineGraph></testLineGraph>
-          </v-col>
-        </v-row>
-
-       </div>
-<!-- Pathway Graph display - End -->
 
 <!-- Main Drug Table - Start -->
   <div v-intro="'Data table that displays Pathway/Drug attributes'" v-intro-step="5">
@@ -471,6 +444,67 @@
         </v-data-table>
       </div>
 <!-- Main Drug Table - End -->
+
+<!-- ***************************** -->
+<!-- ***************************** -->
+<!-- Pathway Graph display - Start -->
+<!-- ***************************** -->
+        <div id="pathwayGraph" v-if="switch2">
+        <!-- template>
+          <div >
+            <v-card
+              class="pa-2 bluebg"
+              outlined
+              tile
+            >
+            <PathwaysGraph :data="PathwaysGraphData" :options="PathwaysGraphOptions" ></PathwaysGraph>
+          </v-card>
+          </div>
+          <br><br>
+        </template -->
+
+        <v-row v-for="LineGraphDatasetChunksObj in LineGraphDatasetChunks"
+        :key="LineGraphDatasetChunksObj.agent">
+          <v-col
+            v-for="chartdataobj in LineGraphDatasetChunksObj"
+            :key="chartdataobj.agent"
+            cols="12"
+            sm="3"
+          >
+          {{ chartdataobj.pathway }};{{ chartdataobj.agent }};{{ chartdataobj.values.baseline }}; {{ chartdataobj.values.ptspecific }};
+          <LineGraph></LineGraph>
+
+          </v-col>
+        </v-row>
+
+
+
+        <!-- v-row>
+          <v-col
+            v-for="testsetobj in testset"
+            :key="testsetobj.agent"
+            cols="12"
+            sm="3"
+          >
+            <testLineGraph></testLineGraph>
+          </v-col>
+        </v-row -->
+
+
+       </div>
+<!-- ***************************** -->
+<!-- Pathway Graph display - End -->
+<!-- ***************************** -->
+<!-- ***************************** -->
+
+
+
+
+
+
+
+
+
     </v-col>
 </v-row>
 
@@ -503,8 +537,10 @@
 
 <script>
 
- import PathwaysGraph from '../components/PathwaysGraph.vue'
- import testLineGraph from '../components/testLineGraph.vue'
+// import PathwaysGraph from '../components/PathwaysGraph.vue'
+// import testLineGraph from '../components/testLineGraph.vue'
+ import LineGraph from '../components/LineGraph.vue'
+
 
 // top color="amber lighten-4 black--text"
 import pptxgen from "pptxgenjs";
@@ -518,8 +554,9 @@ import printJS from 'print-js';
     name: 'UserView',
 
     components: {
-      PathwaysGraph,
-      testLineGraph
+//      PathwaysGraph,
+//      testLineGraph,
+      LineGraph
     },
 
     mounted() {
@@ -527,6 +564,29 @@ import printJS from 'print-js';
      },
 
     data: () => ({
+
+      testlabel: 'SSK66606',
+      testdata: [null,40,30,null],
+
+
+      // Chartdata for individual LineGraphs
+      LineGraphChartdata: {
+          labels: ['','BaseLine','Patient Specific',''],
+          datasets: [
+            {
+              label: 'SSK66006',
+              borderColor: '#666',
+              data: [null,20,40,null],
+              backgroundColor:['#000','#000','#fff','#fff'],
+              fill:false,
+              pointRadius: 10,
+              pointHoverRadius: 10
+            }
+          ]
+      },
+
+
+
 
       PathwaysGraphData: {
 
@@ -669,7 +729,10 @@ import printJS from 'print-js';
       {agent:"Perfinosine",values:{baseline:30, ptsepcific:45}},
       {agent:"Ceritinib",values:{baseline:25, ptsepcific:35}},
       {agent:"Enrectinib",values:{baseline:25, ptsepcific:35}},
-    ]
+    ],
+
+    LineGraphDataset: [],
+    LineGraphDatasetChunks: [],
 
     }),
 
@@ -715,11 +778,14 @@ import printJS from 'print-js';
         if (!this.pathwayselection || this.pathwayselection.length == 0) {
             if (i.pathways.trim() != "") {
                 this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
+this.loadGraphData();
                 return true;
             } else if (this.switch3) {
               this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
+this.loadGraphData();
               return true;
             }
+//            this.loadGraphData();
         }
         if (this.pathwayselection.length > 0) {
             for (p = 0; p < this.pathwayselection.length; p++) {
@@ -733,8 +799,13 @@ import printJS from 'print-js';
                   }
                 }
               }
+              this.loadGraphData();
+
           }
+
+
         })
+
       },
 
       computedHeaders () {
@@ -762,7 +833,15 @@ import printJS from 'print-js';
          },
 
          loadGraphData(){
-              this.resetGraphData();
+
+                       // Chunking the LineGraphDataset into chunks of 3
+            //           alert("LineGraphDataset.length:" + this.LineGraphDataset.length);
+                      this.chunk();
+            //          alert("LineGraphDatasetChunks.length:" + this.LineGraphDatasetChunks.length);
+
+
+
+    //          this.resetGraphData();
 
     //        var dtableElement = this.document.getElementById("drugTable");
     //        alert(dtableElement.rows[2].cells[1]);
@@ -785,6 +864,11 @@ import printJS from 'print-js';
                   this.PathwaysGraphOptions.scales.xAxes[0].labels.push(pPathway + 'P (' + pDrug + ')');
                   this.PathwaysGraphData.datasets[0].data.push({ x: pPathway + ' (' + pDrug + ')', y: pSubt, r: pRadius, name: pDrug });
                   this.PathwaysGraphData.datasets[1].data.push({ x: pPathway + 'P (' + pDrug + ')', y: pTotal, r: pRadius, name: pDrug });
+
+                  // Cleanup Dataset for individual LineGraphs
+                  this.LineGraphDataset.push({pathway:pPathway,agent:pDrug,values:{baseline:pSubt, ptspecific:pTotal}});
+
+
            }
          },
 
@@ -797,6 +881,20 @@ import printJS from 'print-js';
             this.PathwaysGraphOptions.scales.xAxes[0].labels.push('');
             this.PathwaysGraphData.datasets[0].data.push({ x: '', y: '0', r: '0', name: '' });
             this.PathwaysGraphData.datasets[1].data.push({ x: '', y: '0', r: '0', name: '' });
+
+            // Cleanup Dataset for individual LineGraphs
+            this.LineGraphDataset.splice(0);
+            this.LineGraphDatasetChunks.splice(0);
+        },
+
+
+        chunk () {
+              var i = 0,
+              n = this.LineGraphDataset.length;
+              this.LineGraphDatasetChunks.splice(0);
+              while (i < n) {
+                this.LineGraphDatasetChunks.push(this.LineGraphDataset.slice(i, i += 3));
+              }
         },
 
         printPDF () {
