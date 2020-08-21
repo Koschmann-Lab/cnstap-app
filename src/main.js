@@ -11,6 +11,8 @@ import routes from './routes';
 Vue.use(VueIntro)
 
 Vue.use(VueRouter)
+
+
 const router = new VueRouter({mode: 'hash', routes});
 
 import 'intro.js/introjs.css';

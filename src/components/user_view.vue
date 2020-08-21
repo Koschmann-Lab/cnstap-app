@@ -466,32 +466,24 @@
         </template>
 
 
-        <v-row v-for="LineGraphDatasetChunksObj in LineGraphDatasetChunks"
-        :key="LineGraphDatasetChunksObj.agent">
+         <!-- LineCharts -->
+        <div v-for="testsetObj in testset"
+        :key="testsetObj.pathway">
+        <v-row class='blue' align='center'><span>{{ testsetObj.pathway }}</span></v-row>
+        <v-row>
           <v-col
-            v-for="chartdataobj in LineGraphDatasetChunksObj"
-            :key="chartdataobj.agent"
-            cols="12"
+            v-for="drugagent in testsetObj.drugagents"
+            :key="drugagent.agent"
+            cols="3"
             sm="3"
+            class='brd-b-3'
           >
-          {{ chartdataobj.pathway }};{{ chartdataobj.agent }};{{ chartdataobj.values.baseline }}; {{ chartdataobj.values.ptspecific }};
-          <LineGraph></LineGraph>
+          <LineGraphContainer :rawdata=drugagent></LineGraphContainer>
 
           </v-col>
         </v-row>
-
-
-
-        <!-- v-row>
-          <v-col
-            v-for="testsetobj in testset"
-            :key="testsetobj.agent"
-            cols="12"
-            sm="3"
-          >
-            <testLineGraph></testLineGraph>
-          </v-col>
-        </v-row -->
+      </div>
+               <!-- LineCharts -->
 
 
        </div>
@@ -499,18 +491,8 @@
 <!-- Pathway Graph display - End -->
 <!-- ***************************** -->
 <!-- ***************************** -->
-
-
-
-
-
-
-
-
-
     </v-col>
 </v-row>
-
 
 <!-- Page Footer - Start -->
    <template>
@@ -541,16 +523,13 @@
 <script>
 
 import PathwaysGraph from '../components/PathwaysGraph.vue'
-// import testLineGraph from '../components/testLineGraph.vue'
- import LineGraph from '../components/LineGraph.vue'
+import LineGraphContainer from '../components/LineGraphContainer.vue'
+ // import LineGraph from '../components/LineGraph.vue'
 
 
 // top color="amber lighten-4 black--text"
 import pptxgen from "pptxgenjs";
 import printJS from 'print-js';
-
-
-
 
   export default {
 
@@ -559,7 +538,7 @@ import printJS from 'print-js';
     components: {
       PathwaysGraph,
 //      testLineGraph,
-      LineGraph
+      LineGraphContainer
     },
 
     mounted() {
@@ -728,10 +707,15 @@ import printJS from 'print-js';
     { pathways: "BRAF", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, icln: 0, itier: 5, itrl: 20,  cln: 0, tier: 5, trl: 20, total: 52, editable: 1, } ],
 
     testset: [
-      {agent:"MK2006",values:{baseline:20, ptsepcific:40}},
-      {agent:"Perfinosine",values:{baseline:30, ptsepcific:45}},
-      {agent:"Ceritinib",values:{baseline:25, ptsepcific:35}},
-      {agent:"Enrectinib",values:{baseline:25, ptsepcific:35}},
+      {pathway: "AKT", drugagents:[
+        {agent:"MK2006",values:{baseline:20, ptsepcific:40}},
+        {agent:"Perfinosine",values:{baseline:30, ptsepcific:45}}
+      ]},
+      {pathway: "ALK", drugagents:[
+        {agent:"Ceritinib",values:{baseline:25, ptsepcific:35}},
+        {agent:"Enrectinib",values:{baseline:28, ptsepcific:30}},
+        {agent:"Alectinib",values:{baseline:31, ptsepcific:44}}
+      ]},
     ],
 
     LineGraphDataset: [],
@@ -836,8 +820,9 @@ this.loadGraphData();
          startIntro() {
            if(confirm("Do you want an introduction to CNS-Tap website?")){
              const introJS = require("intro.js");
+             // introJS.setOption('skipLabel', 'Quit Intro')
              introJS.introJs().start();
-           }
+            }
          },
 
          loadGraphData(){

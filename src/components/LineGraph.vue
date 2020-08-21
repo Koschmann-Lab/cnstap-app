@@ -1,47 +1,9 @@
 <script>
-
 import { Line } from 'vue-chartjs'
 
 export default {
   extends: Line,
-  data: () => ({
-
-//    props: {
-//      label: { type: String, default: null},
-//      data: { type: Array, default: null},
-//    },
-
-    chartdata: {
-            labels: ['','BaseLine','Patient Specific',''],
-            datasets: [{
-                label: 'MK2006',
-                data: [null,20,40,null],
-                borderColor: '#666',
-                backgroundColor:['#000','#000','#fff','#fff'],
-                fill:false,
-                pointRadius: 10,
-                pointHoverRadius: 10
-            }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales:{
-            xAxes: [{
-                display: false //this will remove all the x-axis grid lines
-            }],
-            yAxes: [{
-                ticks: {
-                    suggestedMin: 0,
-                    suggestedMax: 100
-                }
-            }]
-        },
-
-    }
-
-  }),
-
+  props: ['chartdata', 'options'],
   mounted () {
     this.renderChart(this.chartdata, this.options)
   }

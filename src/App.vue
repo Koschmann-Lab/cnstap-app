@@ -8,19 +8,9 @@
 
 <script>
 
-// import home from './components/home';
-
-
-
 export default {
   name: 'App',
-
-//  home,
-
-
-
   data: () => ({
-
 
   }),
 };
