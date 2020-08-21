@@ -449,19 +449,22 @@
 <!-- ***************************** -->
 <!-- Pathway Graph display - Start -->
 <!-- ***************************** -->
+
         <div id="pathwayGraph" v-if="switch2">
-        <!-- template>
-          <div >
+
+        <template>
+          <div>
             <v-card
               class="pa-2 bluebg"
               outlined
               tile
             >
-            <PathwaysGraph :data="PathwaysGraphData" :options="PathwaysGraphOptions" ></PathwaysGraph>
+            <PathwaysGraph :chartData="PathwaysGraphData" :options="PathwaysGraphOptions" ></PathwaysGraph>
           </v-card>
           </div>
           <br><br>
-        </template -->
+        </template>
+
 
         <v-row v-for="LineGraphDatasetChunksObj in LineGraphDatasetChunks"
         :key="LineGraphDatasetChunksObj.agent">
@@ -537,7 +540,7 @@
 
 <script>
 
-// import PathwaysGraph from '../components/PathwaysGraph.vue'
+import PathwaysGraph from '../components/PathwaysGraph.vue'
 // import testLineGraph from '../components/testLineGraph.vue'
  import LineGraph from '../components/LineGraph.vue'
 
@@ -554,7 +557,7 @@ import printJS from 'print-js';
     name: 'UserView',
 
     components: {
-//      PathwaysGraph,
+      PathwaysGraph,
 //      testLineGraph,
       LineGraph
     },
@@ -770,12 +773,14 @@ import printJS from 'print-js';
         })
       },
 
-
+// method for loading the drugs in the drug table
       filteredItems() {
         var p;
        this.resetGraphData();
         return this.drugs.filter((i) => {
+            // load all rows, if no Pathway is selected
         if (!this.pathwayselection || this.pathwayselection.length == 0) {
+  // Ignore the first dummy row for adding data to graph, if switch3 is not selected
             if (i.pathways.trim() != "") {
                 this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
 this.loadGraphData();
@@ -785,11 +790,14 @@ this.loadGraphData();
 this.loadGraphData();
               return true;
             }
-//            this.loadGraphData();
+
         }
+  // load only rows for the Pathways selected
         if (this.pathwayselection.length > 0) {
             for (p = 0; p < this.pathwayselection.length; p++) {
+  // if pathway is the drug table matches the pathway selected
                 if (i.pathways.trim() === "" || this.pathways[this.pathwayselection[p]].pathway.trim() == i.pathways.trim()) {
+// Do not show the first dummy row, if switch3 is not selected
                   if (i.pathways.trim() != "") {
                       this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
                       return true;
