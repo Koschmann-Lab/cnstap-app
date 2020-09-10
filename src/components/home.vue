@@ -1,6 +1,8 @@
 <template>
   <v-container>
 
+
+
     <v-row class="text-center">
       <v-col class="mb-4">
         <h1 class="display-3 font-weight-bold mb-3 grey--text text--darken-2">
@@ -9,11 +11,7 @@
 
         <p class="headline font-weight-regular grey--text text--darken-2">
           {{ pgSubTitle }}
-
-
-
         </p>
-
         </v-col>
     </v-row>
 
@@ -22,8 +20,21 @@
           class="mb-5"
           cols="10">
 
+                <p>
+                  <template>
+                  <v-card>
+                    <v-card-text class="bluebg">
+                      <div class="mb-4 bluebg" >
+                        CNS - Tap is an <a href="http://www.clinicaltrials.gov" target="_blank">application</a> used for providing guidance while prescribing drugs to patient specific conditions. The audience for this application are the doctors ..... Unless otherwise indicated, the content of this CNS-TAP site (including all images, information, graphics and material, referred to as "Content") is owned or licensed by the creators of CNS-TAP and is protected by copyright, trademark, and common law rights. The Content cannot be used, copied, licensed or sub-licensed without the creators express consent.
 
-                                    <template>
+
+                      </div>
+                    </v-card-text>
+                  </v-card>
+                </template>
+              </p>
+
+                <template>
                           <v-card
                           v-scroll.self="onScroll"
                           class="overflow-y-auto blue-grey lighten-3"

@@ -18,6 +18,7 @@ export default {
   components: { LineGraph },
   props: ['rawdata'],
   data: () => ({
+    backgroundColor: '#F5DEB3',
     loaded: true,
     chartdata:{
       labels: ['','BaseLine','Patient Specific',''],
@@ -30,21 +31,34 @@ export default {
           fill:false,
           pointRadius: 10,
           pointHoverRadius: 10,
-          showLine: false
+          showLine: false,
+          borderWidth: 1
+
         }
       ]
     },
     options:{
+      responsive: true,
+      maintainAspectRatio: false,
+
+      layout: {
+              },
+
       legend: {
         display: false
       },
       scales: {
                  xAxes: [{
-                     display: false
+                     display: false,
+                     drawBorder: false,
+                     showBorder: false,
+
                  }],
                  yAxes: [{
                    display: true,
                    gridLines: {
+                     drawBorder: false,
+                     showBorder: false,
                      display:false
                    },
                    ticks: {
@@ -55,12 +69,13 @@ export default {
              }
 
     },
+
   }),
   created: function(){
     console.log(this.rawdata)
     this.chartdata.datasets[0].label = this.rawdata.agent
     this.chartdata.datasets[0].data[1] = this.rawdata.values.baseline
-    this.chartdata.datasets[0].data[2] = this.rawdata.values.ptsepcific
+    this.chartdata.datasets[0].data[2] = this.rawdata.values.ptspecific
   },
   computed: {
 
@@ -69,6 +84,6 @@ export default {
 </script>
 <style scoped>
 #chartcontainer {
-  border: solid 3px #333;
+  border: solid 1px #333;
 }
 </style>

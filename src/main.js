@@ -20,7 +20,6 @@ import 'intro.js/introjs.css';
 Vue.config.productionTip = false
 
 
-
 new Vue({
   vuetify,
   router,

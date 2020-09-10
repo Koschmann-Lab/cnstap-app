@@ -2,6 +2,27 @@
 <template>
   <v-container>
 
+    <!--
+    1. Add intro page describing CNS tap as well as the following link:
+
+    2. Add clinicaltrials.gov link to table
+
+    3. In order to fit multiple pathways onto the same row for the graph,
+    we need to add another loop in the code around line 470 - may need to
+    adjust the array for this loop to work by pathway
+
+    4. In order to add the box and other style for the graphs, we may need
+    to look into vuetify grids or flex box. Another thing he mentioned was
+    "adjust cols = 3"
+
+    5. In order to have the grey cells in the table to be automatically
+    filled in when data is inputted, we can try to define a custom save
+    action and then use that data to populate the grey out cells.
+    If this doesn't work, we will likely have to refactor the table.
+    -->
+
+
+
 <!-- Introduction button - Start -->
     <template>
           <div class="text-right">
@@ -16,12 +37,13 @@
 
 <!-- Switches for Notes, Graph and Patient Data - Start -->
 <v-row class="justify-center align-center">
-   <v-col cols="3">
+   <v-col cols="2">
        <h1 class="display-3 font-weight-bold grey--text text--darken-2">
         CNS-TAP
       </h1>
    </v-col>
-   <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
+   <v-col cols="10" class="font-weight-bold grey--text text--darken-2 text-right">
+     <div class="d-print-none">
         <v-simple-table>
             <tbody>
                 <tr>
@@ -32,7 +54,7 @@
                     </td>
                     <td class="lightbluecenter">
                           <div v-intro="'Switch to view Graph that compares different Drugs for Pathways'" v-intro-step="3">
-                                <v-switch v-model="switch2" inset :label="`Pathway Graphs`"></v-switch>
+                                <v-switch :disabled="this.pathwayselection.length === 0" v-model="switch2" inset :label="`Pathway Graphs`"></v-switch>
                           </div>
                     </td>
                     <td class="lightbluecenter">
@@ -43,11 +65,12 @@
                 </tr>
             </tbody>
         </v-simple-table>
+      </div>
    </v-col>
 </v-row>
 <!-- Switches for Notes, Graph and Patient Data - End -->
 
-<div>
+<div class="d-print-none">
   <v-row>
     <v-col cols="2" >
     </v-col>
@@ -55,7 +78,7 @@
 <!-- Print buttons for PDF and PPT - Start -->
         <div align="right" v-intro="'Print report with Data table, Notes and Graph'" v-intro-step="6">
           <span>Generate Report &nbsp; &nbsp;
-          <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPDF()"  dark>PDF</v-btn>
+          <v-btn rounded class="grey darken-3 white--text" align="right" @click="printDIV()"  dark>PDF</v-btn>
           &nbsp; &nbsp;
           <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPPT()"  dark>PPT</v-btn>
           &nbsp; &nbsp;
@@ -73,7 +96,7 @@
     <v-col cols="2" >
     </v-col>
     <v-col cols="10" >
-       <div v-if="switch1">
+       <div v-if="switch1" id="divNotes">
           <v-textarea
             solo
             name="notes"
@@ -90,32 +113,7 @@
    <v-row>
       <v-col cols="2" >
 <!-- Pathways multi selection - Start -->
-<!-- Pathway Filter - Start -->
-      <!-- div align="center" v-intro="'Filteration based on Selection mode for common drugs across Pathways'" v-intro-step="7">
-        <span>Selection mode <v-spacer></v-spacer>
-          <v-chip-group
-            column
-            active-class="white black--text"
-            outlined
-            align="center"
-          >
-            <v-chip class="def ma-2">
-              <v-btn icon
-                @click="alert('Set all');">
-              <v-icon large color="grey darken-2">mdi-set-all</v-icon>
-              </v-btn>
-              </v-chip>
-            <v-chip class="def ma-2">
-              <v-btn icon
-                @click="alert('Set center');">
-              <v-icon large color="grey darken-2">mdi-set-center</v-icon>
-              </v-btn>
-            </v-chip>
-          </v-chip-group>
-        </span>
-     </div -->
-<!-- Pathway Filter - End -->
-        <div v-intro="'Select your relevant Pathways. If no Pathway is selected, data for all the Pathways will be displayed in the Data table.'" v-intro-step="1">
+        <div class="d-print-none" v-intro="'Select your relevant Pathways. If no Pathway is selected, data for all the Pathways will be displayed in the Data table.'" v-intro-step="1">
           <v-card
              class="pa-1 bluebg"
              tile
@@ -132,6 +130,7 @@
                       active-class="white black--text"
                       multiple
                       outlined
+                      @change="validateDisplaySwitch2()"
                     >
                       <v-chip :class="'def black--text my-2 caption'"  v-for="pathway in pathways" :key="pathway.id"
                         filter
@@ -147,6 +146,9 @@
       </v-col>
 
       <v-col cols="10" >
+
+
+
 
 <!-- Main Drug Table - Start -->
   <div v-intro="'Data table that displays Pathway/Drug attributes'" v-intro-step="5">
@@ -169,7 +171,9 @@
                           <template v-slot:activator="{ on }" >
                                 <span v-on="on">{{h.text}}</span>
                           </template>
-                          <span>Here is a <a href="www.clinicaltrials.gov">link</a> to identify applicable trials</span>
+                          <span>Here is a <a @click.prevent v-tooltip.click="'Show on: click'" href="www.clinicaltrials.gov">link</a> to identify applicable trials</span>
+
+
                         </v-tooltip>
             </template>
             <template v-else>
@@ -268,6 +272,7 @@
                       @cancel="cancel"
                       @open="open"
                       @close="close"
+                      @update:return-value="updateICLN(props.item.pathways,props.item.icln)"
                     >
                     <v-tooltip top color="amber lighten-4" >
                     <template v-slot:activator="{ on }">
@@ -323,6 +328,7 @@
                            @cancel="cancel"
                            @open="open"
                            @close="close"
+                           @update:return-value="updateITIER(props.item.pathways,props.item.itier)"
                          >
 
                            <v-tooltip top color="amber lighten-4" >
@@ -368,6 +374,7 @@
                     @cancel="cancel"
                     @open="open"
                     @close="close"
+                    @update:return-value="updateITRL(props.item.pathways,props.item.itrl,props.item.subt)"
                   >
 
                   <v-tooltip top color="amber lighten-4" >
@@ -450,47 +457,62 @@
 <!-- Pathway Graph display - Start -->
 <!-- ***************************** -->
 
-        <div id="pathwayGraph" v-if="switch2">
+<br><br>
 
-        <template>
-          <div>
-            <v-card
-              class="pa-2 bluebg"
-              outlined
-              tile
-            >
-            <PathwaysGraph :chartData="PathwaysGraphData" :options="PathwaysGraphOptions" ></PathwaysGraph>
-          </v-card>
-          </div>
-          <br><br>
-        </template>
+    <div id="pathwayGraph" v-if="switch2">
 
-
-         <!-- LineCharts -->
-        <div v-for="testsetObj in testset"
+         <!-- LineCharts Start -->
+        <div v-for="testsetObj in GraphDataset"
         :key="testsetObj.pathway">
-        <v-row class='blue' align='center'><span>{{ testsetObj.pathway }}</span></v-row>
-        <v-row>
-          <v-col
-            v-for="drugagent in testsetObj.drugagents"
-            :key="drugagent.agent"
-            cols="3"
-            sm="3"
-            class='brd-b-3'
-          >
-          <LineGraphContainer :rawdata=drugagent></LineGraphContainer>
 
-          </v-col>
-        </v-row>
+
+        <v-simple-table > <tbody>
+        <tr>
+
+        <v-simple-table > <tbody><tr>
+        <td class="lightblueleft">
+        {{ testsetObj.pathway }}
+        </td>
+        <td class="lightblueright"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px;solid #000;background:black;display:inline-block;"></div>&nbsp;Baseline</div></td>
+        <td class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></td>
+       </tr></tbody></v-simple-table>
+
+
+        </tr>
+        <tr>
+        <td class="lightbluecenter">
+
+
+                <v-row>
+                  <v-col
+                    v-for="drugagent in testsetObj.drugagents"
+                    :key="drugagent.agent"
+                    cols="3"
+                    sm="3"
+                    class='brd-b-3'
+                  >
+                  <LineGraphContainer :rawdata=drugagent>
+
+                    <canvas id="GraphCanvas"></canvas>
+
+                  </LineGraphContainer>
+
+                  </v-col>
+                </v-row>
+        </td></tr>
+        </tbody></v-simple-table>
+
       </div>
-               <!-- LineCharts -->
-
-
+               <!-- LineCharts End -->
        </div>
+
 <!-- ***************************** -->
 <!-- Pathway Graph display - End -->
 <!-- ***************************** -->
 <!-- ***************************** -->
+
+
+
     </v-col>
 </v-row>
 
@@ -515,19 +537,12 @@
    </template>
 <!-- Page Footer - End -->
 
-
-
 </v-container>
 </template>
 
 <script>
 
-import PathwaysGraph from '../components/PathwaysGraph.vue'
 import LineGraphContainer from '../components/LineGraphContainer.vue'
- // import LineGraph from '../components/LineGraph.vue'
-
-
-// top color="amber lighten-4 black--text"
 import pptxgen from "pptxgenjs";
 import printJS from 'print-js';
 
@@ -536,111 +551,16 @@ import printJS from 'print-js';
     name: 'UserView',
 
     components: {
-      PathwaysGraph,
-//      testLineGraph,
       LineGraphContainer
     },
 
     mounted() {
       this.startIntro();
+
      },
 
-    data: () => ({
 
-      testlabel: 'SSK66606',
-      testdata: [null,40,30,null],
-
-
-      // Chartdata for individual LineGraphs
-      LineGraphChartdata: {
-          labels: ['','BaseLine','Patient Specific',''],
-          datasets: [
-            {
-              label: 'SSK66006',
-              borderColor: '#666',
-              data: [null,20,40,null],
-              backgroundColor:['#000','#000','#fff','#fff'],
-              fill:false,
-              pointRadius: 10,
-              pointHoverRadius: 10
-            }
-          ]
-      },
-
-
-
-
-      PathwaysGraphData: {
-
-                datasets: [
-                  {
-                    label: 'Baseline',
-                    backgroundColor: '#393B40',
-                    pointBackgroundColor: '#393B40',
-                    borderWidth: 1,
-                    pointBorderColor: '#393B40',
-                    data: []
-                  },
-                  {
-                    label: 'Patient specific',
-                    backgroundColor: '#ffffff',
-                    borderColor: '#212121',
-                    borderWidth: 2,
-                    data: []
-                  }
-                ]
-              },
-
-              PathwaysGraphOptions: {
-                scales: {
-                  yAxes: [{
-                    ticks: {
-                      beginAtZero: true,
-                      reverse: true
-                    },
-                    pointLabels: {
-                      display: true
-                    },
-                    gridLines: {
-                      drawOnChartArea: false
-                    }
-                  }],
-
-                  xAxes: [{
-                    position: 'top',
-                    type: 'category',
-                    labels: [],
-                    pointLabels: {
-                      display: true
-                    },
-                    ticks: {
-                      beginAtZero: true
-                    },
-                    gridLines: {
-                      drawOnChartArea: false
-                    }
-                }]
-              },
-              legend: {
-                display: true
-              },
-
-              tooltips: {
-                callbacks: {
-                  label(tooltipItem, data) {
-                    // Get the dataset label.
-                    const label = data.datasets[tooltipItem.datasetIndex].label;
-                    // Format the y-axis value.
-                    const value = tooltipItem.yLabel;
-                    return `${label}: ${value}`;
-                  }
-                }
-              },
-
-              responsive: true,
-              maintainAspectRatio: false,
-              height: 200,
-            },
+    data: () => (  {
 
       pgTitle: 'CNS-TAP',
 
@@ -667,15 +587,18 @@ import printJS from 'print-js';
       { id:4, pathway: "CDK", checked: false },
       { id:5, pathway: "CNS Generic", checked: false },
       { id:6, pathway: "EGFR", checked: false },
-      { id:7, pathway: "HDAC", checked: false },
-      { id:8, pathway: "INI1", checked: false },
-      { id:9, pathway: "MEK", checked: false },
-      { id:10, pathway: "PDGFR", checked: false },
-      { id:11, pathway: "P13K/mTOR", checked: false },
-      { id:12, pathway: "MET", checked: false },
-      { id:13, pathway: "CHK1", checked: false },
-      { id:14, pathway: "MET/VEGF2", checked: false },
-      { id:15, pathway: "GENERIC CYTOTOXIC", checked: false } ],
+      { id:7, pathway: "FGFR", checked: false },
+      { id:8, pathway: "EGFR/HER2/HER4/cMET", checked: false },
+      { id:9, pathway: "HDAC", checked: false },
+      { id:10, pathway: "INI1", checked: false },
+      { id:11, pathway: "MEK", checked: false },
+      { id:12, pathway: "PDGFR", checked: false },
+      { id:13, pathway: "P13K/mTOR", checked: false },
+      { id:14, pathway: "MET", checked: false },
+      { id:15, pathway: "MET/VEGF2", checked: false },
+      { id:16, pathway: "Chk1", checked: false },
+      { id:17, pathway: "GENERIC CYTOTOXIC", checked: false },
+      { id:18, pathway: "RET", checked: false } ],
 
 
 
@@ -699,103 +622,105 @@ import printJS from 'print-js';
 
     drugs: [
     { pathways: "", drugagents: "", vitro: "", vivo: "", safety: "", cns: "", bbb: "", fda: "", subt:"", icln: "INPUT", itier: "PATIENT", itrl: "DATA", cln: "", tier: "", trl: "", total: "", editable: 2, },
-    { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, icln: 0, itier: 5, itrl: 10, cln: 0, tier: 5, trl: 10, total: 31, editable: 1, },
-    { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, icln: 2, itier: 0, itrl: 0,  cln: 2, tier: 0, trl: 0, total: 10, editable: 0, },
-    { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, icln: 2, itier: 0, itrl: 10,  cln: 2, tier: 0, trl: 10, total: 40, editable: 1, },
-    { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, icln: 0, itier: 0, itrl: 10,  cln: 0, tier: 0, trl: 10, total: 36, editable: 0, },
-    { pathways: "ALK", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, icln: 4, itier: 0, itrl: 0,  cln: 4, tier: 0, trl: 0, total: 31, editable: 0, },
-    { pathways: "BRAF", drugagents: "Enrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, icln: 0, itier: 5, itrl: 20,  cln: 0, tier: 5, trl: 20, total: 52, editable: 1, } ],
+    { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 16, editable: 1, },
+    { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 8, editable: 0, },
+    { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 28, editable: 1, },
+    { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
+    { pathways: "ALK", drugagents: "Entrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
+    { pathways: "BRAF", drugagents: "Dabrafenib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 5, fda: 10, subt:41,  icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0,total: 41, editable: 1, },
+    { pathways: "BRAF", drugagents: "Vemurafenib", vitro: 2, vivo: 0, safety: 0, cns: 10, bbb: 5, fda: 10, subt: 27, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
+    { pathways: "CDK", drugagents: "Abemaciclib", vitro: 2, vivo: 6, safety: 0, cns: 10, bbb: 5, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 1, },
+    { pathways: "CDK", drugagents: "Palbociclib", vitro: 4, vivo: 6, safety: 3, cns: 0, bbb: 0, fda: 10, subt: 23, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 23, editable: 0, },
+    { pathways: "CDK", drugagents: "Ribociclib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt: 28, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 28, editable: 0, },
+    { pathways: "CNS generic", drugagents: "Lenalidomide", vitro: 2, vivo: 0, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 38, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 38, editable: 1, },
+    { pathways: "CNS generic", drugagents: "Olaparib", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 0, fda: 10, subt: 25, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 25, editable: 0, },
+    { pathways: "CNS generic", drugagents: "Gemcitabine", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
+    { pathways: "EGFR", drugagents: "Erlotinib", vitro: 4, vivo: 0, safety: 6, cns: -10, bbb: 10, fda: 10, subt: 20, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 20, editable: 1, },
+    { pathways: "EGFR", drugagents: "Osimertinib Mesylate (AZD9291; Tagrisso)", vitro: 2, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "FGFR", drugagents: "Pazopanib (FGFR)", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 5, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
+    { pathways: "FGFR", drugagents: "Ponatinib (FGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
+    { pathways: "FGFR", drugagents: "Erdafitinib (FGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 15, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 15, editable: 0, },
+    { pathways: "FGFR", drugagents: "Debio 1347 (FGFR)", vitro: 2, vivo: 1, safety: 0, cns: 0, bbb: 0, fda: 0, subt: 3, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 3, editable: 0, },
+    { pathways: "EGFR/HER2/HER4/cMET", drugagents: "Afatinib", vitro: 4, vivo: 6, safety: 3, cns: -10, bbb: 0, fda: 10, subt: 13, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 13, editable: 1, },
+    { pathways: "HDAC", drugagents: "Panobinostat (LBH589)", vitro: 2, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 34, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 34, editable: 1, },
+    { pathways: "HDAC", drugagents: "Vorinostat (SAHA)", vitro: 2, vivo: 6, safety: 6, cns: -10, bbb: 10, fda: 10, subt: 24, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 24, editable: 0, },
+    { pathways: "HDAC", drugagents: "Entinostat", vitro: 4, vivo: 6, safety: 3, cns: 0, bbb: 5, fda: 0, subt: 18, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 18, editable: 0, },
+    { pathways: "HDAC", drugagents: "Onc201", vitro: 4, vivo: 6, safety: 3, cns: 10, bbb: 10, fda: 0, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "HDAC", drugagents: "Valproic Acid", vitro: 4, vivo: 3, safety: 6, cns: 0, bbb: 10, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "INI1", drugagents: "Alisertib (MLN8237)", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 0, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
+    { pathways: "INI1", drugagents: "Tamoxifen", vitro: 2, vivo: 0, safety: 0, cns: 0, bbb: 10, fda: 10, subt: 22, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 22, editable: 0, },
+    { pathways: "INI1", drugagents: "Tazemetostat (EPZ-6438)", vitro: 2, vivo: 0, safety: 3, cns: 0, bbb: 5, fda: 0, subt: 10, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 10, editable: 0, },
+    { pathways: "MEK", drugagents: "Trametinib", vitro: 2, vivo: 3, safety: 3, cns: 5, bbb: 10, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total:33 , editable: 1, },
+    { pathways: "MEK", drugagents: "Selumetinib", vitro: 4, vivo: 0, safety: 0, cns: 0, bbb: 0, fda: 10, subt: 14, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 14, editable: 0, },
+    { pathways: "MEK", drugagents: "Cobimetinib", vitro: 4, vivo: 0, safety: 0, cns: 0, bbb: 5, fda: 0, subt: 19, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 19, editable: 0, },
+    { pathways: "MEK", drugagents: "Binimetinib", vitro: 4, vivo: 0, safety: 0, cns: 5, bbb: 0, fda: 10, subt: 19, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 19, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Crenolanib", vitro: 2, vivo: 0, safety: 3, cns: 0, bbb: 0, fda: 0, subt: 5, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 5, editable: 1, },
+    { pathways: "PDGFR", drugagents: "Dasatinib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 10, fda: 10, subt: 41, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 41, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Pazopanib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 5, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Ponatinib (PDGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Sorafenib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 10, subt: 18, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 18, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Sunitinib", vitro: 2, vivo: 6, safety: 6, cns: 5, bbb: 0, fda: 10, subt: 29, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 29, editable: 0, },
+    { pathways: "PI3K/mTOR", drugagents: "BKM120 (Buparlisib)", vitro: 4, vivo: 6, safety: 0, cns: 0, bbb: 5, fda: 0, subt: 15, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 15, editable: 1, },
+    { pathways: "PI3K/mTOR", drugagents: "GDC-0084 (PI3K Inhibitor)", vitro: 4, vivo: 0, safety: 0, cns: 10, bbb: 10, fda: 0, subt: 24, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 24, editable: 0, },
+    { pathways: "PI3K/mTOR", drugagents: "Everolimus (PI3K)", vitro: 2, vivo: 0, safety: 6, cns: 10, bbb: 5, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "PI3K/mTOR", drugagents: "Temsirolimus", vitro: 4, vivo: 6, safety: 6, cns: -5, bbb: 5, fda: 10, subt: 26, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
+    { pathways: "PI3K/mTOR", drugagents: "LY3023414", vitro: 4, vivo: 3, safety: 0, cns: 5, bbb: 5, fda: 0, subt: 17, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 17, editable: 0, },
+    { pathways: "MET", drugagents: "Crizotinib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 0, fda: 10, subt: 31, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 31, editable: 1, },
+    { pathways: "MET/VEGF2", drugagents: "Cabozantinib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 46, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 46, editable: 1, },
+    { pathways: "Chk1", drugagents: "Prexasertib", vitro: 2, vivo: 6, safety: 0, cns: 0, bbb: 0, fda: 0, subt: 8, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 8, editable: 1, },
+    { pathways: "generic cytotoxic", drugagents: "Etoposide", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
+    { pathways: "generic cytotoxic", drugagents: "Carboplatin", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
+    { pathways: "generic cytotoxic", drugagents: "Irinotecan", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
+    { pathways: "generic cytotoxic", drugagents: "CCNU (lomustine)", vitro: 4, vivo: 3, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "generic cytotoxic", drugagents: "Temozolomide", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
+    { pathways: "RET", drugagents: "Ponatinib (RET)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 35, editable: 1, },
+    { pathways: "RET", drugagents: "Cabozantinib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 46, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 46, editable: 0, },
+    { pathways: "RET", drugagents: "Alectinib (RET)", vitro: 2, vivo: 0, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 27, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
+    { pathways: "RET", drugagents: "Loxo-292", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt: 26, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
+    { pathways: "RET", drugagents: "BLU-667", vitro: 2, vivo: 3, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 10, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 10, editable: 0, } ],
 
-    testset: [
-      {pathway: "AKT", drugagents:[
-        {agent:"MK2006",values:{baseline:20, ptsepcific:40}},
-        {agent:"Perfinosine",values:{baseline:30, ptsepcific:45}}
-      ]},
-      {pathway: "ALK", drugagents:[
-        {agent:"Ceritinib",values:{baseline:25, ptsepcific:35}},
-        {agent:"Enrectinib",values:{baseline:28, ptsepcific:30}},
-        {agent:"Alectinib",values:{baseline:31, ptsepcific:44}}
-      ]},
-    ],
 
-    LineGraphDataset: [],
-    LineGraphDatasetChunks: [],
-
+    GraphDataset: [{ pathway: "", drugagents:[]},],
     }),
 
+    // watch: {
+    //            switch2(newValue){
+    //                if (newValue) {
+    //                     if(this.pathwayselection.length==0){
+    //                       alert('watch: Please select at least one pathway');
+    //                       this.switch2=false;
+    //                     }
+    //                }
+    //            }
+    //        },
+
     computed: {
-
-
-
-      filteredItems1() {
-        var p;
-        return this.drugs.filter((i) => {
-        // load all rows, if no Pathway is selected
-        if (!this.pathwayselection || this.pathwayselection.length == 0) {
-            // Do not show the first dummy row, if switch3 is not selected
-            if (i.pathways.trim() != "") {
-                return true;
-            } else if (this.switch3) {
-                return true;
-            }
-        }
-        // load only rows for the Pathways selected
-        if (this.pathwayselection.length > 0) {
-            for (p = 0; p < this.pathwayselection.length; p++) {
-                // if pathway is the drug table matches the pathway selected
-                if (i.pathways.trim() === "" || this.pathways[this.pathwayselection[p]].pathway.trim() == i.pathways.trim()) {
-                  // Do not show the first dummy row, if switch3 is not selected
-                  if (i.pathways.trim() != "") {
-                      return true;
-                  } else if (this.switch3) {
-                    return true;
-                  }
-                }
-              }
-          }
-          this.loadGraphData();
-        })
-      },
-
 // method for loading the drugs in the drug table
       filteredItems() {
         var p;
-       this.resetGraphData();
+       this.filterGraphData();
+
         return this.drugs.filter((i) => {
             // load all rows, if no Pathway is selected
         if (!this.pathwayselection || this.pathwayselection.length == 0) {
   // Ignore the first dummy row for adding data to graph, if switch3 is not selected
-            if (i.pathways.trim() != "") {
-                this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
-this.loadGraphData();
+            if ((i.editable!= 2) || (this.switch3)){
+                this.GraphDataset.splice(0);
                 return true;
-            } else if (this.switch3) {
-              this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
-this.loadGraphData();
-              return true;
             }
 
-        }
+        } else {
   // load only rows for the Pathways selected
-        if (this.pathwayselection.length > 0) {
             for (p = 0; p < this.pathwayselection.length; p++) {
   // if pathway is the drug table matches the pathway selected
                 if (i.pathways.trim() === "" || this.pathways[this.pathwayselection[p]].pathway.trim() == i.pathways.trim()) {
 // Do not show the first dummy row, if switch3 is not selected
-                  if (i.pathways.trim() != "") {
-                      this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
+                  if ((i.editable!= 2) || (this.switch3)){
                       return true;
-                  } else if (this.switch3) {
-                    this.addGraphData (i.pathways.trim(),i.subt,i.total,'10',i.drugagents.trim());
-                    return true;
                   }
                 }
               }
-              this.loadGraphData();
-
           }
-
-
         })
 
       },
@@ -809,6 +734,8 @@ this.loadGraphData();
       clnleft () {
         return this.$refs.cln.getBoundingClientRect().left
       }
+
+
     },
 
     methods:{
@@ -818,83 +745,112 @@ this.loadGraphData();
          max25chars: v => v.length <= 25 || 'Input too long!',
 
          startIntro() {
-           if(confirm("Do you want an introduction to CNS-Tap website?")){
-             const introJS = require("intro.js");
-             // introJS.setOption('skipLabel', 'Quit Intro')
-             introJS.introJs().start();
-            }
-         },
-
-         loadGraphData(){
-
-                       // Chunking the LineGraphDataset into chunks of 3
-            //           alert("LineGraphDataset.length:" + this.LineGraphDataset.length);
-                      this.chunk();
-            //          alert("LineGraphDatasetChunks.length:" + this.LineGraphDatasetChunks.length);
-
-
-
-    //          this.resetGraphData();
-
-    //        var dtableElement = this.document.getElementById("drugTable");
-    //        alert(dtableElement.rows[2].cells[1]);
-
-    //        for (var i = 0, row; row = dtableElement.rows[i]; i++) {
-               //iterate through rows
-               //rows would be accessed using the "row" variable assigned in the for loop
-    //           for (var j = 0, col; col = row.cells[j]; j++) {
-                 //iterate through columns
-                 //columns would be accessed using the "col" variable assigned in the for loop
-    //             alert(row.cells[1]);
-    //           }
-    //        }
-
-         },
-
-         addGraphData (pPathway,pSubt,pTotal,pRadius,pDrug) {
-           if (pPathway != "") {
-                  this.PathwaysGraphOptions.scales.xAxes[0].labels.push(pPathway + ' (' + pDrug + ')');
-                  this.PathwaysGraphOptions.scales.xAxes[0].labels.push(pPathway + 'P (' + pDrug + ')');
-                  this.PathwaysGraphData.datasets[0].data.push({ x: pPathway + ' (' + pDrug + ')', y: pSubt, r: pRadius, name: pDrug });
-                  this.PathwaysGraphData.datasets[1].data.push({ x: pPathway + 'P (' + pDrug + ')', y: pTotal, r: pRadius, name: pDrug });
-
-                  // Cleanup Dataset for individual LineGraphs
-                  this.LineGraphDataset.push({pathway:pPathway,agent:pDrug,values:{baseline:pSubt, ptspecific:pTotal}});
+          if(confirm("Do you want an introduction to CNS-Tap website?")){
+            const introJS = require("intro.js");
+            introJS.introJs().start();
            }
          },
 
-         resetGraphData(){
-            // detele all Graph data from the two datasets and x-axis labels
-            this.PathwaysGraphData.datasets[0].data.splice(0,this.PathwaysGraphData.datasets[0].data.length);
-            this.PathwaysGraphData.datasets[1].data.splice(0,this.PathwaysGraphData.datasets[1].data.length);
-            this.PathwaysGraphOptions.scales.xAxes[0].labels.splice(0,this.PathwaysGraphOptions.scales.xAxes[0].labels.length);
-            // add a dummy array element to move the first data points from x-axis
-            this.PathwaysGraphOptions.scales.xAxes[0].labels.push('');
-            this.PathwaysGraphData.datasets[0].data.push({ x: '', y: '0', r: '0', name: '' });
-            this.PathwaysGraphData.datasets[1].data.push({ x: '', y: '0', r: '0', name: '' });
-
-            // Cleanup Dataset for individual LineGraphs
-            this.LineGraphDataset.splice(0);
-            this.LineGraphDatasetChunks.splice(0);
-        },
-
-
-        chunk () {
-              var i = 0,
-              n = this.LineGraphDataset.length;
-              this.LineGraphDatasetChunks.splice(0);
-              while (i < n) {
-                this.LineGraphDatasetChunks.push(this.LineGraphDataset.slice(i, i += 3));
-              }
-        },
+         filterGraphData() {
+                      this.GraphDataset.splice(0);
+                      for (var p = 0; p < this.pathwayselection.length; p++){
+                            var tDrugagents = [{ agent: "", values:{baseline:0, ptspecific:0}},];
+                            tDrugagents.splice(0);
+                            for (var d = 0; d < this.drugs.length; d++){
+                              if(this.pathways[this.pathwayselection[p]].pathway.trim() == this.drugs[d].pathways.trim()){
+                                  tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:this.drugs[d].subt, ptspecific:this.drugs[d].total}});
+                              }
+                            }
+                              this.GraphDataset.push({pathway:this.pathways[this.pathwayselection[p]].pathway.trim(), drugagents:tDrugagents});
+                          //    alert(JSON.stringify(this.GraphDataset));
+                        }
+         },
 
         printPDF () {
          // printJS({printable:'cnstap.pdf', type:'pdf', showModal:true});
          //  let pdfd = new printJS();
          //  printJS("drugTable",'html');
            printJS({printable:['drugTable'],type:'html',header: 'CNS-TAP'});
+
           // printJS("drugGraph",'html');
 
+        },
+
+        printDIV() {
+              var divDrugTableContents = document.getElementById("drugTable").innerHTML;
+              var divGraph = document.getElementById("GraphCanvas");
+
+              var a = window.open('', '', 'height=500, width=500');
+              a.document.write('<html>');
+              a.document.write('<body > <h1>CNS-TAP</h1><br><br>');
+              a.document.write('<h2>Drug Table</h2><br>');
+              a.document.write(divDrugTableContents);
+              a.document.write('<br><br><h2>Notes</h2><br>');
+              a.document.write(this.customNotes);
+              a.document.write('<br><br><h2>Pathway Graphs</h2><br>');
+              a.document.write("<br><img src='" + divGraph.toDataURL() + "'/>");
+
+
+
+
+              a.document.write('</body></html>');
+              a.document.close();
+              a.print();
+        },
+
+        printPDFiFrame () {
+          alert("Generating PDF");
+                  var objFra = document.createElement('iframe');
+                  objFra.style.visibility = 'hidden';
+                  objFra.src = "about:blank";
+
+                  //var myContent = '<!DOCTYPE html>' + '<html><head><title>My dynamic document</head>' + '<body><p>CNSTAP</p></body></html>';
+                  //                  var drugtableElement = document.getElementById('drugTable');
+                  //                  objFra.insertAdjacentElement("afterend", drugtableElement);
+
+                  // var divContents = document.getElementById("drugTable").innerHTML;
+                  //objFra.contentWindow.document.write(divContents);
+
+                //  objFra.document.write(divContents);
+
+
+
+
+                //   if (objFra.contentDocument)
+                //     iframedoc = objFra.contentDocument;
+                //   else if (objFra.contentWindow)
+                //     iframedoc = objFra.contentWindow.document;
+                //
+                //   if (iframedoc) {
+                //     // Put the content in the iframe
+                //     iframedoc.open();
+                //     iframedoc.writeln(divContents);
+                //     iframedoc.close();
+                //   } else {
+                //     //just in case of browsers that don't support the above 3 properties.
+                //     //fortunately we don't come across such case so far.
+                //     alert('Cannot inject dynamic contents into iframe.');
+                //   }
+
+
+                  // objFra.contentWindow.document.open('text/htmlreplace');
+                  // objFra.contentWindow.document.write(myContent);
+                  // objFra.contentWindow.document.close();
+
+
+
+                  document.body.appendChild(objFra);
+
+                  var divContents = document.getElementById("drugTable").innerHTML;
+                  var iframedoc = objFra.contentwindos.document;
+                  iframedoc.open();
+                  iframedoc.writeln(divContents);
+                  iframedoc.close();
+
+                  objFra.contentWindow.focus();
+
+
+                  objFra.contentWindow.print();
         },
 
         printPPT () {
@@ -932,19 +888,49 @@ this.loadGraphData();
 
         },
 
+        updateICLN(pPathway,pICLN){
+            for (var d = 0; d < this.drugs.length; d++){
+                if(this.drugs[d].pathways.trim() == pPathway){
+                      this.drugs[d].icln = pICLN;
+                      this.drugs[d].cln = Number(pICLN)*5;
+                      this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
+                }
+            }
+            this.switch2=false;
+        },
+
+        updateITIER(pPathway,pITIER){
+            for (var d = 0; d < this.drugs.length; d++){
+                if(this.drugs[d].pathways.trim() == pPathway){
+                      this.drugs[d].itier = pITIER;
+                      this.drugs[d].tier = Number(pITIER)*3;
+                      this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
+                }
+            }
+            this.switch2=false;
+        },
+
+        updateITRL(pPathway,pITRL,pSUBT){
+            for (var d = 0; d < this.drugs.length; d++){
+                if((this.drugs[d].pathways.trim() == pPathway) && (this.drugs[d].subt == pSUBT)){
+                      this.drugs[d].itrl = pITRL;
+                      this.drugs[d].trl = Number(pITRL)*20;
+                      this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
+                }
+            }
+            this.switch2=false;
+        },
+
+        validateDisplaySwitch2(){
+            if(this.pathwayselection.length===0){
+                this.switch2=false;
+            }
+        },
+
 
 
     },
-//    watch: {
-//           PathwaysGraphData: function () {
-//              alert('change');
-          //     this.answer = 'Waiting for you to stop typing...'
-          //     this.debouncedGetAnswer()
-//           }
-//    }
 }
-
-
 </script>
 
 <style scoped>
@@ -981,6 +967,12 @@ this.loadGraphData();
     background-color: #E4ECFF;
     color: #393B40;
     text-align: left;
+}
+
+.lightblueright {
+    background-color: #E4ECFF;
+    color: #393B40;
+    text-align: right;
 }
 
 .whitecenter {
@@ -1098,6 +1090,7 @@ this.loadGraphData();
       margin-bottom: 0;
       z-index: 1;
     }
+
 td p {
   margin: 0;
   padding:10px;
