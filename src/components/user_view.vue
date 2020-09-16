@@ -3,7 +3,6 @@
   <v-container>
 
     <!--
-    1. Add intro page describing CNS tap as well as the following link:
 
     2. Add clinicaltrials.gov link to table
 
@@ -11,24 +10,27 @@
     we need to add another loop in the code around line 470 - may need to
     adjust the array for this loop to work by pathway
 
-    4. In order to add the box and other style for the graphs, we may need
-    to look into vuetify grids or flex box. Another thing he mentioned was
-    "adjust cols = 3"
+    Bugs
+    1. CLOSED Scroll up after entering the tutorial view
+    2. CLOSED For the last step in tutorial, make the arrow point to the actual pdf and ppt buttons.
 
-    5. In order to have the grey cells in the table to be automatically
-    filled in when data is inputted, we can try to define a custom save
-    action and then use that data to populate the grey out cells.
-    If this doesn't work, we will likely have to refactor the table.
     -->
 
-
-
 <!-- Introduction button - Start -->
-    <template>
+    <!-- <template>
           <div class="text-right">
                 <v-btn
                   icon
                   @click="startIntro();">
+                        <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
+                </v-btn>
+          </div>
+    </template> -->
+    <template>
+          <div class="text-right">
+                <v-btn
+                  icon
+                  @click="startIntro()">
                         <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
                 </v-btn>
           </div>
@@ -37,28 +39,34 @@
 
 <!-- Switches for Notes, Graph and Patient Data - Start -->
 <v-row class="justify-center align-center">
-   <v-col cols="2">
-       <h1 class="display-3 font-weight-bold grey--text text--darken-2">
+   <v-col cols="3">
+       <h3 class="display-3 font-weight-bold grey--text text--darken-2">
         CNS-TAP
-      </h1>
+      </h3>
+      <!-- <div class="headline font-weight-regular grey--text text--darken-2">
+        CNS-TAP
+      </div> -->
    </v-col>
-   <v-col cols="10" class="font-weight-bold grey--text text--darken-2 text-right">
+   <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
      <div class="d-print-none">
         <v-simple-table>
             <tbody>
                 <tr>
-                    <td class="lightbluecenter">
-                          <div v-intro="'Switch to enter your custom Notes'" v-intro-step="2">
-                                <v-switch v-model="switch1" inset :label="`Note Space`"></v-switch>
+                  <!-- Switches for Notes -->
+                    <td width="300px" class="lightbluecenter">
+                          <div v-intro="'Switch to enter custom notes, which will be retained in the generated report.'" v-intro-step="2">
+                                <v-switch v-model="switch1" @change="getdatetime()" inset :label="`Note Space`"></v-switch>
                           </div>
                     </td>
-                    <td class="lightbluecenter">
-                          <div v-intro="'Switch to view Graph that compares different Drugs for Pathways'" v-intro-step="3">
+                    <!-- Switches for Graph -->
+                    <td width="300px" class="lightbluecenter">
+                          <div v-intro="'Switch to view graphs that show CNS-Tap baseline and patient specific scores for drugs in selected pathways. Please select at least one pathway to enable this feature.'" v-intro-step="3">
                                 <v-switch :disabled="this.pathwayselection.length === 0" v-model="switch2" inset :label="`Pathway Graphs`"></v-switch>
                           </div>
                     </td>
+                    <!-- Switches for Patient Data -->
                     <td class="lightbluecenter">
-                          <div v-intro="'Switch to view and/or edit Patient relevant data'" v-intro-step="4">
+                          <div v-intro="'Switch to input patient specific sequencing data to generate patient specific scores.'" v-intro-step="4">
                                 <v-switch v-model="switch3" inset :label="`Patient Data Columns`"></v-switch>
                           </div>
                     </td>
@@ -72,22 +80,94 @@
 
 <div class="d-print-none">
   <v-row>
-    <v-col cols="2" >
+    <v-col cols="3" >
     </v-col>
-    <v-col cols="10" >
-<!-- Print buttons for PDF and PPT - Start -->
-        <div align="right" v-intro="'Print report with Data table, Notes and Graph'" v-intro-step="6">
-          <span>Generate Report &nbsp; &nbsp;
-          <v-btn rounded class="grey darken-3 white--text" align="right" @click="printDIV()"  dark>PDF</v-btn>
-          &nbsp; &nbsp;
-          <v-btn rounded class="grey darken-3 white--text" align="right" @click="printPPT()"  dark>PPT</v-btn>
-          &nbsp; &nbsp;
-          </span>
+    <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
+
+      <div class="d-print-none">
+         <v-simple-table>
+             <tbody>
+                 <tr>
+                   <!-- Switches for Group by  -->
+                     <td width="300px" class="lightbluecenter">
+                       <!-- <div v-intro="'Group or Ungroup Agents by Pathway'" v-intro-step="6">
+                             <v-switch  v-model="switch4" inset :label="`Group by Pathway`"></v-switch>
+                       </div> -->
+                     </td>
+                     <td width="300px" class="lightblueleft">
+                       <!-- Print buttons for PDF and PPT - Start -->
+                               <div v-intro="'Click here to generate CNS-TAP report with Data table, Notes, and Graphs.'" v-intro-step="7">
+                                 <span style="font-size:15px;font-weight:bold">
+                                 <v-btn small rounded class="grey darken-3 white--text" @click="printPDF4()"  dark>PDF</v-btn>
+                                 &nbsp; &nbsp;
+                                 <v-btn small rounded class="grey darken-3 white--text" @click="printPPT()"  dark>PPT</v-btn>
+
+                                Generate Report
+                                 </span>
+                              </div>
+                       <!-- Print buttons for PDF and PPT - Start -->
+                     </td>
+                     <td class="lightbluecenter">
+
+                       <!-- Information button - Start -->
+
+                      <template>
+
+                          <div class="text-left" v-intro="'Click here to view how each category is scored and weighted in the algorithm.'" v-intro-step="8">
+                            <v-dialog
+                              v-model="dialog"
+                              width="900"
+                            >
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-btn
+                                  icon
+                                  v-bind="attrs"
+                                  v-on="on"
+                                >
+                                <v-icon large color="grey darken-2">mdi-information</v-icon>
+                                </v-btn>
+                                <span style="font-size:15px;font-weight:bold">Scoring Criteria</span>
+
+                              </template>
+
+                              <v-card>
+                                <v-card-title class="headline grey lighten-2">
+                                  Description of Algorithm
+                                </v-card-title>
+                                <v-card-text>
+                                  A summary of the distribution of points and the weights that are affixed to individual categories of the CNS TAP tool.
+                                </v-card-text>
+                                <v-card-text>
+                                      <AlgorithmTable></AlgorithmTable>
+                                </v-card-text>
+                                <v-divider></v-divider>
+
+                                <v-card-actions>
+                                  <v-spacer></v-spacer>
+                                  <v-btn
+                                    color="primary"
+                                    text
+                                    @click="dialog = false"
+                                  >
+                                    CLOSE
+                                  </v-btn>
+                                </v-card-actions>
+                              </v-card>
+                            </v-dialog>
+                          </div>
+
+                      </template>
+
+                       <!-- Information button - End -->
+                     </td>
+                 </tr>
+             </tbody>
+         </v-simple-table>
        </div>
-<!-- Print buttons for PDF and PPT - Start -->
     </v-col>
   </v-row>
 </div>
+
 <!-- Print buttons for PDF and PPT - End -->
 
 <!-- Notes area - Start -->
@@ -101,7 +181,6 @@
             solo
             name="notes"
             v-model="customNotes"
-          label="Friday 26, 2020 10:00 AM"
           ></v-textarea>
        </div>
     </v-col>
@@ -147,11 +226,8 @@
 
       <v-col cols="10" >
 
-
-
-
 <!-- Main Drug Table - Start -->
-  <div v-intro="'Data table that displays Pathway/Drug attributes'" v-intro-step="5">
+  <div v-intro="'This is the data table that displays all the scored attributes for the included drug agents. '" v-intro-step="5">
   <v-data-table
       :headers="computedHeaders"
       :items="filteredItems"
@@ -160,6 +236,7 @@
       disable-pagination
       dense
       id="drugTable"
+      group-by="pathways"
     >
 <!-- Main Drug Table - Print headers - Start -->
     <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }" ref = "h.value">
@@ -171,9 +248,7 @@
                           <template v-slot:activator="{ on }" >
                                 <span v-on="on">{{h.text}}</span>
                           </template>
-                          <span>Here is a <a @click.prevent v-tooltip.click="'Show on: click'" href="www.clinicaltrials.gov">link</a> to identify applicable trials</span>
-
-
+                          <span>Relevant Clinical Trial. Go to <a @click.prevent v-tooltip.click="'Show on: click'" href="www.clinicaltrials.gov">www.clinicaltrials.gov</a> to identify applicable trials.</span>
                         </v-tooltip>
             </template>
             <template v-else>
@@ -188,6 +263,60 @@
             </template>
     </template>
 <!-- Main Drug Table - Print headers - End -->
+
+
+    <template v-slot:body.prepend="{headers}" v-if="switch3">
+        <tr>
+          <td v-for="(header,i) in headers" :key="i">
+                <div class="darkcenter" v-if="header.value == 'icln'">INPUT</div>
+                <div class="darkcenter" v-if="header.value == 'itier'">PATIENT</div>
+                <div class="darkcenter" v-if="header.value == 'itrl'">DATA</div>
+                <div v-else class="lightbluecenter"></div>
+            </td></tr>
+    </template>
+
+
+
+<!-- Main Drug Table - Configure Vitro column - Start -->
+        <template v-slot:item.vitro="{ item }">
+              <v-tooltip top color="amber lighten-4" >
+                    <template v-slot:activator="{ on }">
+                            <div v-on="on">{{ item.vitro }}</div>
+                     </template>
+                     <div class="tooltip">
+                            <span >{{  ttVitrorow }}</span>
+                   </div>
+               </v-tooltip>
+        </template>
+<!-- Main Drug Table - Configure Vitro column - End -->
+
+<!-- Main Drug Table - Configure Vivo column - Start -->
+        <template v-slot:item.vivo="{ item }">
+              <v-tooltip top color="amber lighten-4" >
+                    <template v-slot:activator="{ on }">
+                            <div v-on="on">{{ item.vivo }}</div>
+                     </template>
+                     <div class="tooltip">
+                            <span >{{  ttVivorow }}</span>
+                   </div>
+               </v-tooltip>
+        </template>
+<!-- Main Drug Table - Configure Vivo column - End -->
+
+
+<!-- Main Drug Table - Configure Safety column - Start -->
+        <template v-slot:item.safety="{ item }">
+              <v-tooltip top color="amber lighten-4" >
+                    <template v-slot:activator="{ on }">
+                            <div v-on="on">{{ item.safety }}</div>
+                     </template>
+                     <div class="tooltip">
+                            <span >{{  ttSafetyrow }}</span>
+                   </div>
+               </v-tooltip>
+        </template>
+<!-- Main Drug Table - Configure Safety column - End -->
+
 
 <!-- Main Drug Table - Configure CNS column - Start -->
     <template v-slot:item.cns="{ item }">
@@ -251,162 +380,93 @@
 <!-- Main Drug Table - Configure Total column - End -->
 
 <!-- Main Drug Table - Configure iCLN column - Start -->
-        <template v-slot:item.icln="props">
-          <template v-if="props.item.editable === 0">
-            <v-tooltip top color="amber lighten-4" >
-              <template v-slot:activator="{ on }">
-                  <div v-on="on" class="grey darken-1 white--text"><p>{{ props.item.icln }}</p></div>
-                </template>
-                  <div class="tooltip">
-                    <span>{{ ttCLNrow }}</span>
-                  </div>
-            </v-tooltip>
-          </template>
-          <template v-if="props.item.editable === 1">
-            <div class="white grey--text-darken-4"><p>
-                    <v-edit-dialog
-                      :return-value.sync="props.item.icln"
-                      large
-                      persistent
-                      @save="save"
-                      @cancel="cancel"
-                      @open="open"
-                      @close="close"
-                      @update:return-value="updateICLN(props.item.pathways,props.item.icln)"
-                    >
-                    <v-tooltip top color="amber lighten-4" >
-                    <template v-slot:activator="{ on }">
-                          <div v-on="on">{{ props.item.icln }}</div>
-                    </template>
-                    <div class="tooltip">
-                       <span>{{ ttCLNrow }}</span>
-                    </div>
-                    </v-tooltip>
 
-                      <template v-slot:input>
-                        <div class="mt-4 title">Update Clonality</div>
-                      </template>
-                      <template v-slot:input>
-                        <v-text-field
-                          v-model="props.item.icln"
-                          :rules="[max25chars]"
-                          label="Edit"
-                          single-line
-                          counter
-                          autofocus
-                        ></v-text-field>
-                      </template>
-                    </v-edit-dialog>
-              </p></div>
+      <template v-slot:item.icln="props">
+        <template v-if="props.item.editable === 0">
+          <v-tooltip top color="amber lighten-4" >
+          <template v-slot:activator="{ on }">
+                <div v-on="on" class="grey darken-1 white--text"><p>{{ props.item.icln }}</p></div>
+          </template>
+          <div class="tooltip">
+             <span>{{ ttCLNrow }}</span>
+          </div>
+          </v-tooltip>
+        </template>
+          <template v-if="props.item.editable === 1">
+              <div class="white grey--text-darken-4 text--center"><p>
+                   <v-select
+                     :value=0
+                     dense
+                     class="vsel"
+                     :items="props.item.icln"
+                     item-value='id'
+                     item-text='name'
+                     @change="updateICLN($event,props.item.pathways)"
+                   ></v-select>
+                   </p>
+               </div>
           </template>
           <template v-if="props.item.editable === 2">
-            <div colspan=3 class="grey darken-3 white--text"><p>{{ props.item.icln }}</p>
-            </div>
+                  <div class="grey darken-3 white--text"><p>{{ props.item.icln }}</p>
+                  </div>
           </template>
-        </template>
+      </template>
 <!-- Main Drug Table - Configure iCLN column - End -->
 
 <!-- Main Drug Table - Configure iTIER column - Start -->
-        <template v-slot:item.itier="props">
-          <template v-if="props.item.editable === 0">
-            <v-tooltip top color="amber lighten-4" >
-            <template v-slot:activator="{ on }">
-                  <div v-on="on" class="grey darken-1 white--text"><p>{{ props.item.itier }}</p></div>
-            </template>
-            <div class="tooltip">
-               <span>{{ ttTIERrow }}</span>
-            </div>
-            </v-tooltip>
+      <template v-slot:item.itier="props">
+        <template v-if="props.item.editable === 0">
+          <v-tooltip top color="amber lighten-4" >
+          <template v-slot:activator="{ on }">
+                <div v-on="on" class="grey darken-1 white--text"><p>{{ props.item.itier }}</p></div>
           </template>
+          <div class="tooltip">
+             <span>{{ ttTIERrow }}</span>
+          </div>
+          </v-tooltip>
+        </template>
           <template v-if="props.item.editable === 1">
-            <div class="white grey--text-darken-4"><p>
-                         <v-edit-dialog
-                           :return-value.sync="props.item.itier"
-                           large
-                           persistent
-                           @save="save"
-                           @cancel="cancel"
-                           @open="open"
-                           @close="close"
-                           @update:return-value="updateITIER(props.item.pathways,props.item.itier)"
-                         >
-
-                           <v-tooltip top color="amber lighten-4" >
-                           <template v-slot:activator="{ on }">
-                                 <div v-on="on">{{ props.item.itier }}</div>
-                           </template>
-                           <div class="tooltip">
-                              <span>{{ ttTIERrow }}</span>
-                           </div>
-                           </v-tooltip>
-
-                           <template v-slot:input>
-                             <div class="mt-4 title">Update Variant Tier
-                             </div>
-                             <v-text-field
-                               v-model="props.item.itier"
-                               :rules="[max25chars]"
-                               label="Edit"
-                               single-line
-                               counter
-                               autofocus
-                             ></v-text-field>
-                           </template>
-                         </v-edit-dialog>
-                </p></div>
-             </template>
-             <template v-if="props.item.editable === 2">
-               <div class="grey darken-3 white--text"><p>{{ props.item.itier }}</p>
+              <div class="white grey--text-darken-4 text--center"><p>
+                   <v-select
+                     :value=0
+                     dense
+                     class="vsel"
+                     :items="props.item.itier"
+                     item-value='id'
+                     item-text='name'
+                     @change="updateITIER($event,props.item.pathways)"
+                   ></v-select>
+                   </p>
                </div>
-             </template>
           </template>
+          <template v-if="props.item.editable === 2">
+                  <div class="grey darken-3 white--text"><p>{{ props.item.itrl }}</p>
+                  </div>
+          </template>
+      </template>
 <!-- Main Drug Table - Configure iTIER column - End -->
 
 <!-- Main Drug Table - Configure iTRL column - Start -->
           <template v-slot:item.itrl="props">
-            <template v-if="props.item.editable != 2">
-            <div class="white grey--text-darken-4"><p>
-                  <v-edit-dialog
-                    :return-value.sync="props.item.itrl"
-                    large
-                    persistent
-                    @save="save"
-                    @cancel="cancel"
-                    @open="open"
-                    @close="close"
-                    @update:return-value="updateITRL(props.item.pathways,props.item.itrl,props.item.subt)"
-                  >
-
-                  <v-tooltip top color="amber lighten-4" >
-                  <template v-slot:activator="{ on }">
-                        <div v-on="on">{{ props.item.itrl }}</div>
-                  </template>
-                  <div class="tooltip">
-                     <span>{{ ttTRLrow }}</span>
-                  </div>
-                  </v-tooltip>
-
-                    <template v-slot:input>
-                      <div class="mt-4 title">Update Clinical Trial</div>
-                    </template>
-                    <template v-slot:input>
-                      <v-text-field
-                        v-model="props.item.itrl"
-                        :rules="[max25chars]"
-                        label="Edit"
-                        single-line
-                        counter
-                        autofocus
-                      ></v-text-field>
-                    </template>
-                  </v-edit-dialog>
-          </p></div>
-        </template>
-        <template v-if="props.item.editable === 2">
-          <div class="grey darken-3 white--text"><p>{{ props.item.itrl }}</p>
-          </div>
-        </template>
-      </template>
+              <template v-if="props.item.editable != 2">
+                  <div class="white grey--text-darken-4 text--center"><p>
+                       <v-select
+                         :value=0
+                         dense
+                         class="vsel"
+                         :items="props.item.itrl"
+                         item-value='id'
+                         item-text='name'
+                         @change="updateITRL($event,props.item.pathways,props.item.subt)"
+                       ></v-select>
+                       </p>
+                   </div>
+              </template>
+              <template v-if="props.item.editable === 2">
+                      <div class="grey darken-3 white--text"><p>{{ props.item.itrl }}</p>
+                      </div>
+              </template>
+          </template>
 <!-- Main Drug Table - Configure iTRL column - End -->
 
 <!-- Main Drug Table - Configure CLN column - Start -->
@@ -461,9 +521,11 @@
 
     <div id="pathwayGraph" v-if="switch2">
 
+
          <!-- LineCharts Start -->
         <div v-for="testsetObj in GraphDataset"
-        :key="testsetObj.pathway">
+        :key="testsetObj.pathway" v-bind:id="testsetObj.pathway">
+
 
 
         <v-simple-table > <tbody>
@@ -477,12 +539,9 @@
         <td class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></td>
        </tr></tbody></v-simple-table>
 
-
         </tr>
         <tr>
         <td class="lightbluecenter">
-
-
                 <v-row>
                   <v-col
                     v-for="drugagent in testsetObj.drugagents"
@@ -491,16 +550,15 @@
                     sm="3"
                     class='brd-b-3'
                   >
-                  <LineGraphContainer :rawdata=drugagent>
+                        <LineGraphContainer :rawdata=drugagent>
 
-                    <canvas id="GraphCanvas"></canvas>
-
-                  </LineGraphContainer>
-
+                        </LineGraphContainer>
                   </v-col>
                 </v-row>
         </td></tr>
         </tbody></v-simple-table>
+
+
 
       </div>
                <!-- LineCharts End -->
@@ -517,24 +575,7 @@
 </v-row>
 
 <!-- Page Footer - Start -->
-   <template>
-         <v-footer padless>
-               <v-col
-                 class="text-center bluebg"
-                 cols="12">
-                      <table align="center" width="100%">
-                          <tr>
-                                <td align="left">
-                                      <img src="../assets/Signature-Marketing.png" style="width:400px;">
-                                </td>
-                                <td align="right">
-                                      <img src="../assets/Rogel-Vertical.png" style="height:80px;">
-                                </td>
-                          </tr>
-                      </table>
-               </v-col>
-         </v-footer>
-   </template>
+     <Footer></Footer>
 <!-- Page Footer - End -->
 
 </v-container>
@@ -543,38 +584,50 @@
 <script>
 
 import LineGraphContainer from '../components/LineGraphContainer.vue'
+import AlgorithmTable from '../components/Algorithm.vue'
+import Footer from '../components/Footer.vue'
+
+
 import pptxgen from "pptxgenjs";
 import printJS from 'print-js';
+import domtoimage from 'dom-to-image';
 
   export default {
 
     name: 'UserView',
 
     components: {
-      LineGraphContainer
+      LineGraphContainer,
+      AlgorithmTable,
+      Footer
     },
 
     mounted() {
       this.startIntro();
-
+      this.$vuetify.goTo(0);
      },
 
 
     data: () => (  {
 
+      dialog: false,
+
       pgTitle: 'CNS-TAP',
 
-      ttCNSrow: '2 for primary CNS tumor x 5',
-      ttBBBrow: '2 for primary BBB x 5',
-      ttFDArow: '2 for primary FDA x 5',
-      ttCLNrow: '2 for primary CLN x 5',
-      ttTIERrow: '2 for primary TIER x 5',
-      ttTRLrow: '2 for primary TRL x 5',
+      ttVitrorow: '(0, 1, or 2) x 2',
+      ttVivorow: '(0, 1, or 2) x 3',
+      ttSafetyrow: '(0, 1, or 2) x 3',
+      ttCNSrow: '(-2, -1, 0, 1, or 2) x 5',
+      ttBBBrow: '(0, 1, or 2) x 5',
+      ttFDArow: '(0 or 1) x 10',
+      ttCLNrow: '(0, 1, or 2) x 5',
+      ttTIERrow: '(0, 1, or 2) x 3',
+      ttTRLrow: '(0 or 1) x 20',
 
       switch1: false,
       switch2: false,
       switch3: false,
-
+      switch4: true,
 
       customNotes: "",
       pathwayselection: [],
@@ -600,107 +653,107 @@ import printJS from 'print-js';
       { id:17, pathway: "GENERIC CYTOTOXIC", checked: false },
       { id:18, pathway: "RET", checked: false } ],
 
-
-
     headers: [
       {   text: 'Pathways', align: 'center', sortable: true, value: 'pathways', class: 'grey darken-3 white--text', tt: '' },
-      {   width: '150px', text: 'Drug Agents', align: 'center', sortable: true, value: 'drugagents', class: 'grey darken-3 white--text', tt: ''  },
-      {   text: 'Vitro', align: 'center', sortable: true, value: 'vitro', class: 'grey darken-3 white--text', tt: 'Tumor line preclinical data (in vitro)'  },
-      {   text: 'Vivo', align: 'center', sortable: true, value: 'vivo', class: 'grey darken-3 white--text', tt: 'Tumor line preclinical data (in vivo)' },
-      {   text: 'Safety', align: 'center', sortable: true, value: 'safety', class: 'grey darken-3 white--text', tt: 'Safety data' },
-      {   text: 'CNS', align: 'center', sortable: true, value: 'cns', class: 'grey darken-3 white--text', tt: 'CNS' },
-      {   text: 'BBB', align: 'center', sortable: true, value: 'bbb', class: 'grey darken-3 white--text', tt: 'BBB' },
-      {   text: 'FDA', align: 'center', sortable: true, value: 'fda', class: 'grey darken-3 white--text', tt: 'FDA' },
-      {   text: 'SubT', align: 'center', sortable: true, value: 'subt', class: 'grey darken-1 white--text', tt: '' },
-      {   text: 'iCLN', align: 'center', sortable: true, value: 'icln', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'iCLN' },
-      {   text: 'iTIER', align: 'center', sortable: true, value: 'itier', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'iTIER' },
-      {   text: 'iTRL', align: 'center', sortable: true, value: 'itrl', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'iTRL' },
-      {   text: 'CLN', align: 'center', sortable: true, value: 'cln', class: 'grey darken-3 white--text', tt: 'CLN' },
-      {   text: 'TIER', align: 'center', sortable: true, value: 'tier', class: 'grey darken-3 white--text', tt: 'TIER' },
-      {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'grey darken-3 white--text', tt: 'TRL' },
-      {   text: 'Total', align: 'center', sortable: true, value: 'total', class: 'grey darken-1 white--text', tt: '' }, ],
+      {   width: '150px', text: 'Drug Agents', align: 'center', sortable: true, value: 'drugagents', class: 'grey darken-3 white--text', tt: '', groupable: false },
+      {   text: 'Vitro', align: 'center', sortable: true, value: 'vitro', class: 'grey darken-3 white--text', tt: 'In vitro Pre-Clinical Data (0 to 4 points)', groupable: false   },
+      {   text: 'Vivo', align: 'center', sortable: true, value: 'vivo', class: 'grey darken-3 white--text', tt: 'In vivo Pre-Clinical Data (0 to 6 points)', groupable: false  },
+      {   text: 'Safety', align: 'center', sortable: true, value: 'safety', class: 'grey darken-3 white--text', tt: 'Phase 1 Safety Data (0 to 6 points)', groupable: false  },
+      {   text: 'CNS', align: 'center', sortable: true, value: 'cns', class: 'grey darken-3 white--text', tt: 'CNS Data with Response (-10 to 10 points)', groupable: false  },
+      {   text: 'BBB', align: 'center', sortable: true, value: 'bbb', class: 'grey darken-3 white--text', tt: 'Brain penetration (0 to 10 points)', groupable: false  },
+      {   text: 'FDA', align: 'center', sortable: true, value: 'fda', class: 'grey darken-3 white--text', tt: 'FDA approval (0 to 10 points)', groupable: false  },
+      {   text: 'SubT', align: 'center', sortable: true, value: 'subt', class: 'grey darken-1 white--text', tt: '', groupable: false  },
+      {   text: 'iCLN', align: 'center', sortable: true, value: 'icln', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'Clonality/variant allele fraction - % of tumor with relevant pathway (0 to 5 points)', groupable: false  },
+      {   text: 'iTIER', align: 'center', sortable: true, value: 'itier', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'Variant tier score - Parsons Score (0 to 6 points)', groupable: false  },
+      {   text: 'iTRL', align: 'center', sortable: true, value: 'itrl', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'Relevant Clinical Trial (0 to 20)', groupable: false  },
+      {   text: 'CLN', align: 'center', sortable: true, value: 'cln', class: 'grey darken-3 white--text', tt: 'Clonality/variant allele fraction - % of tumor with relevant pathway', groupable: false  },
+      {   text: 'TIER', align: 'center', sortable: true, value: 'tier', class: 'grey darken-3 white--text', tt: 'Variant tier score - Parsons Score', groupable: false  },
+      {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'grey darken-3 white--text', tt: 'Relevant Clinical Trial', groupable: false  },
+      {   text: 'Total', align: 'center', sortable: true, value: 'total', class: 'grey darken-1 white--text', tt: '', groupable: false  }, ],
 
     drugs: [
-    { pathways: "", drugagents: "", vitro: "", vivo: "", safety: "", cns: "", bbb: "", fda: "", subt:"", icln: "INPUT", itier: "PATIENT", itrl: "DATA", cln: "", tier: "", trl: "", total: "", editable: 2, },
-    { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 16, editable: 1, },
-    { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 8, editable: 0, },
-    { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 28, editable: 1, },
-    { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
-    { pathways: "ALK", drugagents: "Entrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
-    { pathways: "BRAF", drugagents: "Dabrafenib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 5, fda: 10, subt:41,  icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0,total: 41, editable: 1, },
-    { pathways: "BRAF", drugagents: "Vemurafenib", vitro: 2, vivo: 0, safety: 0, cns: 10, bbb: 5, fda: 10, subt: 27, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
-    { pathways: "CDK", drugagents: "Abemaciclib", vitro: 2, vivo: 6, safety: 0, cns: 10, bbb: 5, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 1, },
-    { pathways: "CDK", drugagents: "Palbociclib", vitro: 4, vivo: 6, safety: 3, cns: 0, bbb: 0, fda: 10, subt: 23, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 23, editable: 0, },
-    { pathways: "CDK", drugagents: "Ribociclib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt: 28, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 28, editable: 0, },
-    { pathways: "CNS generic", drugagents: "Lenalidomide", vitro: 2, vivo: 0, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 38, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 38, editable: 1, },
-    { pathways: "CNS generic", drugagents: "Olaparib", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 0, fda: 10, subt: 25, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 25, editable: 0, },
-    { pathways: "CNS generic", drugagents: "Gemcitabine", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
-    { pathways: "EGFR", drugagents: "Erlotinib", vitro: 4, vivo: 0, safety: 6, cns: -10, bbb: 10, fda: 10, subt: 20, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 20, editable: 1, },
-    { pathways: "EGFR", drugagents: "Osimertinib Mesylate (AZD9291; Tagrisso)", vitro: 2, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-    { pathways: "FGFR", drugagents: "Pazopanib (FGFR)", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 5, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
-    { pathways: "FGFR", drugagents: "Ponatinib (FGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
-    { pathways: "FGFR", drugagents: "Erdafitinib (FGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 15, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 15, editable: 0, },
-    { pathways: "FGFR", drugagents: "Debio 1347 (FGFR)", vitro: 2, vivo: 1, safety: 0, cns: 0, bbb: 0, fda: 0, subt: 3, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 3, editable: 0, },
-    { pathways: "EGFR/HER2/HER4/cMET", drugagents: "Afatinib", vitro: 4, vivo: 6, safety: 3, cns: -10, bbb: 0, fda: 10, subt: 13, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 13, editable: 1, },
-    { pathways: "HDAC", drugagents: "Panobinostat (LBH589)", vitro: 2, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 34, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 34, editable: 1, },
-    { pathways: "HDAC", drugagents: "Vorinostat (SAHA)", vitro: 2, vivo: 6, safety: 6, cns: -10, bbb: 10, fda: 10, subt: 24, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 24, editable: 0, },
-    { pathways: "HDAC", drugagents: "Entinostat", vitro: 4, vivo: 6, safety: 3, cns: 0, bbb: 5, fda: 0, subt: 18, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 18, editable: 0, },
-    { pathways: "HDAC", drugagents: "Onc201", vitro: 4, vivo: 6, safety: 3, cns: 10, bbb: 10, fda: 0, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-    { pathways: "HDAC", drugagents: "Valproic Acid", vitro: 4, vivo: 3, safety: 6, cns: 0, bbb: 10, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-    { pathways: "INI1", drugagents: "Alisertib (MLN8237)", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 0, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
-    { pathways: "INI1", drugagents: "Tamoxifen", vitro: 2, vivo: 0, safety: 0, cns: 0, bbb: 10, fda: 10, subt: 22, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 22, editable: 0, },
-    { pathways: "INI1", drugagents: "Tazemetostat (EPZ-6438)", vitro: 2, vivo: 0, safety: 3, cns: 0, bbb: 5, fda: 0, subt: 10, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 10, editable: 0, },
-    { pathways: "MEK", drugagents: "Trametinib", vitro: 2, vivo: 3, safety: 3, cns: 5, bbb: 10, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total:33 , editable: 1, },
-    { pathways: "MEK", drugagents: "Selumetinib", vitro: 4, vivo: 0, safety: 0, cns: 0, bbb: 0, fda: 10, subt: 14, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 14, editable: 0, },
-    { pathways: "MEK", drugagents: "Cobimetinib", vitro: 4, vivo: 0, safety: 0, cns: 0, bbb: 5, fda: 0, subt: 19, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 19, editable: 0, },
-    { pathways: "MEK", drugagents: "Binimetinib", vitro: 4, vivo: 0, safety: 0, cns: 5, bbb: 0, fda: 10, subt: 19, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 19, editable: 0, },
-    { pathways: "PDGFR", drugagents: "Crenolanib", vitro: 2, vivo: 0, safety: 3, cns: 0, bbb: 0, fda: 0, subt: 5, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 5, editable: 1, },
-    { pathways: "PDGFR", drugagents: "Dasatinib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 10, fda: 10, subt: 41, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 41, editable: 0, },
-    { pathways: "PDGFR", drugagents: "Pazopanib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 5, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
-    { pathways: "PDGFR", drugagents: "Ponatinib (PDGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
-    { pathways: "PDGFR", drugagents: "Sorafenib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 10, subt: 18, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 18, editable: 0, },
-    { pathways: "PDGFR", drugagents: "Sunitinib", vitro: 2, vivo: 6, safety: 6, cns: 5, bbb: 0, fda: 10, subt: 29, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 29, editable: 0, },
-    { pathways: "PI3K/mTOR", drugagents: "BKM120 (Buparlisib)", vitro: 4, vivo: 6, safety: 0, cns: 0, bbb: 5, fda: 0, subt: 15, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 15, editable: 1, },
-    { pathways: "PI3K/mTOR", drugagents: "GDC-0084 (PI3K Inhibitor)", vitro: 4, vivo: 0, safety: 0, cns: 10, bbb: 10, fda: 0, subt: 24, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 24, editable: 0, },
-    { pathways: "PI3K/mTOR", drugagents: "Everolimus (PI3K)", vitro: 2, vivo: 0, safety: 6, cns: 10, bbb: 5, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-    { pathways: "PI3K/mTOR", drugagents: "Temsirolimus", vitro: 4, vivo: 6, safety: 6, cns: -5, bbb: 5, fda: 10, subt: 26, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
-    { pathways: "PI3K/mTOR", drugagents: "LY3023414", vitro: 4, vivo: 3, safety: 0, cns: 5, bbb: 5, fda: 0, subt: 17, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 17, editable: 0, },
-    { pathways: "MET", drugagents: "Crizotinib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 0, fda: 10, subt: 31, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 31, editable: 1, },
-    { pathways: "MET/VEGF2", drugagents: "Cabozantinib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 46, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 46, editable: 1, },
-    { pathways: "Chk1", drugagents: "Prexasertib", vitro: 2, vivo: 6, safety: 0, cns: 0, bbb: 0, fda: 0, subt: 8, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 8, editable: 1, },
-    { pathways: "generic cytotoxic", drugagents: "Etoposide", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
-    { pathways: "generic cytotoxic", drugagents: "Carboplatin", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
-    { pathways: "generic cytotoxic", drugagents: "Irinotecan", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
-    { pathways: "generic cytotoxic", drugagents: "CCNU (lomustine)", vitro: 4, vivo: 3, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-    { pathways: "generic cytotoxic", drugagents: "Temozolomide", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
-    { pathways: "RET", drugagents: "Ponatinib (RET)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 35, editable: 1, },
-    { pathways: "RET", drugagents: "Cabozantinib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 46, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 46, editable: 0, },
-    { pathways: "RET", drugagents: "Alectinib (RET)", vitro: 2, vivo: 0, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 27, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
-    { pathways: "RET", drugagents: "Loxo-292", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt: 26, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
-    { pathways: "RET", drugagents: "BLU-667", vitro: 2, vivo: 3, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 10, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 10, editable: 0, } ],
+    { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 16, editable: 1, },
+    { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 8, editable: 0, },
+    { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 28, editable: 1, },
+    { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
+    { pathways: "ALK", drugagents: "Entrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
+    { pathways: "BRAF", drugagents: "Dabrafenib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 5, fda: 10, subt:41,  icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0,total: 41, editable: 1, },
+    { pathways: "BRAF", drugagents: "Vemurafenib", vitro: 2, vivo: 0, safety: 0, cns: 10, bbb: 5, fda: 10, subt: 27, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
+    { pathways: "CDK", drugagents: "Abemaciclib", vitro: 2, vivo: 6, safety: 0, cns: 10, bbb: 5, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 1, },
+    { pathways: "CDK", drugagents: "Palbociclib", vitro: 4, vivo: 6, safety: 3, cns: 0, bbb: 0, fda: 10, subt: 23, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 23, editable: 0, },
+    { pathways: "CDK", drugagents: "Ribociclib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt: 28, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 28, editable: 0, },
+    { pathways: "CNS Generic", drugagents: "Lenalidomide", vitro: 2, vivo: 0, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 38, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 38, editable: 1, },
+    { pathways: "CNS Generic", drugagents: "Olaparib", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 0, fda: 10, subt: 25, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 25, editable: 0, },
+    { pathways: "CNS Generic", drugagents: "Gemcitabine", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
+    { pathways: "EGFR", drugagents: "Erlotinib", vitro: 4, vivo: 0, safety: 6, cns: -10, bbb: 10, fda: 10, subt: 20, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 20, editable: 1, },
+    { pathways: "EGFR", drugagents: "Osimertinib Mesylate (AZD9291; Tagrisso)", vitro: 2, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "FGFR", drugagents: "Pazopanib (FGFR)", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 5, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
+    { pathways: "FGFR", drugagents: "Ponatinib (FGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
+    { pathways: "FGFR", drugagents: "Erdafitinib (FGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 15, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 15, editable: 0, },
+    { pathways: "FGFR", drugagents: "Debio 1347 (FGFR)", vitro: 2, vivo: 1, safety: 0, cns: 0, bbb: 0, fda: 0, subt: 3, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 3, editable: 0, },
+    { pathways: "EGFR/HER2/HER4/cMET", drugagents: "Afatinib", vitro: 4, vivo: 6, safety: 3, cns: -10, bbb: 0, fda: 10, subt: 13, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 13, editable: 1, },
+    { pathways: "HDAC", drugagents: "Panobinostat (LBH589)", vitro: 2, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 34, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 34, editable: 1, },
+    { pathways: "HDAC", drugagents: "Vorinostat (SAHA)", vitro: 2, vivo: 6, safety: 6, cns: -10, bbb: 10, fda: 10, subt: 24, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 24, editable: 0, },
+    { pathways: "HDAC", drugagents: "Entinostat", vitro: 4, vivo: 6, safety: 3, cns: 0, bbb: 5, fda: 0, subt: 18, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 18, editable: 0, },
+    { pathways: "HDAC", drugagents: "Onc201", vitro: 4, vivo: 6, safety: 3, cns: 10, bbb: 10, fda: 0, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "HDAC", drugagents: "Valproic Acid", vitro: 4, vivo: 3, safety: 6, cns: 0, bbb: 10, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "INI1", drugagents: "Alisertib (MLN8237)", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 0, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
+    { pathways: "INI1", drugagents: "Tamoxifen", vitro: 2, vivo: 0, safety: 0, cns: 0, bbb: 10, fda: 10, subt: 22, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 22, editable: 0, },
+    { pathways: "INI1", drugagents: "Tazemetostat (EPZ-6438)", vitro: 2, vivo: 0, safety: 3, cns: 0, bbb: 5, fda: 0, subt: 10, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 10, editable: 0, },
+    { pathways: "MEK", drugagents: "Trametinib", vitro: 2, vivo: 3, safety: 3, cns: 5, bbb: 10, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total:33 , editable: 1, },
+    { pathways: "MEK", drugagents: "Selumetinib", vitro: 4, vivo: 0, safety: 0, cns: 0, bbb: 0, fda: 10, subt: 14, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 14, editable: 0, },
+    { pathways: "MEK", drugagents: "Cobimetinib", vitro: 4, vivo: 0, safety: 0, cns: 0, bbb: 5, fda: 0, subt: 19, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 19, editable: 0, },
+    { pathways: "MEK", drugagents: "Binimetinib", vitro: 4, vivo: 0, safety: 0, cns: 5, bbb: 0, fda: 10, subt: 19, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 19, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Crenolanib", vitro: 2, vivo: 0, safety: 3, cns: 0, bbb: 0, fda: 0, subt: 5, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 5, editable: 1, },
+    { pathways: "PDGFR", drugagents: "Dasatinib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 10, fda: 10, subt: 41, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 41, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Pazopanib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 5, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Ponatinib (PDGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Sorafenib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 10, subt: 18, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 18, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Sunitinib", vitro: 2, vivo: 6, safety: 6, cns: 5, bbb: 0, fda: 10, subt: 29, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 29, editable: 0, },
+    { pathways: "PI3K/mTOR", drugagents: "BKM120 (Buparlisib)", vitro: 4, vivo: 6, safety: 0, cns: 0, bbb: 5, fda: 0, subt: 15, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 15, editable: 1, },
+    { pathways: "PI3K/mTOR", drugagents: "GDC-0084 (PI3K Inhibitor)", vitro: 4, vivo: 0, safety: 0, cns: 10, bbb: 10, fda: 0, subt: 24, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 24, editable: 0, },
+    { pathways: "PI3K/mTOR", drugagents: "Everolimus (PI3K)", vitro: 2, vivo: 0, safety: 6, cns: 10, bbb: 5, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "PI3K/mTOR", drugagents: "Temsirolimus", vitro: 4, vivo: 6, safety: 6, cns: -5, bbb: 5, fda: 10, subt: 26, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
+    { pathways: "PI3K/mTOR", drugagents: "LY3023414", vitro: 4, vivo: 3, safety: 0, cns: 5, bbb: 5, fda: 0, subt: 17, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 17, editable: 0, },
+    { pathways: "MET", drugagents: "Crizotinib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 0, fda: 10, subt: 31, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 31, editable: 1, },
+    { pathways: "MET/VEGF2", drugagents: "Cabozantinib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 46, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 46, editable: 1, },
+    { pathways: "Chk1", drugagents: "Prexasertib", vitro: 2, vivo: 6, safety: 0, cns: 0, bbb: 0, fda: 0, subt: 8, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 8, editable: 1, },
+    { pathways: "GENERIC CYTOTOXIC", drugagents: "Etoposide", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
+    { pathways: "GENERIC CYTOTOXIC", drugagents: "Carboplatin", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
+    { pathways: "GENERIC CYTOTOXIC", drugagents: "Irinotecan", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
+    { pathways: "GENERIC CYTOTOXIC", drugagents: "CCNU (lomustine)", vitro: 4, vivo: 3, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "GENERIC CYTOTOXIC", drugagents: "Temozolomide", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
+    { pathways: "RET", drugagents: "Ponatinib (RET)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 35, editable: 1, },
+    { pathways: "RET", drugagents: "Cabozantinib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 46, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 46, editable: 0, },
+    { pathways: "RET", drugagents: "Alectinib (RET)", vitro: 2, vivo: 0, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 27, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
+    { pathways: "RET", drugagents: "Loxo-292", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt: 26, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
+    { pathways: "RET", drugagents: "BLU-667", vitro: 2, vivo: 3, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 10, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 10, editable: 0, } ],
 
 
     GraphDataset: [{ pathway: "", drugagents:[]},],
-    }),
+    testsetObj1: { pathway: "", drugagents:[]},
 
-    // watch: {
-    //            switch2(newValue){
-    //                if (newValue) {
-    //                     if(this.pathwayselection.length==0){
-    //                       alert('watch: Please select at least one pathway');
-    //                       this.switch2=false;
-    //                     }
-    //                }
-    //            }
-    //        },
+
+  }),
 
     computed: {
+
+        getElemId(s1,s2) {
+          return s1 + s2;
+        },
+
 // method for loading the drugs in the drug table
       filteredItems() {
         var p;
        this.filterGraphData();
 
         return this.drugs.filter((i) => {
+          // load TIER value for iTIER, if editable = 0
+          if (i.editable === 0) {
+            i.itier = 0;
+            i.icln = 0;
+          }
+
             // load all rows, if no Pathway is selected
         if (!this.pathwayselection || this.pathwayselection.length == 0) {
   // Ignore the first dummy row for adding data to graph, if switch3 is not selected
@@ -731,25 +784,37 @@ import printJS from 'print-js';
             }
             return this.headers;
       },
+
       clnleft () {
         return this.$refs.cln.getBoundingClientRect().left
       }
-
-
     },
 
     methods:{
-         switch1_click:function(){this.$router.push("/UserView")   },
+
+         switch1_click:function(){this.$router.push("/UserView")  },
          switch2_click:function(){this.$router.push("/UserView")  },
          switch3_click:function(){this.$router.push("/UserView")  },
+         switch4_click:function(){this.$router.push("/UserView")  },
+
          max25chars: v => v.length <= 25 || 'Input too long!',
 
          startIntro() {
-          if(confirm("Do you want an introduction to CNS-Tap website?")){
+          if(confirm("Do you want an introduction to the CNS-Tap website?")){
             const introJS = require("intro.js");
             introJS.introJs().start();
            }
          },
+
+         getdatetime(){
+           var today = new Date();
+           var date = (today.getMonth()+1)+'.'+today.getDate()+'.'+today.getFullYear();
+           var time = today.getHours() + ":" + today.getMinutes();
+           var dateTime = 'Current date and time: '+date+', '+time;
+           this.customNotes=dateTime;
+       },
+
+
 
          filterGraphData() {
                       this.GraphDataset.splice(0);
@@ -766,21 +831,40 @@ import printJS from 'print-js';
                         }
          },
 
-        printPDF () {
-         // printJS({printable:'cnstap.pdf', type:'pdf', showModal:true});
-         //  let pdfd = new printJS();
-         //  printJS("drugTable",'html');
+ // PDF print using window.print()
+         printPDF1: function () {
+             window.print();
+         },
+
+// PDF print using printJS
+        printPDF2 () {
+
            printJS({printable:['drugTable'],type:'html',header: 'CNS-TAP'});
 
-          // printJS("drugGraph",'html');
+           // Adding graph as image in a slide
+            domtoimage.toPng(document.getElementById('pathwayGraph'))
+                .then(function (dataUrl) {
+
+                //  printJS({printable:['drugTable'],type:'html',header: 'CNS-TAP'},{printable:[dataUrl], type:'image'})
+//                printJS({printable:['drugTable'],type:'html',header: 'CNS-TAP'});
+                printJS(dataUrl,'image');
+
+//                    pres.addSlide().addImage({path: dataUrl, w: '100%', h: '100%'});
+                 })
+                 .catch(function (error) {
+                     alert("error");
+                     console.error('oops, something went wrong!', error);
+                 });
 
         },
 
-        printDIV() {
+// PDF print using DIV tag printing
+        async printPDF3() {
               var divDrugTableContents = document.getElementById("drugTable").innerHTML;
-              var divGraph = document.getElementById("GraphCanvas");
+              //var divGraph = document.getElementById("AKT");
 
-              var a = window.open('', '', 'height=500, width=500');
+              var a = window.open('', '', 'height=5, width=10');
+
               a.document.write('<html>');
               a.document.write('<body > <h1>CNS-TAP</h1><br><br>');
               a.document.write('<h2>Drug Table</h2><br>');
@@ -788,133 +872,126 @@ import printJS from 'print-js';
               a.document.write('<br><br><h2>Notes</h2><br>');
               a.document.write(this.customNotes);
               a.document.write('<br><br><h2>Pathway Graphs</h2><br>');
-              a.document.write("<br><img src='" + divGraph.toDataURL() + "'/>");
 
-
-
-
+              //   Adding graph as image in a slide
+                 for (let i = 0; i < this.GraphDataset.length; i++) {
+                        let pathw = this.GraphDataset[i].pathway;
+                        let dataUrl = await domtoimage.toPng(document.getElementById(pathw));
+                        await a.document.write("<br><img src='" + dataUrl + "'/>");
+                 }
               a.document.write('</body></html>');
               a.document.close();
-              a.print();
+              setTimeout(function () { a.print(); }, 500);
+              a.onfocus = function () { setTimeout(function () { a.close(); }, 300); }
         },
 
-        printPDFiFrame () {
-          alert("Generating PDF");
+// PDF print using iFrame printing
+        async printPDF4 () {
+
                   var objFra = document.createElement('iframe');
                   objFra.style.visibility = 'hidden';
                   objFra.src = "about:blank";
 
-                  //var myContent = '<!DOCTYPE html>' + '<html><head><title>My dynamic document</head>' + '<body><p>CNSTAP</p></body></html>';
-                  //                  var drugtableElement = document.getElementById('drugTable');
-                  //                  objFra.insertAdjacentElement("afterend", drugtableElement);
-
-                  // var divContents = document.getElementById("drugTable").innerHTML;
-                  //objFra.contentWindow.document.write(divContents);
-
-                //  objFra.document.write(divContents);
-
-
-
-
-                //   if (objFra.contentDocument)
-                //     iframedoc = objFra.contentDocument;
-                //   else if (objFra.contentWindow)
-                //     iframedoc = objFra.contentWindow.document;
-                //
-                //   if (iframedoc) {
-                //     // Put the content in the iframe
-                //     iframedoc.open();
-                //     iframedoc.writeln(divContents);
-                //     iframedoc.close();
-                //   } else {
-                //     //just in case of browsers that don't support the above 3 properties.
-                //     //fortunately we don't come across such case so far.
-                //     alert('Cannot inject dynamic contents into iframe.');
-                //   }
-
-
-                  // objFra.contentWindow.document.open('text/htmlreplace');
-                  // objFra.contentWindow.document.write(myContent);
-                  // objFra.contentWindow.document.close();
-
-
 
                   document.body.appendChild(objFra);
+                  objFra.contentWindow.document.open();
+                  objFra.contentWindow.document.write("<br><h1>CNS-Tap report</h1><br><br>");
 
-                  var divContents = document.getElementById("drugTable").innerHTML;
-                  var iframedoc = objFra.contentwindos.document;
-                  iframedoc.open();
-                  iframedoc.writeln(divContents);
-                  iframedoc.close();
+                  objFra.contentWindow.document.write("<br><br><h2>Drug Table</h2><br>");
+                  var tableContents = document.getElementById("drugTable").innerHTML;
+                  objFra.contentWindow.document.write(tableContents);
 
+                  objFra.contentWindow.document.write("<br><br><h2>Notes</h2><br>");
+                  objFra.contentWindow.document.write(this.customNotes);
+
+                  objFra.contentWindow.document.write("<br><br><h2>Pathway Graphs</h2><br>");
+
+                  //   Adding graph as image in a slide
+                     for (let i = 0; i < this.GraphDataset.length; i++) {
+                            let pathw = this.GraphDataset[i].pathway;
+                            let dataUrl = await domtoimage.toPng(document.getElementById(pathw));
+                            await objFra.contentWindow.document.write("<br><img src='" + dataUrl + "'/>");
+                     }
+
+                  objFra.contentWindow.document.close();
                   objFra.contentWindow.focus();
-
-
                   objFra.contentWindow.print();
         },
 
-        printPPT () {
-         // alert("Print table");
+// PPT print using pptxgen()
+      async  printPPT () {
+
+          if (!this.switch2) {
+                alert("There are no Pathway Graphs to print. Please select at least one Pathway and toggle on the 'Pathways Graph' switch.");
+                return;
+           }
 
           // 1. Create a new Presentation
            let pres = new pptxgen();
+           pres.author = 'Karthik Ravi';
+           pres.company = 'Koschman Labs';
+           pres.revision = '1';
+           pres.subject = 'CNS-Tap report';
+           pres.title = 'CNS-Tap Drugtable and Graphs Presentation';
+           pres.layout = 'LAYOUT_WIDE';
 
-           // 2. Add a Slide
+           // Adding slide for banner
            let slideBanner = pres.addSlide();
-
-           // 3. Add one or more objects (Tables, Shapes, Images, Text and Media) to the Slide
            let textboxText = "CNS-TAP";
            let textboxOpts = { x: 1, y: 2, color: "363636", fill: "f1f1f1", align: pres.AlignH.center };
            slideBanner.addText(textboxText, textboxOpts);
 
+           // Adding slide for Notes
            let slideNotes = pres.addSlide();
            let textboxText1 = "Notes";
            let textboxOpts1 = { x: 1, y: 1, color: "363636", fill: "f1f1f1", align: pres.AlignH.center };
            slideNotes.addText(textboxText1, textboxOpts1);
-           slideNotes.addText("Friday 26, 2020 10:00 AM",{ x: 1, y: 1.5, w: 3, align: pres.AlignH.left, color: "363636", fontSize: 18 });
            slideNotes.addText("Notes: " + this.customNotes,{ x: 1, y: 2, align: pres.AlignH.left, color: "363636", fontSize: 12 });
 
+           // Adding slide for table
            pres.tableToSlides("drugTable");
 
-           // Pass table element ID to tableToSlides function to produce 1-N slides
-           // pres.tableToSlides("drugTable", {
-           //  addText: { text: "Drugs Table", options: { x: 1, y: 0.5, color: "0088CC" } }
-           // });
-
-       //    pres.addChart(pres.ChartType.line,this.PathwaysGraphData,this.PathwaysGraphOptions);
-
-           // 4. Save the Presentation
-           pres.writeFile("CNSTAP.pptx");
-
+        //   Adding graph as image in a slide
+           for (let i = 0; i < this.GraphDataset.length; i++) {
+                  let pathw = this.GraphDataset[i].pathway;
+                  let dataUrl = await domtoimage.toPng(document.getElementById(pathw));
+                  await pres.addSlide().addImage({path: dataUrl, x:'1', y:'1', w: '80%', h: '80%'});
+           }
+          await pres.writeFile("CNSTAP.pptx");
         },
 
-        updateICLN(pPathway,pICLN){
+        updateICLN: function(value,pPathway){
             for (var d = 0; d < this.drugs.length; d++){
                 if(this.drugs[d].pathways.trim() == pPathway){
-                      this.drugs[d].icln = pICLN;
-                      this.drugs[d].cln = Number(pICLN)*5;
+                      if (this.drugs[d].editable === 0) {
+                          this.drugs[d].icln = value;
+                      }
+                      this.drugs[d].cln = Number(value)*5;
                       this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
                 }
             }
             this.switch2=false;
         },
 
-        updateITIER(pPathway,pITIER){
+
+        updateITIER: function(value,pPathway){
             for (var d = 0; d < this.drugs.length; d++){
                 if(this.drugs[d].pathways.trim() == pPathway){
-                      this.drugs[d].itier = pITIER;
-                      this.drugs[d].tier = Number(pITIER)*3;
+                      if (this.drugs[d].editable === 0) {
+                          this.drugs[d].itier = value;
+                      }
+                      this.drugs[d].tier = Number(value)*3;
                       this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
                 }
             }
             this.switch2=false;
         },
 
-        updateITRL(pPathway,pITRL,pSUBT){
+
+        updateITRL: function(value,pPathway,pSUBT){
             for (var d = 0; d < this.drugs.length; d++){
                 if((this.drugs[d].pathways.trim() == pPathway) && (this.drugs[d].subt == pSUBT)){
-                      this.drugs[d].itrl = pITRL;
-                      this.drugs[d].trl = Number(pITRL)*20;
+                      this.drugs[d].trl = Number(value)*20;
                       this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
                 }
             }
@@ -927,13 +1004,12 @@ import printJS from 'print-js';
             }
         },
 
-
-
     },
 }
 </script>
 
 <style scoped>
+
 
 .cellhighlight {
   background-color: grey;
@@ -1096,6 +1172,41 @@ td p {
   padding:10px;
 }
 
+.v-text-area {
+  align: center;
+  justify-content: center;
+  text-align: center;
+}
 
+.vsel, option {
+  font-size: 0.8rem;
+  line-height: 18px;
+  margin: 0;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  width: 80px;
+}
+
+option {
+    align-content: center;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+}
+
+.v-text-field {
+  justify-content: center;
+  text-align:center;
+}
+
+.v-text-field__slot input {
+text-align: center;
+}
+.v-select__selection {
+    justify-content: center;
+    text-align:center;
+
+}
 
 </style>

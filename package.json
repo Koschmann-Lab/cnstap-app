@@ -11,6 +11,7 @@
     "@mdi/font": "^5.4.55",
     "chart.js": "^2.9.3",
     "core-js": "^3.6.5",
+    "dom-to-image": "^2.6.0",
     "intro.js": "^2.9.3",
     "popper.js": "^1.16.1",
     "pptxgenjs": "^3.2.1",

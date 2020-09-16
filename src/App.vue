@@ -22,6 +22,19 @@ export default {
 #app {
     background-color: #E4ECFF;
 }
+
+
+.v-select {
+  font-size: 0.8rem;
+  padding: 0;
+  border-left:1px solid #dddddd;
+  height: 20px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+
+
 .v-data-table.customtable td {
   font-size: 0.8rem;
   padding: 0;
@@ -34,7 +47,7 @@ export default {
   height: 40px;
 }
 
-.v-data-table.customable tr {
+.v-data-table.customable tr  {
   height: 30px;
 }
 

@@ -9,9 +9,9 @@
           {{ pgTitle }}
         </h1>
 
-        <p class="headline font-weight-regular grey--text text--darken-2">
+        <div class="headline font-weight-regular grey--text text--darken-2">
           {{ pgSubTitle }}
-        </p>
+        </div>
         </v-col>
     </v-row>
 
@@ -25,8 +25,7 @@
                   <v-card>
                     <v-card-text class="bluebg">
                       <div class="mb-4 bluebg" >
-                        CNS - Tap is an <a href="http://www.clinicaltrials.gov" target="_blank">application</a> used for providing guidance while prescribing drugs to patient specific conditions. The audience for this application are the doctors ..... Unless otherwise indicated, the content of this CNS-TAP site (including all images, information, graphics and material, referred to as "Content") is owned or licensed by the creators of CNS-TAP and is protected by copyright, trademark, and common law rights. The Content cannot be used, copied, licensed or sub-licensed without the creators express consent.
-
+The Central Nervous System Targeted Agent Prediction (CNS TAP) tool is a formalized decision-making algorithm to assist clinicians with selecting the optimal targeted therapy for neuro-oncology patients based on drug properties, clinical and pre-clinical data, and patient-specific sequencing data. The main article describing the underlying methodologies and evaluated criteria can be found here: <a href="https://pubmed.ncbi.nlm.nih.gov/29235051/" target="_blank">Development of the CNS TAP tool for the selection of precision medicine therapies in neuro-oncology. J Neurooncol. 2018;137(1):155-169.</a>
 
                       </div>
                     </v-card-text>
@@ -38,7 +37,7 @@
                           <v-card
                           v-scroll.self="onScroll"
                           class="overflow-y-auto blue-grey lighten-3"
-                          max-height="180"
+                          max-height="110"
                           >
 
 
@@ -73,33 +72,21 @@
       </v-col>
    </v-row>
 
-   <template>
-     <v-footer padless>
-       <v-col
-         class="text-center bluebg"
-         cols="12"
-       >
-            <table align="center" width="100%">
-            <tr>
-            <td align="left">
-              <img src="../assets/Signature-Marketing.png" style="width:400px;">
-            </td>
-            <td align="right">
-              <img src="../assets/Rogel-Vertical.png" style="height:80px;">
-            </td>
-            </tr>
-            </table>
-
-       </v-col>
-     </v-footer>
-   </template>
+   <Footer></Footer>
 
   </v-container>
 </template>
 
 <script>
+
+import Footer from '../components/Footer.vue'
+
   export default {
     name: 'home',
+
+    components: {
+      Footer
+    },
 
     data: () => ({
 
