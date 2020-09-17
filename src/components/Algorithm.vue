@@ -48,17 +48,17 @@
                 </tr>
                 <tr>
                   <td style="font-weight:bold;">FDA Approval</td>
-                  <td>0 = No FDA approval<br>1 = FDA approval
+                  <td>0 = Compassionate care or No FDA approval<br>1 = FDA approval
                   </td>
                   <td>10</td>
                   <td>0 to 10</td>
                 </tr>
                 <tr>
                   <td style="font-weight:bold;">Clonality/variant allele fraction (%)</td>
-                  <td>0 = Pathway is non-dominant mutation<br>1 = Pathway is dominant mutation
+                  <td>0 = No data or Pathway is non-dominant mutation<br>1 = Pathway is dominant mutation<br> 2 = fusion
                   </td>
                   <td>5</td>
-                  <td>0 to 5</td>
+                  <td>0 to 10</td>
                 </tr>
                 <tr>
                   <td style="font-weight:bold;">Variant Tier Score</td>
@@ -69,9 +69,9 @@
                 </tr>
                 <tr>
                   <td style="font-weight:bold;">Relevant Clinical Trial</td>
-                  <td>0 = No clinical trial considered<br>2 = Clinical trial is available that the patient is eligible for and willing to travel to
+                  <td>0 = No clinical trial considered<br>1 = Clinical trial is available that the patient is eligible for and willing to travel to
                   </td>
-                  <td>10</td>
+                  <td>20</td>
                   <td>0 to 20</td>
                 </tr>
               </tbody>

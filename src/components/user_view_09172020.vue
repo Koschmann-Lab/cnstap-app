@@ -4,13 +4,12 @@
 
     <!--
 
-    1. CLOSED Populate grey cells when pathway is already selected
-    2. CLOSED V-intro number 5 goes next to 7 and skips 6
-    3. CLOSED PI3K/mTOR pathway has a spelling error probably
-    4. CLOSED Real time graph update
+    1. Populate grey cells when pathway is already selected
+    2. V-intro number 5 goes next to 7 and skips 6
+    3. PI3K/mTOR pathway has a spelling error probably
+    4. Real time graph update
     5. Add clinicaltrials.gov link to table
-    6. CLOSED only show the number instead of the whole legend for iCLN, iTIER, itrl
-    7. CLOSED do not disable the "switch2" but provide a message
+    6. only show the number instead of the whole legend for iCLN, iTIER, itrl
 
 
     3. In order to fit multiple pathways onto the same row for the graph,
@@ -21,32 +20,36 @@
 
     -->
 
-
-    <v-row class="justify-center align-center">
-       <v-col cols="3">
-           <h3 class="display-3 font-weight-bold grey--text text--darken-2">
-            CNS-TAP
-          </h3>
-       </v-col>
-       <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
-         <!-- Introduction button - Start -->
-             <template>
-                   <div class="text-right">
-                         <v-btn
-                           icon
-                           @click="startIntro()">
-                                 <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
-                         </v-btn>
-                   </div>
-             </template>
-         <!-- Introduction button - End -->
-       </v-col>
-    </v-row>
+<!-- Introduction button - Start -->
+    <!-- <template>
+          <div class="text-right">
+                <v-btn
+                  icon
+                  @click="startIntro();">
+                        <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
+                </v-btn>
+          </div>
+    </template> -->
+    <template>
+          <div class="text-right">
+                <v-btn
+                  icon
+                  @click="startIntro()">
+                        <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
+                </v-btn>
+          </div>
+    </template>
+<!-- Introduction button - End -->
 
 <!-- Switches for Notes, Graph and Patient Data - Start -->
 <v-row class="justify-center align-center">
    <v-col cols="3">
-
+       <h3 class="display-3 font-weight-bold grey--text text--darken-2">
+        CNS-TAP
+      </h3>
+      <!-- <div class="headline font-weight-regular grey--text text--darken-2">
+        CNS-TAP
+      </div> -->
    </v-col>
    <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
      <div class="d-print-none">
@@ -62,8 +65,7 @@
                     <!-- Switches for Graph -->
                     <td width="300px" class="lightbluecenter">
                           <div v-intro="'Switch to view graphs that show CNS-Tap baseline and patient specific scores for drugs in selected pathways. Please select at least one pathway to enable this feature.'" v-intro-step="3">
-                                <!-- <v-switch :disabled="this.pathwayselection.length === 0" v-model="switch2" inset :label="`Pathway Graphs`"></v-switch> -->
-                                <v-switch v-model="switch2" inset :label="`Pathway Graphs`"></v-switch>
+                                <v-switch :disabled="this.pathwayselection.length === 0" v-model="switch2" inset :label="`Pathway Graphs`"></v-switch>
                           </div>
                     </td>
                     <!-- Switches for Patient Data -->
@@ -98,7 +100,7 @@
                      </td>
                      <td width="300px" class="lightblueleft">
                        <!-- Print buttons for PDF and PPT - Start -->
-                               <div v-intro="'Click here to generate CNS-TAP report with Data table, Notes, and Graphs.'" v-intro-step="6">
+                               <div v-intro="'Click here to generate CNS-TAP report with Data table, Notes, and Graphs.'" v-intro-step="7">
                                  <span style="font-size:15px;font-weight:bold">
                                  <v-btn small rounded class="grey darken-3 white--text" @click="printPDF4()"  dark>PDF</v-btn>
                                  &nbsp; &nbsp;
@@ -115,7 +117,7 @@
 
                       <template>
 
-                          <div class="text-left" v-intro="'Click here to view how each category is scored and weighted in the algorithm.'" v-intro-step="7">
+                          <div class="text-left" v-intro="'Click here to view how each category is scored and weighted in the algorithm.'" v-intro-step="8">
                             <v-dialog
                               v-model="dialog"
                               width="900"
@@ -211,6 +213,7 @@
                       active-class="white black--text"
                       multiple
                       outlined
+                      @change="validateDisplaySwitch2()"
                     >
                       <v-chip :class="'def black--text my-2 caption'"  v-for="pathway in pathways" :key="pathway.id"
                         filter
@@ -226,17 +229,6 @@
       </v-col>
 
       <v-col cols="10" >
-
-<!-- Warning message if PathwayGraph switch is selected without select at least one patheay - Start -->
-    <div id="pathwayGraph" v-if="switch2">
-      <div v-if="GraphDataset.length==0">
-          <v-alert type="error">
-            Please select at least one Pathway from the 'Pathway selection' to display Graphs.
-          </v-alert>
-      </div>
-    </div>
-<!-- Warning message if PathwayGraph switch is selected without select at least one patheay - End -->
-
 
 <!-- Main Drug Table - Start -->
   <div v-intro="'This is the data table that displays all the scored attributes for the included drug agents. '" v-intro-step="5">
@@ -260,7 +252,7 @@
                           <template v-slot:activator="{ on }" >
                                 <span v-on="on">{{h.text}}</span>
                           </template>
-                          <span>Relevant Clinical Trial. Go to <a href="http://www.clinicaltrials.gov">www.clinicaltrials.gov</a> to identify applicable trials.</span>
+                          <span>Relevant Clinical Trial. Go to <a @click.prevent v-tooltip.click="'Show on: click'" href="www.clinicaltrials.gov">www.clinicaltrials.gov</a> to identify applicable trials.</span>
                         </v-tooltip>
             </template>
             <template v-else>
@@ -469,7 +461,7 @@
                          :items="props.item.itrl"
                          item-value='id'
                          item-text='name'
-                         @change="updateITRL($event,props.item.pathways,props.item.drugagents)"
+                         @change="updateITRL($event,props.item.pathways,props.item.subt)"
                        ></v-select>
                        </p>
                    </div>
@@ -533,37 +525,46 @@
 
     <div id="pathwayGraph" v-if="switch2">
 
+
          <!-- LineCharts Start -->
         <div v-for="testsetObj in GraphDataset"
-                :key="testsetObj.pathway" v-bind:id="testsetObj.pathway">
-                <v-simple-table > <tbody>
-                <tr>
-                        <v-simple-table > <tbody><tr>
-                        <td class="lightblueleft">
-                        {{ testsetObj.pathway }}
-                        </td>
-                        <td class="lightblueright"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px;solid #000;background:black;display:inline-block;"></div>&nbsp;Baseline</div></td>
-                        <td class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></td>
-                       </tr></tbody></v-simple-table>
-                </tr>
-                <tr>
-                <td class="lightbluecenter">
-                        <v-row>
-                          <v-col
-                            v-for="drugagent in testsetObj.drugagents"
-                            :key="drugagent.values.ptspecific"
-                            cols="3"
-                            sm="3"
-                            class='brd-b-3'
-                          >
-                                <LineGraphContainer :rawdata=drugagent>
+        :key="testsetObj.pathway" v-bind:id="testsetObj.pathway">
 
-                                </LineGraphContainer>
-                          </v-col>
-                        </v-row>
-                </td></tr>
-                </tbody></v-simple-table>
-          </div>
+
+
+        <v-simple-table > <tbody>
+        <tr>
+
+        <v-simple-table > <tbody><tr>
+        <td class="lightblueleft">
+        {{ testsetObj.pathway }}
+        </td>
+        <td class="lightblueright"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px;solid #000;background:black;display:inline-block;"></div>&nbsp;Baseline</div></td>
+        <td class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></td>
+       </tr></tbody></v-simple-table>
+
+        </tr>
+        <tr>
+        <td class="lightbluecenter">
+                <v-row>
+                  <v-col
+                    v-for="drugagent in testsetObj.drugagents"
+                    :key="drugagent.agent"
+                    cols="3"
+                    sm="3"
+                    class='brd-b-3'
+                  >
+                        <LineGraphContainer :rawdata=drugagent>
+
+                        </LineGraphContainer>
+                  </v-col>
+                </v-row>
+        </td></tr>
+        </tbody></v-simple-table>
+
+
+
+      </div>
                <!-- LineCharts End -->
        </div>
 
@@ -607,10 +608,12 @@ import domtoimage from 'dom-to-image';
 
     mounted() {
       this.startIntro();
+      this.$vuetify.goTo(0);
      },
 
 
     data: () => (  {
+
 
       dialog: false,
 
@@ -648,7 +651,7 @@ import domtoimage from 'dom-to-image';
       { id:10, pathway: "INI1", checked: false },
       { id:11, pathway: "MEK", checked: false },
       { id:12, pathway: "PDGFR", checked: false },
-      { id:13, pathway: "PI3K/mTOR", checked: false },
+      { id:13, pathway: "P13K/mTOR", checked: false },
       { id:14, pathway: "MET", checked: false },
       { id:15, pathway: "MET/VEGF2", checked: false },
       { id:16, pathway: "Chk1", checked: false },
@@ -673,129 +676,67 @@ import domtoimage from 'dom-to-image';
       {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'grey darken-3 white--text', tt: 'Relevant Clinical Trial', groupable: false  },
       {   text: 'Total', align: 'center', sortable: true, value: 'total', class: 'grey darken-1 white--text', tt: '', groupable: false  }, ],
 
-      drugs: [
-      { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 16, editable: 1, },
-      { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 8, editable: 0, },
-      { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 28, editable: 1, },
-      { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
-      { pathways: "ALK", drugagents: "Entrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
-      { pathways: "BRAF", drugagents: "Dabrafenib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 5, fda: 10, subt:41,  icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0,total: 41, editable: 1, },
-      { pathways: "BRAF", drugagents: "Vemurafenib", vitro: 2, vivo: 0, safety: 0, cns: 10, bbb: 5, fda: 10, subt: 27, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
-      { pathways: "CDK", drugagents: "Abemaciclib", vitro: 2, vivo: 6, safety: 0, cns: 10, bbb: 5, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 1, },
-      { pathways: "CDK", drugagents: "Palbociclib", vitro: 4, vivo: 6, safety: 3, cns: 0, bbb: 0, fda: 10, subt: 23, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 23, editable: 0, },
-      { pathways: "CDK", drugagents: "Ribociclib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt: 28, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 28, editable: 0, },
-      { pathways: "CNS Generic", drugagents: "Lenalidomide", vitro: 2, vivo: 0, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 38, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 38, editable: 1, },
-      { pathways: "CNS Generic", drugagents: "Olaparib", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 0, fda: 10, subt: 25, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 25, editable: 0, },
-      { pathways: "CNS Generic", drugagents: "Gemcitabine", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
-      { pathways: "EGFR", drugagents: "Erlotinib", vitro: 4, vivo: 0, safety: 6, cns: -10, bbb: 10, fda: 10, subt: 20, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 20, editable: 1, },
-      { pathways: "EGFR", drugagents: "Osimertinib Mesylate (AZD9291; Tagrisso)", vitro: 2, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-      { pathways: "FGFR", drugagents: "Pazopanib (FGFR)", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 5, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
-      { pathways: "FGFR", drugagents: "Ponatinib (FGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
-      { pathways: "FGFR", drugagents: "Erdafitinib (FGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 15, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 15, editable: 0, },
-      { pathways: "FGFR", drugagents: "Debio 1347 (FGFR)", vitro: 2, vivo: 1, safety: 0, cns: 0, bbb: 0, fda: 0, subt: 3, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 3, editable: 0, },
-      { pathways: "EGFR/HER2/HER4/cMET", drugagents: "Afatinib", vitro: 4, vivo: 6, safety: 3, cns: -10, bbb: 0, fda: 10, subt: 13, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 13, editable: 1, },
-      { pathways: "HDAC", drugagents: "Panobinostat (LBH589)", vitro: 2, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 34, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 34, editable: 1, },
-      { pathways: "HDAC", drugagents: "Vorinostat (SAHA)", vitro: 2, vivo: 6, safety: 6, cns: -10, bbb: 10, fda: 10, subt: 24, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 24, editable: 0, },
-      { pathways: "HDAC", drugagents: "Entinostat", vitro: 4, vivo: 6, safety: 3, cns: 0, bbb: 5, fda: 0, subt: 18, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 18, editable: 0, },
-      { pathways: "HDAC", drugagents: "Onc201", vitro: 4, vivo: 6, safety: 3, cns: 10, bbb: 10, fda: 0, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-      { pathways: "HDAC", drugagents: "Valproic Acid", vitro: 4, vivo: 3, safety: 6, cns: 0, bbb: 10, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-      { pathways: "INI1", drugagents: "Alisertib (MLN8237)", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 0, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
-      { pathways: "INI1", drugagents: "Tamoxifen", vitro: 2, vivo: 0, safety: 0, cns: 0, bbb: 10, fda: 10, subt: 22, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 22, editable: 0, },
-      { pathways: "INI1", drugagents: "Tazemetostat (EPZ-6438)", vitro: 2, vivo: 0, safety: 3, cns: 0, bbb: 5, fda: 0, subt: 10, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 10, editable: 0, },
-      { pathways: "MEK", drugagents: "Trametinib", vitro: 2, vivo: 3, safety: 3, cns: 5, bbb: 10, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total:33 , editable: 1, },
-      { pathways: "MEK", drugagents: "Selumetinib", vitro: 4, vivo: 0, safety: 0, cns: 0, bbb: 0, fda: 10, subt: 14, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 14, editable: 0, },
-      { pathways: "MEK", drugagents: "Cobimetinib", vitro: 4, vivo: 0, safety: 0, cns: 0, bbb: 5, fda: 0, subt: 19, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 19, editable: 0, },
-      { pathways: "MEK", drugagents: "Binimetinib", vitro: 4, vivo: 0, safety: 0, cns: 5, bbb: 0, fda: 10, subt: 19, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 19, editable: 0, },
-      { pathways: "PDGFR", drugagents: "Crenolanib", vitro: 2, vivo: 0, safety: 3, cns: 0, bbb: 0, fda: 0, subt: 5, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 5, editable: 1, },
-      { pathways: "PDGFR", drugagents: "Dasatinib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 10, fda: 10, subt: 41, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 41, editable: 0, },
-      { pathways: "PDGFR", drugagents: "Pazopanib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 5, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
-      { pathways: "PDGFR", drugagents: "Ponatinib (PDGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
-      { pathways: "PDGFR", drugagents: "Sorafenib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 10, subt: 18, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 18, editable: 0, },
-      { pathways: "PDGFR", drugagents: "Sunitinib", vitro: 2, vivo: 6, safety: 6, cns: 5, bbb: 0, fda: 10, subt: 29, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 29, editable: 0, },
-      { pathways: "PI3K/mTOR", drugagents: "BKM120 (Buparlisib)", vitro: 4, vivo: 6, safety: 0, cns: 0, bbb: 5, fda: 0, subt: 15, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 15, editable: 1, },
-      { pathways: "PI3K/mTOR", drugagents: "GDC-0084 (PI3K Inhibitor)", vitro: 4, vivo: 0, safety: 0, cns: 10, bbb: 10, fda: 0, subt: 24, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 24, editable: 0, },
-      { pathways: "PI3K/mTOR", drugagents: "Everolimus (PI3K)", vitro: 2, vivo: 0, safety: 6, cns: 10, bbb: 5, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-      { pathways: "PI3K/mTOR", drugagents: "Temsirolimus", vitro: 4, vivo: 6, safety: 6, cns: -5, bbb: 5, fda: 10, subt: 26, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
-      { pathways: "PI3K/mTOR", drugagents: "LY3023414", vitro: 4, vivo: 3, safety: 0, cns: 5, bbb: 5, fda: 0, subt: 17, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 17, editable: 0, },
-      { pathways: "MET", drugagents: "Crizotinib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 0, fda: 10, subt: 31, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 31, editable: 1, },
-      { pathways: "MET/VEGF2", drugagents: "Cabozantinib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 46, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 46, editable: 1, },
-      { pathways: "Chk1", drugagents: "Prexasertib", vitro: 2, vivo: 6, safety: 0, cns: 0, bbb: 0, fda: 0, subt: 8, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 8, editable: 1, },
-      { pathways: "GENERIC CYTOTOXIC", drugagents: "Etoposide", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
-      { pathways: "GENERIC CYTOTOXIC", drugagents: "Carboplatin", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
-      { pathways: "GENERIC CYTOTOXIC", drugagents: "Irinotecan", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
-      { pathways: "GENERIC CYTOTOXIC", drugagents: "CCNU (lomustine)", vitro: 4, vivo: 3, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 33, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-      { pathways: "GENERIC CYTOTOXIC", drugagents: "Temozolomide", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
-      { pathways: "RET", drugagents: "Ponatinib (RET)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 35, editable: 1, },
-      { pathways: "RET", drugagents: "Cabozantinib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 46, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 46, editable: 0, },
-      { pathways: "RET", drugagents: "Alectinib (RET)", vitro: 2, vivo: 0, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 27, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
-      { pathways: "RET", drugagents: "Loxo-292", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt: 26, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
-      { pathways: "RET", drugagents: "BLU-667", vitro: 2, vivo: 3, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 10, icln: 0, itier: 0, itrl: 0, cln: 0, tier: 0, trl: 0, total: 10, editable: 0, } ],
+    drugs: [
+    { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 16, editable: 1, },
+    { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 8, editable: 0, },
+    { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 28, editable: 1, },
+    { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
+    { pathways: "ALK", drugagents: "Entrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
+    { pathways: "BRAF", drugagents: "Dabrafenib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 5, fda: 10, subt:41,  icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0,total: 41, editable: 1, },
+    { pathways: "BRAF", drugagents: "Vemurafenib", vitro: 2, vivo: 0, safety: 0, cns: 10, bbb: 5, fda: 10, subt: 27, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
+    { pathways: "CDK", drugagents: "Abemaciclib", vitro: 2, vivo: 6, safety: 0, cns: 10, bbb: 5, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 1, },
+    { pathways: "CDK", drugagents: "Palbociclib", vitro: 4, vivo: 6, safety: 3, cns: 0, bbb: 0, fda: 10, subt: 23, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 23, editable: 0, },
+    { pathways: "CDK", drugagents: "Ribociclib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt: 28, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 28, editable: 0, },
+    { pathways: "CNS Generic", drugagents: "Lenalidomide", vitro: 2, vivo: 0, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 38, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 38, editable: 1, },
+    { pathways: "CNS Generic", drugagents: "Olaparib", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 0, fda: 10, subt: 25, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 25, editable: 0, },
+    { pathways: "CNS Generic", drugagents: "Gemcitabine", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
+    { pathways: "EGFR", drugagents: "Erlotinib", vitro: 4, vivo: 0, safety: 6, cns: -10, bbb: 10, fda: 10, subt: 20, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 20, editable: 1, },
+    { pathways: "EGFR", drugagents: "Osimertinib Mesylate (AZD9291; Tagrisso)", vitro: 2, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "FGFR", drugagents: "Pazopanib (FGFR)", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 5, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
+    { pathways: "FGFR", drugagents: "Ponatinib (FGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
+    { pathways: "FGFR", drugagents: "Erdafitinib (FGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 15, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 15, editable: 0, },
+    { pathways: "FGFR", drugagents: "Debio 1347 (FGFR)", vitro: 2, vivo: 1, safety: 0, cns: 0, bbb: 0, fda: 0, subt: 3, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 3, editable: 0, },
+    { pathways: "EGFR/HER2/HER4/cMET", drugagents: "Afatinib", vitro: 4, vivo: 6, safety: 3, cns: -10, bbb: 0, fda: 10, subt: 13, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 13, editable: 1, },
+    { pathways: "HDAC", drugagents: "Panobinostat (LBH589)", vitro: 2, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 34, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 34, editable: 1, },
+    { pathways: "HDAC", drugagents: "Vorinostat (SAHA)", vitro: 2, vivo: 6, safety: 6, cns: -10, bbb: 10, fda: 10, subt: 24, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 24, editable: 0, },
+    { pathways: "HDAC", drugagents: "Entinostat", vitro: 4, vivo: 6, safety: 3, cns: 0, bbb: 5, fda: 0, subt: 18, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 18, editable: 0, },
+    { pathways: "HDAC", drugagents: "Onc201", vitro: 4, vivo: 6, safety: 3, cns: 10, bbb: 10, fda: 0, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "HDAC", drugagents: "Valproic Acid", vitro: 4, vivo: 3, safety: 6, cns: 0, bbb: 10, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "INI1", drugagents: "Alisertib (MLN8237)", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 0, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
+    { pathways: "INI1", drugagents: "Tamoxifen", vitro: 2, vivo: 0, safety: 0, cns: 0, bbb: 10, fda: 10, subt: 22, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 22, editable: 0, },
+    { pathways: "INI1", drugagents: "Tazemetostat (EPZ-6438)", vitro: 2, vivo: 0, safety: 3, cns: 0, bbb: 5, fda: 0, subt: 10, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 10, editable: 0, },
+    { pathways: "MEK", drugagents: "Trametinib", vitro: 2, vivo: 3, safety: 3, cns: 5, bbb: 10, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total:33 , editable: 1, },
+    { pathways: "MEK", drugagents: "Selumetinib", vitro: 4, vivo: 0, safety: 0, cns: 0, bbb: 0, fda: 10, subt: 14, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 14, editable: 0, },
+    { pathways: "MEK", drugagents: "Cobimetinib", vitro: 4, vivo: 0, safety: 0, cns: 0, bbb: 5, fda: 0, subt: 19, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 19, editable: 0, },
+    { pathways: "MEK", drugagents: "Binimetinib", vitro: 4, vivo: 0, safety: 0, cns: 5, bbb: 0, fda: 10, subt: 19, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 19, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Crenolanib", vitro: 2, vivo: 0, safety: 3, cns: 0, bbb: 0, fda: 0, subt: 5, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 5, editable: 1, },
+    { pathways: "PDGFR", drugagents: "Dasatinib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 10, fda: 10, subt: 41, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 41, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Pazopanib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 5, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Ponatinib (PDGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Sorafenib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 10, subt: 18, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 18, editable: 0, },
+    { pathways: "PDGFR", drugagents: "Sunitinib", vitro: 2, vivo: 6, safety: 6, cns: 5, bbb: 0, fda: 10, subt: 29, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 29, editable: 0, },
+    { pathways: "PI3K/mTOR", drugagents: "BKM120 (Buparlisib)", vitro: 4, vivo: 6, safety: 0, cns: 0, bbb: 5, fda: 0, subt: 15, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 15, editable: 1, },
+    { pathways: "PI3K/mTOR", drugagents: "GDC-0084 (PI3K Inhibitor)", vitro: 4, vivo: 0, safety: 0, cns: 10, bbb: 10, fda: 0, subt: 24, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 24, editable: 0, },
+    { pathways: "PI3K/mTOR", drugagents: "Everolimus (PI3K)", vitro: 2, vivo: 0, safety: 6, cns: 10, bbb: 5, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "PI3K/mTOR", drugagents: "Temsirolimus", vitro: 4, vivo: 6, safety: 6, cns: -5, bbb: 5, fda: 10, subt: 26, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
+    { pathways: "PI3K/mTOR", drugagents: "LY3023414", vitro: 4, vivo: 3, safety: 0, cns: 5, bbb: 5, fda: 0, subt: 17, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 17, editable: 0, },
+    { pathways: "MET", drugagents: "Crizotinib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 0, fda: 10, subt: 31, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 31, editable: 1, },
+    { pathways: "MET/VEGF2", drugagents: "Cabozantinib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 46, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 46, editable: 1, },
+    { pathways: "Chk1", drugagents: "Prexasertib", vitro: 2, vivo: 6, safety: 0, cns: 0, bbb: 0, fda: 0, subt: 8, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 8, editable: 1, },
+    { pathways: "GENERIC CYTOTOXIC", drugagents: "Etoposide", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
+    { pathways: "GENERIC CYTOTOXIC", drugagents: "Carboplatin", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
+    { pathways: "GENERIC CYTOTOXIC", drugagents: "Irinotecan", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
+    { pathways: "GENERIC CYTOTOXIC", drugagents: "CCNU (lomustine)", vitro: 4, vivo: 3, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 33, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
+    { pathways: "GENERIC CYTOTOXIC", drugagents: "Temozolomide", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
+    { pathways: "RET", drugagents: "Ponatinib (RET)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 35, editable: 1, },
+    { pathways: "RET", drugagents: "Cabozantinib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 46, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 46, editable: 0, },
+    { pathways: "RET", drugagents: "Alectinib (RET)", vitro: 2, vivo: 0, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 27, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
+    { pathways: "RET", drugagents: "Loxo-292", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt: 26, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
+    { pathways: "RET", drugagents: "BLU-667", vitro: 2, vivo: 3, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 10, icln: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}], itier: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Pasrons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}] , itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 10, editable: 0, } ],
 
-
-    // drugs: [
-    // { pathways: "AKT", drugagents: "MK2206", vitro: 4, vivo: 6, safety: 6, cns: 0, bbb: 0, fda: 0, subt:16, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 16, editable: 1, },
-    // { pathways: "AKT", drugagents: "Perfinosine", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 0, subt:8, icln: 0, itier: 0 , itrl:0, cln: 0, tier: 0, trl: 0, total: 8, editable: 0, },
-    // { pathways: "ALK", drugagents: "Ceritinib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt:28, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 28, editable: 1, },
-    // { pathways: "ALK", drugagents: "Alectinib", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt:26, icln: 0, itier: 0 , itrl:0, cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
-    // { pathways: "ALK", drugagents: "Entrectinib", vitro: 4, vivo: 0, safety: 3, cns: 10, bbb: 10, fda: 0, subt:27, icln: 0, itier: 0 , itrl:0, cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
-    // { pathways: "BRAF", drugagents: "Dabrafenib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 5, fda: 10, subt:41,  icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0,total: 41, editable: 1, },
-    // { pathways: "BRAF", drugagents: "Vemurafenib", vitro: 2, vivo: 0, safety: 0, cns: 10, bbb: 5, fda: 10, subt: 27, icln: 0, itier: 0 , itrl:0, cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
-    // { pathways: "CDK", drugagents: "Abemaciclib", vitro: 2, vivo: 6, safety: 0, cns: 10, bbb: 5, fda: 10, subt: 33, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 33, editable: 1, },
-    // { pathways: "CDK", drugagents: "Palbociclib", vitro: 4, vivo: 6, safety: 3, cns: 0, bbb: 0, fda: 10, subt: 23, icln: 0, itier: 0 , itrl:0, cln: 0, tier: 0, trl: 0, total: 23, editable: 0, },
-    // { pathways: "CDK", drugagents: "Ribociclib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 10, fda: 10, subt: 28, icln: 0, itier: 0 , itrl:0, cln: 0, tier: 0, trl: 0, total: 28, editable: 0, },
-    // { pathways: "CNS Generic", drugagents: "Lenalidomide", vitro: 2, vivo: 0, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 38, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 38, editable: 1, },
-    // { pathways: "CNS Generic", drugagents: "Olaparib", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 0, fda: 10, subt: 25, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 25, editable: 0, },
-    // { pathways: "CNS Generic", drugagents: "Gemcitabine", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
-    // { pathways: "EGFR", drugagents: "Erlotinib", vitro: 4, vivo: 0, safety: 6, cns: -10, bbb: 10, fda: 10, subt: 20, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 20, editable: 1, },
-    // { pathways: "EGFR", drugagents: "Osimertinib Mesylate (AZD9291; Tagrisso)", vitro: 2, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 33, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-    // { pathways: "FGFR", drugagents: "Pazopanib (FGFR)", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 5, fda: 10, subt: 36, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
-    // { pathways: "FGFR", drugagents: "Ponatinib (FGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
-    // { pathways: "FGFR", drugagents: "Erdafitinib (FGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 15, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 15, editable: 0, },
-    // { pathways: "FGFR", drugagents: "Debio 1347 (FGFR)", vitro: 2, vivo: 1, safety: 0, cns: 0, bbb: 0, fda: 0, subt: 3, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 3, editable: 0, },
-    // { pathways: "EGFR/HER2/HER4/cMET", drugagents: "Afatinib", vitro: 4, vivo: 6, safety: 3, cns: -10, bbb: 0, fda: 10, subt: 13, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 13, editable: 1, },
-    // { pathways: "HDAC", drugagents: "Panobinostat (LBH589)", vitro: 2, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 34, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 34, editable: 1, },
-    // { pathways: "HDAC", drugagents: "Vorinostat (SAHA)", vitro: 2, vivo: 6, safety: 6, cns: -10, bbb: 10, fda: 10, subt: 24, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 24, editable: 0, },
-    // { pathways: "HDAC", drugagents: "Entinostat", vitro: 4, vivo: 6, safety: 3, cns: 0, bbb: 5, fda: 0, subt: 18, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 18, editable: 0, },
-    // { pathways: "HDAC", drugagents: "Onc201", vitro: 4, vivo: 6, safety: 3, cns: 10, bbb: 10, fda: 0, subt: 33,icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-    // { pathways: "HDAC", drugagents: "Valproic Acid", vitro: 4, vivo: 3, safety: 6, cns: 0, bbb: 10, fda: 10, subt: 33,icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-    // { pathways: "INI1", drugagents: "Alisertib (MLN8237)", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 0, subt: 36, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
-    // { pathways: "INI1", drugagents: "Tamoxifen", vitro: 2, vivo: 0, safety: 0, cns: 0, bbb: 10, fda: 10, subt: 22, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 22, editable: 0, },
-    // { pathways: "INI1", drugagents: "Tazemetostat (EPZ-6438)", vitro: 2, vivo: 0, safety: 3, cns: 0, bbb: 5, fda: 0, subt: 10, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 10, editable: 0, },
-    // { pathways: "MEK", drugagents: "Trametinib", vitro: 2, vivo: 3, safety: 3, cns: 5, bbb: 10, fda: 10, subt: 33, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total:33 , editable: 1, },
-    // { pathways: "MEK", drugagents: "Selumetinib", vitro: 4, vivo: 0, safety: 0, cns: 0, bbb: 0, fda: 10, subt: 14, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 14, editable: 0, },
-    // { pathways: "MEK", drugagents: "Cobimetinib", vitro: 4, vivo: 0, safety: 0, cns: 0, bbb: 5, fda: 0, subt: 19, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 19, editable: 0, },
-    // { pathways: "MEK", drugagents: "Binimetinib", vitro: 4, vivo: 0, safety: 0, cns: 5, bbb: 0, fda: 10, subt: 19, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 19, editable: 0, },
-    // { pathways: "PDGFR", drugagents: "Crenolanib", vitro: 2, vivo: 0, safety: 3, cns: 0, bbb: 0, fda: 0, subt: 5, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 5, editable: 1, },
-    // { pathways: "PDGFR", drugagents: "Dasatinib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 10, fda: 10, subt: 41, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 41, editable: 0, },
-    // { pathways: "PDGFR", drugagents: "Pazopanib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 5, fda: 10, subt: 36, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
-    // { pathways: "PDGFR", drugagents: "Ponatinib (PDGFR)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 35, editable: 0, },
-    // { pathways: "PDGFR", drugagents: "Sorafenib", vitro: 2, vivo: 0, safety: 6, cns: 0, bbb: 0, fda: 10, subt: 18, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 18, editable: 0, },
-    // { pathways: "PDGFR", drugagents: "Sunitinib", vitro: 2, vivo: 6, safety: 6, cns: 5, bbb: 0, fda: 10, subt: 29, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 29, editable: 0, },
-    // { pathways: "PI3K/mTOR", drugagents: "BKM120 (Buparlisib)", vitro: 4, vivo: 6, safety: 0, cns: 0, bbb: 5, fda: 0, subt: 15, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 15, editable: 1, },
-    // { pathways: "PI3K/mTOR", drugagents: "GDC-0084 (PI3K Inhibitor)", vitro: 4, vivo: 0, safety: 0, cns: 10, bbb: 10, fda: 0, subt: 24, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 24, editable: 0, },
-    // { pathways: "PI3K/mTOR", drugagents: "Everolimus (PI3K)", vitro: 2, vivo: 0, safety: 6, cns: 10, bbb: 5, fda: 10, subt: 33, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-    // { pathways: "PI3K/mTOR", drugagents: "Temsirolimus", vitro: 4, vivo: 6, safety: 6, cns: -5, bbb: 5, fda: 10, subt: 26, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
-    // { pathways: "PI3K/mTOR", drugagents: "LY3023414", vitro: 4, vivo: 3, safety: 0, cns: 5, bbb: 5, fda: 0, subt: 17, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 17, editable: 0, },
-    // { pathways: "MET", drugagents: "Crizotinib", vitro: 4, vivo: 6, safety: 6, cns: 5, bbb: 0, fda: 10, subt: 31, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 31, editable: 1, },
-    // { pathways: "MET/VEGF2", drugagents: "Cabozantinib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 46, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 46, editable: 1, },
-    // { pathways: "Chk1", drugagents: "Prexasertib", vitro: 2, vivo: 6, safety: 0, cns: 0, bbb: 0, fda: 0, subt: 8, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 8, editable: 1, },
-    // { pathways: "GENERIC CYTOTOXIC", drugagents: "Etoposide", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 36, editable: 1, },
-    // { pathways: "GENERIC CYTOTOXIC", drugagents: "Carboplatin", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
-    // { pathways: "GENERIC CYTOTOXIC", drugagents: "Irinotecan", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
-    // { pathways: "GENERIC CYTOTOXIC", drugagents: "CCNU (lomustine)", vitro: 4, vivo: 3, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 33, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 33, editable: 0, },
-    // { pathways: "GENERIC CYTOTOXIC", drugagents: "Temozolomide", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 0, fda: 10, subt: 36, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 36, editable: 0, },
-    // { pathways: "RET", drugagents: "Ponatinib (RET)", vitro: 4, vivo: 6, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 35, icln: 0, itier:0, itrl:0, cln: 0, tier: 0, trl: 0, total: 35, editable: 1, },
-    // { pathways: "RET", drugagents: "Cabozantinib", vitro: 4, vivo: 6, safety: 6, cns: 10, bbb: 10, fda: 10, subt: 46, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 46, editable: 0, },
-    // { pathways: "RET", drugagents: "Alectinib (RET)", vitro: 2, vivo: 0, safety: 0, cns: 5, bbb: 10, fda: 10, subt: 27, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 27, editable: 0, },
-    // { pathways: "RET", drugagents: "Loxo-292", vitro: 2, vivo: 6, safety: 3, cns: 5, bbb: 10, fda: 0, subt: 26, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 26, editable: 0, },
-    // { pathways: "RET", drugagents: "BLU-667", vitro: 2, vivo: 3, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 10, icln: 0, itier: 0, itrl:0, cln: 0, tier: 0, trl: 0, total: 10, editable: 0, } ],
-
-//    iCLNitems: [{id: 0, name: '  0 non-Dominant'},{id: 1, name: '  1 Dominant'},{id: 2, name: '  2 Fusion'}],
-    // iCLNitems: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}],
-    // iTIERitems: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Parsons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}],
-    // iTRLitems: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}],
 
     GraphDataset: [{ pathway: "", drugagents:[]},],
+    testsetObj1: { pathway: "", drugagents:[]},
 
 
   }),
@@ -812,7 +753,11 @@ import domtoimage from 'dom-to-image';
        this.filterGraphData();
 
         return this.drugs.filter((i) => {
-
+          // load TIER value for iTIER, if editable = 0
+          if (i.editable === 0) {
+            i.itier = 0;
+            i.icln = 0;
+          }
 
             // load all rows, if no Pathway is selected
         if (!this.pathwayselection || this.pathwayselection.length == 0) {
@@ -863,13 +808,14 @@ import domtoimage from 'dom-to-image';
           if(confirm("Do you want an introduction to the CNS-Tap website?")){
             const introJS = require("intro.js");
             introJS.introJs().start();
-            this.$vuetify.goTo(0);
            }
          },
 
          getdatetime(){
-           var dt = new Date().toLocaleString();
-           var dateTime = 'Current date and time: '+dt;
+           var today = new Date();
+           var date = (today.getMonth()+1)+'.'+today.getDate()+'.'+today.getFullYear();
+           var time = today.getHours() + ":" + today.getMinutes();
+           var dateTime = 'Current date and time: '+date+', '+time;
            this.customNotes=dateTime;
        },
 
@@ -1021,7 +967,7 @@ import domtoimage from 'dom-to-image';
 
         updateICLN: function(value,pPathway){
             for (var d = 0; d < this.drugs.length; d++){
-                if(this.drugs[d].pathways.trim() === pPathway.trim()){
+                if(this.drugs[d].pathways.trim() == pPathway){
                       if (this.drugs[d].editable === 0) {
                           this.drugs[d].icln = value;
                       }
@@ -1029,14 +975,14 @@ import domtoimage from 'dom-to-image';
                       this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
                 }
             }
-            value=0;
+            this.switch2=false;
+            this.filteredItems();
         },
-
 
 
         updateITIER: function(value,pPathway){
             for (var d = 0; d < this.drugs.length; d++){
-                if(this.drugs[d].pathways.trim() === pPathway.trim()){
+                if(this.drugs[d].pathways.trim() == pPathway){
                       if (this.drugs[d].editable === 0) {
                           this.drugs[d].itier = value;
                       }
@@ -1044,18 +990,25 @@ import domtoimage from 'dom-to-image';
                       this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
                 }
             }
+            this.switch2=false;
         },
 
 
-        updateITRL: function(value,pPathway,pDRUGAGENTS){
+        updateITRL: function(value,pPathway,pSUBT){
             for (var d = 0; d < this.drugs.length; d++){
-                if((this.drugs[d].pathways.trim() === pPathway.trim()) && (this.drugs[d].drugagents == pDRUGAGENTS)){
+                if((this.drugs[d].pathways.trim() == pPathway) && (this.drugs[d].subt == pSUBT)){
                       this.drugs[d].trl = Number(value)*20;
                       this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
                 }
             }
+            this.switch2=false;
         },
 
+        validateDisplaySwitch2(){
+            if(this.pathwayselection.length===0){
+                this.switch2=false;
+            }
+        },
 
     },
 }
@@ -1226,6 +1179,7 @@ td p {
 }
 
 .v-text-area {
+  align: center;
   justify-content: center;
   text-align: center;
 }
@@ -1236,7 +1190,7 @@ td p {
   margin: 0;
   align-items: center;
   text-align: center;
-  justify: center;
+  justify-content: center;
   width: 80px;
 }
 
@@ -1244,18 +1198,21 @@ option {
     align-content: center;
     align-items: center;
     text-align: center;
-    justify: center;
-
+    justify-content: center;
 }
 
-.v-select-list {
-  text-align: left;
-}
-.v-list-item {
-  text-align: left;
-
+.v-text-field {
+  justify-content: center;
+  text-align:center;
 }
 
+.v-text-field__slot input {
+text-align: center;
+}
+.v-select__selection {
+    justify-content: center;
+    text-align:center;
 
+}
 
 </style>
