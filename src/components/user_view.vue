@@ -1029,7 +1029,6 @@ import domtoimage from 'dom-to-image';
                       this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
                 }
             }
-            value=0;
         },
 
 
