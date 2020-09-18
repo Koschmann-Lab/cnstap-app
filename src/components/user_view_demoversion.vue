@@ -4,48 +4,49 @@
 
     <!--
 
-    2. Add clinicaltrials.gov link to table
+    1. CLOSED Populate grey cells when pathway is already selected
+    2. CLOSED V-intro number 5 goes next to 7 and skips 6
+    3. CLOSED PI3K/mTOR pathway has a spelling error probably
+    4. CLOSED Real time graph update
+    5. Add clinicaltrials.gov link to table
+    6. CLOSED only show the number instead of the whole legend for iCLN, iTIER, itrl
+    7. CLOSED do not disable the "switch2" but provide a message
+
 
     3. In order to fit multiple pathways onto the same row for the graph,
     we need to add another loop in the code around line 470 - may need to
     adjust the array for this loop to work by pathway
 
     Bugs
-    1. CLOSED Scroll up after entering the tutorial view
-    2. CLOSED For the last step in tutorial, make the arrow point to the actual pdf and ppt buttons.
 
     -->
 
-<!-- Introduction button - Start -->
-    <!-- <template>
-          <div class="text-right">
-                <v-btn
-                  icon
-                  @click="startIntro();">
-                        <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
-                </v-btn>
-          </div>
-    </template> -->
-    <template>
-          <div class="text-right">
-                <v-btn
-                  icon
-                  @click="startIntro()">
-                        <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
-                </v-btn>
-          </div>
-    </template>
-<!-- Introduction button - End -->
+
+    <v-row class="justify-center align-center">
+       <v-col cols="3">
+           <h3 class="display-3 font-weight-bold grey--text text--darken-2">
+            CNS-TAP
+          </h3>
+       </v-col>
+       <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
+         <!-- Introduction button - Start -->
+             <template>
+                   <div class="text-right">
+                         <v-btn
+                           icon
+                           @click="startIntro()">
+                                 <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
+                         </v-btn>
+                   </div>
+             </template>
+         <!-- Introduction button - End -->
+       </v-col>
+    </v-row>
 
 <!-- Switches for Notes, Graph and Patient Data - Start -->
 <v-row class="justify-center align-center">
    <v-col cols="3">
-       <h3 class="display-3 font-weight-bold grey--text text--darken-2">
-        CNS-TAP
-      </h3>
-      <!-- <div class="headline font-weight-regular grey--text text--darken-2">
-        CNS-TAP
-      </div> -->
+
    </v-col>
    <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
      <div class="d-print-none">
@@ -61,7 +62,8 @@
                     <!-- Switches for Graph -->
                     <td width="300px" class="lightbluecenter">
                           <div v-intro="'Switch to view graphs that show CNS-Tap baseline and patient specific scores for drugs in selected pathways. Please select at least one pathway to enable this feature.'" v-intro-step="3">
-                                <v-switch :disabled="this.pathwayselection.length === 0" v-model="switch2" inset :label="`Pathway Graphs`"></v-switch>
+                                <!-- <v-switch :disabled="this.pathwayselection.length === 0" v-model="switch2" inset :label="`Pathway Graphs`"></v-switch> -->
+                                <v-switch v-model="switch2" inset :label="`Pathway Graphs`"></v-switch>
                           </div>
                     </td>
                     <!-- Switches for Patient Data -->
@@ -96,9 +98,9 @@
                      </td>
                      <td width="300px" class="lightblueleft">
                        <!-- Print buttons for PDF and PPT - Start -->
-                               <div v-intro="'Click here to generate CNS-TAP report with Data table, Notes, and Graphs.'" v-intro-step="7">
+                               <div v-intro="'Click here to generate CNS-TAP report with Data table, Notes, and Graphs.'" v-intro-step="6">
                                  <span style="font-size:15px;font-weight:bold">
-                                 <v-btn small rounded class="grey darken-3 white--text" @click="printPDF()"  dark>PDF</v-btn>
+                                 <v-btn small rounded class="grey darken-3 white--text" @click="printPDF4()"  dark>PDF</v-btn>
                                  &nbsp; &nbsp;
                                  <v-btn small rounded class="grey darken-3 white--text" @click="printPPT()"  dark>PPT</v-btn>
 
@@ -113,7 +115,7 @@
 
                       <template>
 
-                          <div class="text-left" v-intro="'Click here to view how each category is scored and weighted in the algorithm.'" v-intro-step="8">
+                          <div class="text-left" v-intro="'Click here to view how each category is scored and weighted in the algorithm.'" v-intro-step="7">
                             <v-dialog
                               v-model="dialog"
                               width="900"
@@ -209,7 +211,6 @@
                       active-class="white black--text"
                       multiple
                       outlined
-                      @change="validateDisplaySwitch2()"
                     >
                       <v-chip :class="'def black--text my-2 caption'"  v-for="pathway in pathways" :key="pathway.id"
                         filter
@@ -225,6 +226,17 @@
       </v-col>
 
       <v-col cols="10" >
+
+<!-- Warning message if PathwayGraph switch is selected without select at least one patheay - Start -->
+    <div id="pathwayGraph" v-if="switch2">
+      <div v-if="GraphDataset.length==0">
+          <v-alert type="error">
+            Please select at least one Pathway from the 'Pathway selection' to display Graphs.
+          </v-alert>
+      </div>
+    </div>
+<!-- Warning message if PathwayGraph switch is selected without select at least one patheay - End -->
+
 
 <!-- Main Drug Table - Start -->
   <div v-intro="'This is the data table that displays all the scored attributes for the included drug agents. '" v-intro-step="5">
@@ -248,7 +260,7 @@
                           <template v-slot:activator="{ on }" >
                                 <span v-on="on">{{h.text}}</span>
                           </template>
-                          <span>Relevant Clinical Trial. Go to <a @click.prevent v-tooltip.click="'Show on: click'" href="www.clinicaltrials.gov">www.clinicaltrials.gov</a> to identify applicable trials.</span>
+                          <span>Relevant Clinical Trial. Go to <a href="http://www.clinicaltrials.gov">www.clinicaltrials.gov</a> to identify applicable trials.</span>
                         </v-tooltip>
             </template>
             <template v-else>
@@ -395,7 +407,6 @@
           <template v-if="props.item.editable === 1">
               <div class="white grey--text-darken-4 text--center"><p>
                    <v-select
-                     :value=0
                      dense
                      class="vsel"
                      :items="props.item.icln"
@@ -428,7 +439,7 @@
           <template v-if="props.item.editable === 1">
               <div class="white grey--text-darken-4 text--center"><p>
                    <v-select
-                     :value=0
+
                      dense
                      class="vsel"
                      :items="props.item.itier"
@@ -451,13 +462,13 @@
               <template v-if="props.item.editable != 2">
                   <div class="white grey--text-darken-4 text--center"><p>
                        <v-select
-                         :value=0
+
                          dense
                          class="vsel"
                          :items="props.item.itrl"
                          item-value='id'
                          item-text='name'
-                         @change="updateITRL($event,props.item.pathways,props.item.subt)"
+                         @change="updateITRL($event,props.item.pathways,props.item.drugagents)"
                        ></v-select>
                        </p>
                    </div>
@@ -521,46 +532,37 @@
 
     <div id="pathwayGraph" v-if="switch2">
 
-
          <!-- LineCharts Start -->
         <div v-for="testsetObj in GraphDataset"
-        :key="testsetObj.pathway">
+                :key="testsetObj.pathway" v-bind:id="testsetObj.pathway">
+                <v-simple-table > <tbody>
+                <tr>
+                        <v-simple-table > <tbody><tr>
+                        <td class="lightblueleft">
+                        {{ testsetObj.pathway }}
+                        </td>
+                        <td class="lightblueright"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px;solid #000;background:black;display:inline-block;"></div>&nbsp;Baseline</div></td>
+                        <td class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></td>
+                       </tr></tbody></v-simple-table>
+                </tr>
+                <tr>
+                <td class="lightbluecenter">
+                        <v-row>
+                          <v-col
+                            v-for="drugagent in testsetObj.drugagents"
+                            :key="drugagent.values.ptspecific"
+                            cols="3"
+                            sm="3"
+                            class='brd-b-3'
+                          >
+                                <LineGraphContainer :rawdata=drugagent>
 
-
-
-        <v-simple-table > <tbody>
-        <tr>
-
-        <v-simple-table > <tbody><tr>
-        <td class="lightblueleft">
-        {{ testsetObj.pathway }}
-        </td>
-        <td class="lightblueright"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px;solid #000;background:black;display:inline-block;"></div>&nbsp;Baseline</div></td>
-        <td class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></td>
-       </tr></tbody></v-simple-table>
-
-        </tr>
-        <tr>
-        <td class="lightbluecenter">
-                <v-row>
-                  <v-col
-                    v-for="drugagent in testsetObj.drugagents"
-                    :key="drugagent.agent"
-                    cols="3"
-                    sm="3"
-                    class='brd-b-3'
-                  >
-                  <div id=getElemId(testsetObj.pathway,drugagent)>
-                        <LineGraphContainer :rawdata=drugagent>
-
-                        </LineGraphContainer>
-                  </div>
-                  </v-col>
-                </v-row>
-        </td></tr>
-        </tbody></v-simple-table>
-
-      </div>
+                                </LineGraphContainer>
+                          </v-col>
+                        </v-row>
+                </td></tr>
+                </tbody></v-simple-table>
+          </div>
                <!-- LineCharts End -->
        </div>
 
@@ -604,24 +606,10 @@ import domtoimage from 'dom-to-image';
 
     mounted() {
       this.startIntro();
-      this.$vuetify.goTo(0);
      },
 
 
     data: () => (  {
-
-        style: {
-            transform: 'scale(.5)',
-            top: 0,
-            left: 0,
-            margin: 0,
-            width: '800px',
-            height: '500px',
-          },
-          options: {
-              width: 100,
-              height: 100,
-          },
 
       dialog: false,
 
@@ -659,7 +647,7 @@ import domtoimage from 'dom-to-image';
       { id:10, pathway: "INI1", checked: false },
       { id:11, pathway: "MEK", checked: false },
       { id:12, pathway: "PDGFR", checked: false },
-      { id:13, pathway: "P13K/mTOR", checked: false },
+      { id:13, pathway: "PI3K/mTOR", checked: false },
       { id:14, pathway: "MET", checked: false },
       { id:15, pathway: "MET/VEGF2", checked: false },
       { id:16, pathway: "Chk1", checked: false },
@@ -743,18 +731,16 @@ import domtoimage from 'dom-to-image';
       { pathways: "RET", drugagents: "BLU-667", vitro: 2, vivo: 3, safety: 0, cns: 5, bbb: 0, fda: 0, subt: 10, icln: 0, itier: 0, itrl: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}], cln: 0, tier: 0, trl: 0, total: 10, editable: 0, } ],
 
 
-    GraphDataset: [{ pathway: "", drugagents:[]},],}),
 
-    // watch: {
-    //            switch2(newValue){
-    //                if (newValue) {
-    //                     if(this.pathwayselection.length==0){
-    //                       alert('watch: Please select at least one pathway');
-    //                       this.switch2=false;
-    //                     }
-    //                }
-    //            }
-    //        },
+//    iCLNitems: [{id: 0, name: '  0 non-Dominant'},{id: 1, name: '  1 Dominant'},{id: 2, name: '  2 Fusion'}],
+    // iCLNitems: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}],
+    // iTIERitems: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Parsons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}],
+    // iTRLitems: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}],
+
+    GraphDataset: [{ pathway: "", drugagents:[]},],
+
+
+  }),
 
     computed: {
 
@@ -762,18 +748,13 @@ import domtoimage from 'dom-to-image';
           return s1 + s2;
         },
 
-
 // method for loading the drugs in the drug table
       filteredItems() {
         var p;
        this.filterGraphData();
 
         return this.drugs.filter((i) => {
-          // load TIER value for iTIER, if editable = 0
-          if (i.editable === 0) {
-            i.itier = 0;
-            i.icln = 0;
-          }
+
 
             // load all rows, if no Pathway is selected
         if (!this.pathwayselection || this.pathwayselection.length == 0) {
@@ -824,14 +805,13 @@ import domtoimage from 'dom-to-image';
           if(confirm("Do you want an introduction to the CNS-Tap website?")){
             const introJS = require("intro.js");
             introJS.introJs().start();
+            this.$vuetify.goTo(0);
            }
          },
 
          getdatetime(){
-           var today = new Date();
-           var date = (today.getMonth()+1)+'.'+today.getDate()+'.'+today.getFullYear();
-           var time = today.getHours() + ":" + today.getMinutes();
-           var dateTime = 'Current date and time: '+date+', '+time;
+           var dt = new Date().toLocaleString();
+           var dateTime = 'Current date and time: '+dt;
            this.customNotes=dateTime;
        },
 
@@ -852,7 +832,13 @@ import domtoimage from 'dom-to-image';
                         }
          },
 
-        printPDF () {
+ // PDF print using window.print()
+         printPDF1: function () {
+             window.print();
+         },
+
+// PDF print using printJS
+        printPDF2 () {
 
            printJS({printable:['drugTable'],type:'html',header: 'CNS-TAP'});
 
@@ -873,11 +859,13 @@ import domtoimage from 'dom-to-image';
 
         },
 
-        printDIV() {
+// PDF print using DIV tag printing
+        async printPDF3() {
               var divDrugTableContents = document.getElementById("drugTable").innerHTML;
-              var divGraph = document.getElementById("GraphCanvas");
+              //var divGraph = document.getElementById("AKT");
 
-              var a = window.open('', '', 'height=500, width=500');
+              var a = window.open('', '', 'height=5, width=10');
+
               a.document.write('<html>');
               a.document.write('<body > <h1>CNS-TAP</h1><br><br>');
               a.document.write('<h2>Drug Table</h2><br>');
@@ -885,70 +873,54 @@ import domtoimage from 'dom-to-image';
               a.document.write('<br><br><h2>Notes</h2><br>');
               a.document.write(this.customNotes);
               a.document.write('<br><br><h2>Pathway Graphs</h2><br>');
-              a.document.write("<br><img src='" + divGraph.toDataURL() + "'/>");
 
-
+              //   Adding graph as image in a slide
+                 for (let i = 0; i < this.GraphDataset.length; i++) {
+                        let pathw = this.GraphDataset[i].pathway;
+                        let dataUrl = await domtoimage.toPng(document.getElementById(pathw));
+                        await a.document.write("<br><img src='" + dataUrl + "'/>");
+                 }
               a.document.write('</body></html>');
               a.document.close();
-              a.print();
+              setTimeout(function () { a.print(); }, 500);
+              a.onfocus = function () { setTimeout(function () { a.close(); }, 300); }
         },
 
-        printPDFiFrame () {
-          alert("Generating PDF");
+// PDF print using iFrame printing
+        async printPDF4 () {
+
                   var objFra = document.createElement('iframe');
                   objFra.style.visibility = 'hidden';
                   objFra.src = "about:blank";
 
-                  //var myContent = '<!DOCTYPE html>' + '<html><head><title>My dynamic document</head>' + '<body><p>CNSTAP</p></body></html>';
-                  //                  var drugtableElement = document.getElementById('drugTable');
-                  //                  objFra.insertAdjacentElement("afterend", drugtableElement);
-
-                  // var divContents = document.getElementById("drugTable").innerHTML;
-                  //objFra.contentWindow.document.write(divContents);
-
-                //  objFra.document.write(divContents);
-
-
-
-
-                //   if (objFra.contentDocument)
-                //     iframedoc = objFra.contentDocument;
-                //   else if (objFra.contentWindow)
-                //     iframedoc = objFra.contentWindow.document;
-                //
-                //   if (iframedoc) {
-                //     // Put the content in the iframe
-                //     iframedoc.open();
-                //     iframedoc.writeln(divContents);
-                //     iframedoc.close();
-                //   } else {
-                //     //just in case of browsers that don't support the above 3 properties.
-                //     //fortunately we don't come across such case so far.
-                //     alert('Cannot inject dynamic contents into iframe.');
-                //   }
-
-
-                  // objFra.contentWindow.document.open('text/htmlreplace');
-                  // objFra.contentWindow.document.write(myContent);
-                  // objFra.contentWindow.document.close();
-
-
 
                   document.body.appendChild(objFra);
+                  objFra.contentWindow.document.open();
+                  objFra.contentWindow.document.write("<br><h1>CNS-Tap report</h1><br><br>");
 
-                  var divContents = document.getElementById("drugTable").innerHTML;
-                  var iframedoc = objFra.contentwindos.document;
-                  iframedoc.open();
-                  iframedoc.writeln(divContents);
-                  iframedoc.close();
+                  objFra.contentWindow.document.write("<br><br><h2>Drug Table</h2><br>");
+                  var tableContents = document.getElementById("drugTable").innerHTML;
+                  objFra.contentWindow.document.write(tableContents);
 
+                  objFra.contentWindow.document.write("<br><br><h2>Notes</h2><br>");
+                  objFra.contentWindow.document.write(this.customNotes);
+
+                  objFra.contentWindow.document.write("<br><br><h2>Pathway Graphs</h2><br>");
+
+                  //   Adding graph as image in a slide
+                     for (let i = 0; i < this.GraphDataset.length; i++) {
+                            let pathw = this.GraphDataset[i].pathway;
+                            let dataUrl = await domtoimage.toPng(document.getElementById(pathw));
+                            await objFra.contentWindow.document.write("<br><img src='" + dataUrl + "'/>");
+                     }
+
+                  objFra.contentWindow.document.close();
                   objFra.contentWindow.focus();
-
-
                   objFra.contentWindow.print();
         },
 
-        printPPT () {
+// PPT print using pptxgen()
+      async  printPPT () {
 
           if (!this.switch2) {
                 alert("There are no Pathway Graphs to print. Please select at least one Pathway and toggle on the 'Pathways Graph' switch.");
@@ -957,15 +929,12 @@ import domtoimage from 'dom-to-image';
 
           // 1. Create a new Presentation
            let pres = new pptxgen();
-
            pres.author = 'Karthik Ravi';
            pres.company = 'Koschman Labs';
            pres.revision = '1';
            pres.subject = 'CNS-Tap report';
            pres.title = 'CNS-Tap Drugtable and Graphs Presentation';
-
            pres.layout = 'LAYOUT_WIDE';
-
 
            // Adding slide for banner
            let slideBanner = pres.addSlide();
@@ -978,46 +947,23 @@ import domtoimage from 'dom-to-image';
            let textboxText1 = "Notes";
            let textboxOpts1 = { x: 1, y: 1, color: "363636", fill: "f1f1f1", align: pres.AlignH.center };
            slideNotes.addText(textboxText1, textboxOpts1);
-           slideNotes.addText("Friday 26, 2020 10:00 AM",{ x: 1, y: 1.5, w: 3, align: pres.AlignH.left, color: "363636", fontSize: 18 });
            slideNotes.addText("Notes: " + this.customNotes,{ x: 1, y: 2, align: pres.AlignH.left, color: "363636", fontSize: 12 });
 
            // Adding slide for table
            pres.tableToSlides("drugTable");
 
-           // Adding graph as image in a slide
-            domtoimage.toPng(document.getElementById('pathwayGraph'))
-                .then(function (dataUrl) {
-                    pres.addSlide().addImage({path: dataUrl, w: '100%', h: '100%'});
-                                     // 4. Save the Presentation
-                                     pres.writeFile("CNSTAP.pptx");
-                 })
-                 .catch(function (error) {
-                     alert("error");
-                     console.error('oops, something went wrong!', error);
-                 });
+        //   Adding graph as image in a slide
+           for (let i = 0; i < this.GraphDataset.length; i++) {
+                  let pathw = this.GraphDataset[i].pathway;
+                  let dataUrl = await domtoimage.toPng(document.getElementById(pathw));
+                  await pres.addSlide().addImage({path: dataUrl, x:'1', y:'1', w: '80%', h: '80%'});
+           }
+          await pres.writeFile("CNSTAP.pptx");
         },
-
-
-
-        // convertimg (pres) {
-        //       for (testsetObj in this.GraphDataset){
-        //         for(drugagent in testsetObj.drugagents){
-        //              let slideGraph = pres.addSlide();
-        //              domtoimage.toPng(document.getElementById(getElemId(testsetObj.pathway,drugagent)))
-        //                  .then(function (dataUrl) {
-        //                       slideGraph.addImage({path: dataUrl, w: '100%', h: '100%'});
-        //                   })
-        //                   .catch(function (error) {
-        //                       alert("error");
-        //                       console.error('oops, something went wrong!', error);
-        //                   });
-        //         }
-        //       }
-        // },
 
         updateICLN: function(value,pPathway){
             for (var d = 0; d < this.drugs.length; d++){
-                if(this.drugs[d].pathways.trim() == pPathway){
+                if(this.drugs[d].pathways.trim() === pPathway.trim()){
                       if (this.drugs[d].editable === 0) {
                           this.drugs[d].icln = value;
                       }
@@ -1025,13 +971,13 @@ import domtoimage from 'dom-to-image';
                       this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
                 }
             }
-            this.switch2=false;
         },
+
 
 
         updateITIER: function(value,pPathway){
             for (var d = 0; d < this.drugs.length; d++){
-                if(this.drugs[d].pathways.trim() == pPathway){
+                if(this.drugs[d].pathways.trim() === pPathway.trim()){
                       if (this.drugs[d].editable === 0) {
                           this.drugs[d].itier = value;
                       }
@@ -1039,26 +985,17 @@ import domtoimage from 'dom-to-image';
                       this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
                 }
             }
-            this.switch2=false;
         },
 
 
-        updateITRL: function(value,pPathway,pSUBT){
+        updateITRL: function(value,pPathway,pDRUGAGENTS){
             for (var d = 0; d < this.drugs.length; d++){
-                if((this.drugs[d].pathways.trim() == pPathway) && (this.drugs[d].subt == pSUBT)){
+                if((this.drugs[d].pathways.trim() === pPathway.trim()) && (this.drugs[d].drugagents == pDRUGAGENTS)){
                       this.drugs[d].trl = Number(value)*20;
                       this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
                 }
             }
-            this.switch2=false;
         },
-
-        validateDisplaySwitch2(){
-            if(this.pathwayselection.length===0){
-                this.switch2=false;
-            }
-        },
-
 
 
     },
@@ -1230,7 +1167,6 @@ td p {
 }
 
 .v-text-area {
-  align: center;
   justify-content: center;
   text-align: center;
 }
@@ -1241,7 +1177,7 @@ td p {
   margin: 0;
   align-items: center;
   text-align: center;
-  justify-content: center;
+  justify: center;
   width: 80px;
 }
 
@@ -1249,21 +1185,18 @@ option {
     align-content: center;
     align-items: center;
     text-align: center;
-    justify-content: center;
-}
-
-.v-text-field {
-  justify-content: center;
-  text-align:center;
-}
-
-.v-text-field__slot input {
-text-align: center;
-}
-.v-select__selection {
-    justify-content: center;
-    text-align:center;
+    justify: center;
 
 }
+
+.v-select-list {
+  text-align: left;
+}
+.v-list-item {
+  text-align: left;
+
+}
+
+
 
 </style>
