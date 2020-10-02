@@ -54,28 +54,23 @@
             <tbody>
                 <tr>
                   <!-- Switches for Notes -->
-                    <td width="300px" class="lightblueleft">
+                    <td width="300px" class="lightbluecenter">
                           <div v-intro="'Switch to enter custom notes, which will be retained in the generated report.'" v-intro-step="2">
                                 <v-switch v-model="switch1" @change="getdatetime()" inset :label="`Note Space`"></v-switch>
                           </div>
                     </td>
                     <!-- Switches for Graph -->
-                    <td width="300px" class="lightblueleft">
+                    <td width="300px" class="lightbluecenter">
                           <div v-intro="'Switch to view graphs that show CNS-Tap baseline and patient specific scores for drugs in selected pathways. Please select at least one pathway to enable this feature.'" v-intro-step="3">
                                 <!-- <v-switch :disabled="this.pathwayselection.length === 0" v-model="switch2" inset :label="`Pathway Graphs`"></v-switch> -->
                                 <v-switch v-model="switch2" inset :label="`Pathway Graphs`"></v-switch>
                           </div>
                     </td>
-                    <td class="lightblueleft">
-                      <!-- Print buttons for PPT - Start -->
-                             <div v-intro="'Click here to generate CNS-TAP report with Data table, Notes, and Graphs.'" v-intro-step="7">
-                               <span style="font-size:15px;font-weight:bold">
-                                 <v-chip @click="printPPT" :class="'def black--text my-2 caption'">PPT</v-chip>
-                               &nbsp; &nbsp;
-                              Generate Report
-                               </span>
-                            </div>
-                      <!-- Print buttons for PPT - Start -->
+                    <!-- Switches for Patient Data -->
+                    <td class="lightbluecenter">
+                          <div v-intro="'Switch to input patient specific sequencing data to generate patient specific scores.'" v-intro-step="4">
+                                <v-switch v-model="switch3" inset :label="`Patient Data Columns`"></v-switch>
+                          </div>
                     </td>
                 </tr>
             </tbody>
@@ -91,17 +86,12 @@
     </v-col>
     <v-col cols="10" class="font-weight-bold grey--text text--darken-2 text-right">
 
-      <v-sheet
-        class="pa-1"
-        color="grey lighten-3"
-      >
-
       <div class="d-print-none">
          <v-simple-table>
              <tbody>
                  <tr>
                    <!-- Switches for Group by  -->
-                     <td width="300px" class="lightblueleft">
+                     <td width="300px" class="lightbluecenter">
 
                            <!-- Information button - Start -->
                           <template>
@@ -152,39 +142,25 @@
                            <!-- Information button - End -->
                      </td>
                      <td width="300px" class="lightblueleft">
-
-                       <!-- Switches for Patient Data Start -->
-                           <div v-intro="'Switch to input patient specific sequencing data to generate patient specific scores.'" v-intro-step="4">
-                                 <v-switch v-model="switch3" inset :label="`Patient Data Columns`"></v-switch>
-                           </div>
-                       <!-- Switches for Patient Data End -->
-                     </td>
-                     <td class="lightblueleft">
-                         <div v-intro="'Switch to select the patient age group.'" v-intro-step="8">
+                       <!-- Print buttons for PPT - Start -->
+                               <div v-intro="'Click here to generate CNS-TAP report with Data table, Notes, and Graphs.'" v-intro-step="7">
                                  <span style="font-size:15px;font-weight:bold">
-                                       <v-chip-group
-                                         v-model="switch5"
-                                         active-class="white black--text"
-                                         mandatory
-                                       >
-                                           <v-chip :class="'def black--text my-2 caption'" filter>Pediatric</v-chip>
-                                          &nbsp;
-                                           <v-chip :class="'def black--text my-2 caption'" filter>Adult</v-chip>
-                                          &nbsp;
-                                          Patient
-                                       </v-chip-group>
+                                 <v-btn small rounded class="grey darken-3 white--text" @click="printPPT()"  dark>PPT</v-btn>
+                                 &nbsp; &nbsp;
+                                Generate Report
                                  </span>
-                          </div>
-
-
+                              </div>
+                       <!-- Print buttons for PPT - Start -->
+                     </td>
+                     <td class="lightbluecenter">
+                       <div v-intro="'Switch to select the patient age group.'" v-intro-step="8">
+                             <v-switch  v-model="switch5"  inset :label="`Pediatric patient`"></v-switch>
+                       </div>
                      </td>
                  </tr>
              </tbody>
          </v-simple-table>
        </div>
-
-     </v-sheet>
-
     </v-col>
   </v-row>
 </div>
@@ -303,7 +279,7 @@
             <template v-if="header.tt === ''" >
                     <span :key="h.text" >{{header.text}}</span>
             </template>
-            <template v-else-if="header.text === 'iTRL'">
+            <template v-else-if="header.text === 'iTRL' || header.text === 'TRL'">
                         <v-tooltip top close-delay=2000 :key="h.text" color="amber lighten-4 black--text">
                           <template v-slot:activator="{ on }" >
                                 <span v-on="on">{{h.text}}</span>
@@ -311,16 +287,6 @@
                           <span>Relevant Clinical Trial. Go to <a href="http://www.clinicaltrials.gov">www.clinicaltrials.gov</a> to identify applicable trials.</span>
                         </v-tooltip>
             </template>
-
-            <template v-else-if="header.text === 'TRL'">
-                        <v-tooltip top close-delay=2000 :key="h.text" color="amber lighten-4 black--text">
-                          <template v-slot:activator="{ on }" >
-                                <span v-on="on">{{h.text}}</span>
-                          </template>
-                          <span>Relevant Clinical Trial. Go to <a href="http://www.clinicaltrials.gov">www.clinicaltrials.gov</a> to identify applicable trials.</span>
-                        </v-tooltip>
-            </template>
-
             <template v-else>
                             <v-tooltip top :key="h.text" color="amber lighten-4 black--text">
                               <template v-slot:activator="{ on }" >
@@ -432,7 +398,7 @@
         <template v-slot:item.subt="props">
 
                   <template v-if="switch3">
-                        <template v-if="!switch5">
+                        <template v-if="switch5">
                               <div class="blue-grey lighten-4 grey--text-darken-4"><p>{{ props.item.subt }}</p></div>
                         </template>
                         <template v-else>
@@ -440,7 +406,7 @@
                         </template>
                   </template>
                   <template v-else>
-                        <template v-if="!switch5">
+                        <template v-if="switch5">
                               <div><p>{{ props.item.subt }}</p></div>
                         </template>
                         <template v-else>
@@ -466,7 +432,7 @@
       <template v-slot:item.total="props">
 
         <template v-if="switch3" >
-              <template v-if="!switch5">
+              <template v-if="switch5">
                     <div class="blue-grey lighten-4 grey--text-darken-4"><p>{{ props.item.total }}</p></div>
               </template>
               <template v-else>
@@ -474,7 +440,7 @@
               </template>
         </template>
         <template v-else>
-              <template v-if="!switch5">
+              <template v-if="switch5">
                     <div><p>{{ props.item.total }}</p></div>
               </template>
               <template v-else>
@@ -710,7 +676,6 @@ import domtoimage from 'dom-to-image';
 
     mounted() {
       this.startIntro();
-
      },
 
 
@@ -968,14 +933,14 @@ import domtoimage from 'dom-to-image';
       computedHeaders () {
 
           if (this.switch3) {
-              if(!this.switch5) {
+              if(this.switch5) {
 //                  this.switchtoPediatricPatient();
                   return this.headers.filter(header => this.patientColumnsPed.includes(header.text));
               }else {
                   return this.headers.filter(header => this.patientColumns.includes(header.text));
               }
           } else {
-              if(!this.switch5) {
+              if(this.switch5) {
 //                  this.switchtoPediatricPatient();
                   return this.headers.filter(header => this.allColumnsPed.includes(header.text));
               }else {
@@ -991,15 +956,15 @@ import domtoimage from 'dom-to-image';
     },
 
     watch: {
-      // switch5(newValue){
-      //   //called whenever Pediatric Patient switches changes
-      //      if(newValue) {
-      //           var tempVar;
-      //           this.switchtoPediatricPatient();
-      //           tempVar = this.drugs[2].itrl;
-      //           this.drugs[2].itrl = tempVar;
-      //      }
-      // },
+      switch5(newValue){
+        //called whenever Pediatric Patient switches changes
+           if(newValue) {
+                var tempVar;
+                this.switchtoPediatricPatient();
+                tempVar = this.drugs[2].itrl;
+                this.drugs[2].itrl = tempVar;
+           }
+      },
     },
 
     methods:{
@@ -1008,38 +973,26 @@ import domtoimage from 'dom-to-image';
          switch2_click:function(){this.$router.push("/UserView")  },
          switch3_click:function(){this.$router.push("/UserView")  },
          switch4_click:function(){this.$router.push("/UserView")  },
-    //     switch5_click:function(){this.$router.push("/UserView")  },
-
-         // switch5_click(newValue){
-         //   //called whenever Pediatric Patient switches changes
-         //      if(newValue) {
-         //           var tempVar;
-         //           this.switchtoPediatricPatient();
-         //           tempVar = this.drugs[2].itrl;
-         //           this.drugs[2].itrl = tempVar;
-         //      }
-         // },
-
-
+         switch5_click:function(){this.$router.push("/UserView")  },
 
          max25chars: v => v.length <= 25 || 'Input too long!',
 
-         // switchtoPediatricPatient() {
-         //   // Switch userview to handle Pediatric Patient switch
-         //   if (!this.switch5) {
-         //        // update subtotal and totals on drugs table for Pediatric patients
-         //         for (var d = 0; d < this.drugs.length; d++){
-         //                this.drugs[d].subt = Number(this.drugs[d].vitro) + Number(this.drugs[d].vivo) + Number(this.drugs[d].safety) + Number(this.drugs[d].cns) + Number(this.drugs[d].bbb) + Number(this.drugs[d].fda);
-         //                this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
-         //         }
-         //   } else {
-         //       // update subtotal and totals for Adults patients
-         //          for (var s = 0; s < this.drugs.length; s++){
-         //               this.drugs[s].subt = Number(this.drugs[s].vitro) + Number(this.drugs[s].vivo) +  Number(this.drugs[s].cns) + Number(this.drugs[s].bbb) + Number(this.drugs[s].fda);
-         //               this.drugs[s].total = Number(this.drugs[s].subt) + Number(this.drugs[s].cln) + Number(this.drugs[s].tier) + Number(this.drugs[s].trl);
-         //          }
-         //   }
-         // },
+         switchtoPediatricPatient() {
+           // Switch userview to handle Pediatric Patient switch
+           if (this.switch5) {
+                // update subtotal and totals on drugs table for Pediatric patients
+                 for (var d = 0; d < this.drugs.length; d++){
+                        this.drugs[d].subt = Number(this.drugs[d].vitro) + Number(this.drugs[d].vivo) + Number(this.drugs[d].safety) + Number(this.drugs[d].cns) + Number(this.drugs[d].bbb) + Number(this.drugs[d].fda);
+                        this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
+                 }
+           } else {
+               // update subtotal and totals for Adults patients
+                  for (var s = 0; s < this.drugs.length; s++){
+                       this.drugs[s].subt = Number(this.drugs[s].vitro) + Number(this.drugs[s].vivo) +  Number(this.drugs[s].cns) + Number(this.drugs[s].bbb) + Number(this.drugs[s].fda);
+                       this.drugs[s].total = Number(this.drugs[s].subt) + Number(this.drugs[s].cln) + Number(this.drugs[s].tier) + Number(this.drugs[s].trl);
+                  }
+           }
+         },
 
          startIntro() {
           if(confirm("Do you want an introduction to the CNS-Tap website?")){
@@ -1101,7 +1054,7 @@ import domtoimage from 'dom-to-image';
                             tDrugagents.splice(0);
                             for (var d = 0; d < this.drugs.length; d++){
                               if(this.pathways[this.pathwayselection[p]].pathway.trim() == this.drugs[d].pathways.trim()){
-                                  if (!this.switch5) {
+                                  if (this.switch5) {
                                       tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:this.drugs[d].subt, ptspecific:this.drugs[d].total}});
                                   } else {
                                       tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:(Number(this.drugs[d].subt) - Number(this.drugs[d].safety)) , ptspecific:(Number(this.drugs[d].total) - Number(this.drugs[d].safety))}});
@@ -1391,6 +1344,7 @@ option {
   text-align: left;
 
 }
+
 
 
 </style>

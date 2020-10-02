@@ -55,7 +55,7 @@ export default {
 
                  }],
                  yAxes: [{
-                   display: true,
+                   display: false,
                    gridLines: {
                      drawBorder: false,
                      showBorder: false,
@@ -63,9 +63,9 @@ export default {
                    },
                    ticks: {
                        suggestedMin: 0,
-                       suggestedMax: 100
-                   }
-                 }]
+                       suggestedMax: 100,
+                       }
+                   }]
              }
 
     },
