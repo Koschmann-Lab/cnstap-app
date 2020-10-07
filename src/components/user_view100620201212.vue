@@ -2,6 +2,26 @@
 <template>
   <v-container>
 
+    <!--
+
+    1. CLOSED Populate grey cells when pathway is already selected
+    2. CLOSED V-intro number 5 goes next to 7 and skips 6
+    3. CLOSED PI3K/mTOR pathway has a spelling error probably
+    4. CLOSED Real time graph update
+    5. Add clinicaltrials.gov link to table
+    6. CLOSED only show the number instead of the whole legend for iCLN, iTIER, itrl
+    7. CLOSED do not disable the "switch2" but provide a message
+
+
+    3. In order to fit multiple pathways onto the same row for the graph,
+    we need to add another loop in the code around line 470 - may need to
+    adjust the array for this loop to work by pathway
+
+    Bugs
+
+    -->
+
+
     <v-row class="justify-center align-center">
        <v-col cols="3">
            <h3 class="display-3 font-weight-bold grey--text text--darken-2">
@@ -102,7 +122,7 @@
 
                                   </template>
 
-                                  <v-card outlined>
+                                  <v-card>
                                     <v-card-title class="headline grey lighten-2">
                                       Description of Algorithm
                                     </v-card-title>
@@ -232,11 +252,6 @@
           <v-alert type="error">
             Please select at least one Pathway from the 'Pathway selection' to display Graphs.
           </v-alert>
-      </div>
-      <div v-else>
-        <v-alert type="info">
-          Pathway Graph is displayed below the Drug Agent table.
-        </v-alert>
       </div>
     </div>
 <!-- Warning message if PathwayGraph switch is selected without select at least one patheay - End -->
@@ -438,6 +453,14 @@
               </template>
         </template>
 
+        <!-- <template v-if="props.item.editable != 2">
+                    <div class="blue-grey lighten-4 grey--text-darken-4"><p>{{ props.item.total }}</p></div>
+        </template>
+        <template v-else>
+                    <div><p>{{ props.item.total }}</p></div>
+        </template> -->
+
+
     </template>
 <!-- Main Drug Table - Configure Total column - End -->
 
@@ -583,43 +606,79 @@
 
     <div id="pathwayGraph" v-if="switch2">
 
-      <!-- LineCharts Start -->
-      <div>
-        <v-simple-table > <tbody>
-        <tr>
-                <v-simple-table > <tbody><tr>
-                <td class="lightblueleft">
-                Pathway Graph
+            <!-- LineCharts Start -->
+            <div>
+              <v-simple-table > <tbody>
+              <tr>
+                      <v-simple-table > <tbody><tr>
+                      <td class="lightblueleft">
+                      Pathway Graph
+                      </td>
+                      <td class="lightblueright"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px;solid #000;background:black;display:inline-block;"></div>&nbsp;Baseline</div></td>
+                      <td class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></td>
+                     </tr></tbody></v-simple-table>
+              </tr>
+              <tr>
+                <td class="lightbluecenter">
+                  <v-row>
+                    <v-col
+                      v-for="testsetObj in GraphDatasetLarge"
+                      :key="testsetObj.ptspecific" v-bind:id="testsetObj.pathway"
+                      cols="12"
+                      sm="3"
+                      class='brd-b-3'
+                    >
+                      <LineGraphContainerLarge :rawpathway=testsetObj.pathway :rawdata=testsetObj.drugagents :rawbaseline=testsetObj.baseline :rawptspecific=testsetObj.ptspecific >
+                      </LineGraphContainerLarge>
+                    </v-col>
+                  </v-row>
                 </td>
-                <td class="lightblueright"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px;solid #000;background:black;display:inline-block;"></div>&nbsp;Baseline</div></td>
-                <td class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></td>
-               </tr></tbody></v-simple-table>
-        </tr>
-        <tr>
-          <td class="lightbluecenter">
-            <v-row>
-              <v-col
-                v-for="testsetObj in GraphDatasetAll"
-                :key="testsetObj.ptspecific" v-bind:id="testsetObj.pathway"
-                cols="12"
-              >
-                <LineGraphContainerLarge :rawpathway=testsetObj.pathway :rawdata=testsetObj.drugagents :rawbaseline=testsetObj.baseline :rawptspecific=testsetObj.ptspecific >
-                </LineGraphContainerLarge>
-              </v-col>
+              </tr>
+              </tbody></v-simple-table>
+            </div>
+            <!-- LineCharts End -->
 
-            </v-row>
-          </td>
-        </tr>
-        </tbody></v-simple-table>
-      </div>
-      <!-- LineCharts End -->
 
+         <!-- LineCharts Start -->
+        <!-- <div v-for="testsetObj in GraphDataset"
+                :key="testsetObj.pathway" v-bind:id="testsetObj.pathway">
+                <v-simple-table > <tbody>
+                <tr>
+                        <v-simple-table > <tbody><tr>
+                        <td class="lightblueleft">
+                        {{ testsetObj.pathway }}
+                        </td>
+                        <td class="lightblueright"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px;solid #000;background:black;display:inline-block;"></div>&nbsp;Baseline</div></td>
+                        <td class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></td>
+                       </tr></tbody></v-simple-table>
+                </tr>
+                <tr>
+                <td class="lightbluecenter">
+                        <v-row>
+                          <v-col
+                            v-for="drugagent in testsetObj.drugagents"
+                            :key="drugagent.values.ptspecific"
+                            cols="3"
+                            sm="3"
+                            class='brd-b-3'
+                          >
+                                <LineGraphContainer :rawdata=drugagent>
+
+                                </LineGraphContainer>
+                          </v-col>
+                        </v-row>
+                </td></tr>
+                </tbody></v-simple-table>
+          </div> -->
+               <!-- LineCharts End -->
        </div>
 
 <!-- ***************************** -->
 <!-- Pathway Graph display - End -->
 <!-- ***************************** -->
 <!-- ***************************** -->
+
+
 
     </v-col>
 </v-row>
@@ -796,14 +855,7 @@ import domtoimage from 'dom-to-image';
 
     GraphDataset: [{ pathway: "", drugagents:[]},],
 
-//    GraphDatasetLarge: [{ pathway: "", drugagents:[], baseline: [], ptspecific: []},],
-
-    GraphDatasetAll: [{ pathway:[], drugagents:[], baseline: [], ptspecific: []},],
-    // tDrugagentsLarge: [],
-    // tBaselineLarge: [],
-    // tPtspecificLarge: [],
-    // tPathwayLarge: [],
-
+    GraphDatasetLarge: [{ pathway: "", drugagents:[], baseline: [], ptspecific: []},],
 
   }),
 
@@ -828,9 +880,7 @@ import domtoimage from 'dom-to-image';
   // Ignore the first dummy row for adding data to graph, if switch3 is not selected
             if ((i.editable!= 2) || (this.switch3)){
                 this.GraphDataset.splice(0);
-    //            this.GraphDatasetLarge.splice(0);
-                this.GraphDatasetAll.splice(0);
-
+                this.GraphDatasetLarge.splice(0);
                 return true;
             }
 
@@ -942,60 +992,46 @@ import domtoimage from 'dom-to-image';
 
          filterGraphData() {
                       this.GraphDataset.splice(0);
-                  //    this.GraphDatasetLarge.splice(0);
-                      this.GraphDatasetAll.splice(0);
-
-                      var tDrugagentsLarge = [];
-                      var tBaselineLarge = [];
-                      var tPtspecificLarge = [];
-                      var tPathwayLarge = [];
-
-                      tDrugagentsLarge.splice(0);
-                      tBaselineLarge.splice(0);
-                      tPtspecificLarge.splice(0);
-                      tPathwayLarge.splice(0);
-
-                      tDrugagentsLarge.push(null);
-                      tBaselineLarge.push(null);
-                      tPtspecificLarge.push(null);
-                      tPathwayLarge.push(null);
-
-
+                      this.GraphDatasetLarge.splice(0);
                       for (var p = 0; p < this.pathwayselection.length; p++){
                             var tDrugagents = [{ agent: "", values:{baseline:0, ptspecific:0}},];
+                            var tDrugagentsLarge = [];
+                            var tBaselineLarge = [];
+                            var tPtspecificLarge = [];
+
 
                             tDrugagents.splice(0);
+                            tDrugagentsLarge.splice(0);
+                            tBaselineLarge.splice(0);
+                            tPtspecificLarge.splice(0);
 
+                            tDrugagentsLarge.push(null);
+                            tBaselineLarge.push(null);
+                            tPtspecificLarge.push(null);
 
                             for (var d = 0; d < this.drugs.length; d++){
                               if(this.pathways[this.pathwayselection[p]].pathway.trim() == this.drugs[d].pathways.trim()){
                                   if (!this.switch5) {
                                       tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:this.drugs[d].subt, ptspecific:this.drugs[d].total}});
-                                      tDrugagentsLarge.push(this.drugs[d].drugagents + ';' + this.drugs[d].pathways.trim());
+                                      tDrugagentsLarge.push(this.drugs[d].drugagents);
                                       tBaselineLarge.push(this.drugs[d].subt);
                                       tPtspecificLarge.push(this.drugs[d].total);
-                                      tPathwayLarge.push(this.drugs[d].pathways.trim());
                                   } else {
                                       tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:(Number(this.drugs[d].subt) - Number(this.drugs[d].safety)) , ptspecific:(Number(this.drugs[d].total) - Number(this.drugs[d].safety))}});
-                                      tDrugagentsLarge.push(this.drugs[d].drugagents + ';' + this.drugs[d].pathways.trim());
-                              //        tDrugagentsLarge.push(this.drugs[d].drugagents);
+                                      tDrugagentsLarge.push(this.drugs[d].drugagents);
                                       tBaselineLarge.push((Number(this.drugs[d].subt) - Number(this.drugs[d].safety)));
                                       tPtspecificLarge.push((Number(this.drugs[d].total) - Number(this.drugs[d].safety)));
-                                      tPathwayLarge.push(this.drugs[d].pathways.trim());
                                 }
                               }
                             }
-
                               this.GraphDataset.push({pathway:this.pathways[this.pathwayselection[p]].pathway.trim(), drugagents:tDrugagents});
-                    //          this.GraphDatasetLarge.push({pathway:this.pathways[this.pathwayselection[p]].pathway.trim(), drugagents:tDrugagentsLarge, baseline:tBaselineLarge, ptspecific:tPtspecificLarge});
+                              tDrugagentsLarge.push(null);
+                              tBaselineLarge.push(null);
+                              tPtspecificLarge.push(null);
+                              this.GraphDatasetLarge.push({pathway:this.pathways[this.pathwayselection[p]].pathway.trim(), drugagents:tDrugagentsLarge, baseline:tBaselineLarge, ptspecific:tPtspecificLarge});
+
                     //         alert(JSON.stringify(this.GraphDatasetLarge));
                         }
-                        tDrugagentsLarge.push(null);
-                        tBaselineLarge.push(null);
-                        tPtspecificLarge.push(null);
-                        tPathwayLarge.push(null);
-                        this.GraphDatasetAll.push({pathway:tPathwayLarge, drugagents:tDrugagentsLarge, baseline:tBaselineLarge, ptspecific:tPtspecificLarge});
-
          },
 
 // PPT print using pptxgen()
