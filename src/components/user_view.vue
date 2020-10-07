@@ -65,21 +65,21 @@
 </v-row>
 <!-- Switches for Notes, Graph and Patient Data - End -->
 
-<div class="d-print-none">
+<div class="d-print-none" >
   <v-row>
     <v-col cols="2" >
     </v-col>
-    <v-col cols="10" class="font-weight-bold grey--text text--darken-2 text-right">
+    <v-col cols="10" class="font-weight-bold grey--text text--darken-2 text-right" style="border-top:2px solid #111;">
 
       <v-sheet
         class="pa-1"
         color="grey lighten-3"
       >
 
-      <div class="d-print-none">
+      <div class="d-print-none" >
          <v-simple-table>
              <tbody>
-                 <tr>
+                 <tr >
                    <!-- Switches for Group by  -->
                      <td width="300px" class="lightblueleft">
 
@@ -255,7 +255,7 @@
       group-by="pathways"
     >
 <!-- Main Drug Table - Print headers - Start -->
-    <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }" ref = "h.value">
+    <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }" ref = "h.value" >
             <template v-if="header.tt === ''" >
                     <span :key="h.text" >{{header.text}}</span>
             </template>
@@ -264,8 +264,7 @@
                           <template v-slot:activator="{ on }" >
                                 <span v-on="on">{{h.text}}</span>
                           </template>
-                          <span>Relevant Clinical Trial. Go to <a href="http://www.clinicaltrials.gov">www.clinicaltrials.gov</a> to identify applicable trials.</span>
-                        </v-tooltip>
+<span>Relevant Clinical Trial. Go to <a href="http://www.clinicaltrials.gov" target="_blank">www.clinicaltrials.gov</a> to identify applicable trials.</span>                        </v-tooltip>
             </template>
 
             <template v-else-if="header.text === 'TRL'">
@@ -1076,8 +1075,6 @@ import domtoimage from 'dom-to-image';
                 }
             }
         },
-
-
     },
 }
 </script>
@@ -1276,6 +1273,8 @@ option {
   text-align: left;
 
 }
-
+.v-tooltip__content {
+  pointer-events: initial;
+}
 
 </style>
