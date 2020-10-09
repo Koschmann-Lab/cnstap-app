@@ -71,10 +71,7 @@
     </v-col>
     <v-col cols="10" class="font-weight-bold grey--text text--darken-2 text-right" style="border-top:2px solid #111;">
 
-      <v-sheet
-        class="pa-1"
-        color="grey lighten-3"
-      >
+
 
       <div class="d-print-none" >
          <v-simple-table>
@@ -163,7 +160,6 @@
          </v-simple-table>
        </div>
 
-     </v-sheet>
 
     </v-col>
   </v-row>
@@ -227,7 +223,7 @@
       <v-col cols="10" >
 
 <!-- Warning message if PathwayGraph switch is selected without select at least one patheay - Start -->
-    <div id="pathwayGraph" v-if="switch2">
+    <div id="pathwayGraphMsg" v-if="switch2">
       <div v-if="GraphDataset.length==0">
           <v-alert type="error">
             Please select at least one Pathway from the 'Pathway selection' to display Graphs.
@@ -264,7 +260,8 @@
                           <template v-slot:activator="{ on }" >
                                 <span v-on="on">{{h.text}}</span>
                           </template>
-<span>Relevant Clinical Trial. Go to <a href="http://www.clinicaltrials.gov" target="_blank">www.clinicaltrials.gov</a> to identify applicable trials.</span>                        </v-tooltip>
+<span>Relevant Clinical Trial. Go to <a href="http://www.clinicaltrials.gov" target="_blank">www.clinicaltrials.gov</a> to identify applicable trials.</span>
+</v-tooltip>
             </template>
 
             <template v-else-if="header.text === 'TRL'">
@@ -602,7 +599,7 @@
                 :key="testsetObj.ptspecific" v-bind:id="testsetObj.pathway"
                 cols="12"
               >
-                <LineGraphContainerLarge :rawpathway=testsetObj.pathway :rawdata=testsetObj.drugagents :rawbaseline=testsetObj.baseline :rawptspecific=testsetObj.ptspecific >
+                <LineGraphContainerLarge :rawpathway=testsetObj.pathway :rawdata=testsetObj.drugagents :rawbaseline=testsetObj.baseline :rawptspecific=testsetObj.ptspecific :rawradius=testsetObj.radius >
                 </LineGraphContainerLarge>
               </v-col>
 
@@ -640,7 +637,7 @@ import Footer from '../components/Footer.vue'
 
 
 import pptxgen from "pptxgenjs";
-import domtoimage from 'dom-to-image';
+ import domtoimage from 'dom-to-image';
 
   export default {
 
@@ -797,11 +794,7 @@ import domtoimage from 'dom-to-image';
 
 //    GraphDatasetLarge: [{ pathway: "", drugagents:[], baseline: [], ptspecific: []},],
 
-    GraphDatasetAll: [{ pathway:[], drugagents:[], baseline: [], ptspecific: []},],
-    // tDrugagentsLarge: [],
-    // tBaselineLarge: [],
-    // tPtspecificLarge: [],
-    // tPathwayLarge: [],
+    GraphDatasetAll: [{ pathway:[], drugagents:[], baseline: [], ptspecific: [], radius: ""},],
 
 
   }),
@@ -853,14 +846,12 @@ import domtoimage from 'dom-to-image';
 
           if (this.switch3) {
               if(!this.switch5) {
-//                  this.switchtoPediatricPatient();
                   return this.headers.filter(header => this.patientColumnsPed.includes(header.text));
               }else {
                   return this.headers.filter(header => this.patientColumns.includes(header.text));
               }
           } else {
               if(!this.switch5) {
-//                  this.switchtoPediatricPatient();
                   return this.headers.filter(header => this.allColumnsPed.includes(header.text));
               }else {
                   return this.headers.filter(header => this.allColumns.includes(header.text));
@@ -875,15 +866,7 @@ import domtoimage from 'dom-to-image';
     },
 
     watch: {
-      // switch5(newValue){
-      //   //called whenever Pediatric Patient switches changes
-      //      if(newValue) {
-      //           var tempVar;
-      //           this.switchtoPediatricPatient();
-      //           tempVar = this.drugs[2].itrl;
-      //           this.drugs[2].itrl = tempVar;
-      //      }
-      // },
+
     },
 
     methods:{
@@ -892,38 +875,8 @@ import domtoimage from 'dom-to-image';
          switch2_click:function(){this.$router.push("/UserView")  },
          switch3_click:function(){this.$router.push("/UserView")  },
          switch4_click:function(){this.$router.push("/UserView")  },
-    //     switch5_click:function(){this.$router.push("/UserView")  },
-
-         // switch5_click(newValue){
-         //   //called whenever Pediatric Patient switches changes
-         //      if(newValue) {
-         //           var tempVar;
-         //           this.switchtoPediatricPatient();
-         //           tempVar = this.drugs[2].itrl;
-         //           this.drugs[2].itrl = tempVar;
-         //      }
-         // },
-
-
 
          max25chars: v => v.length <= 25 || 'Input too long!',
-
-         // switchtoPediatricPatient() {
-         //   // Switch userview to handle Pediatric Patient switch
-         //   if (!this.switch5) {
-         //        // update subtotal and totals on drugs table for Pediatric patients
-         //         for (var d = 0; d < this.drugs.length; d++){
-         //                this.drugs[d].subt = Number(this.drugs[d].vitro) + Number(this.drugs[d].vivo) + Number(this.drugs[d].safety) + Number(this.drugs[d].cns) + Number(this.drugs[d].bbb) + Number(this.drugs[d].fda);
-         //                this.drugs[d].total = Number(this.drugs[d].subt) + Number(this.drugs[d].cln) + Number(this.drugs[d].tier) + Number(this.drugs[d].trl);
-         //         }
-         //   } else {
-         //       // update subtotal and totals for Adults patients
-         //          for (var s = 0; s < this.drugs.length; s++){
-         //               this.drugs[s].subt = Number(this.drugs[s].vitro) + Number(this.drugs[s].vivo) +  Number(this.drugs[s].cns) + Number(this.drugs[s].bbb) + Number(this.drugs[s].fda);
-         //               this.drugs[s].total = Number(this.drugs[s].subt) + Number(this.drugs[s].cln) + Number(this.drugs[s].tier) + Number(this.drugs[s].trl);
-         //          }
-         //   }
-         // },
 
          startIntro() {
           if(confirm("Do you want an introduction to the CNS-Tap website?")){
@@ -948,6 +901,7 @@ import domtoimage from 'dom-to-image';
                       var tBaselineLarge = [];
                       var tPtspecificLarge = [];
                       var tPathwayLarge = [];
+                      var tRadius = 10;
 
                       tDrugagentsLarge.splice(0);
                       tBaselineLarge.splice(0);
@@ -993,7 +947,22 @@ import domtoimage from 'dom-to-image';
                         tBaselineLarge.push(null);
                         tPtspecificLarge.push(null);
                         tPathwayLarge.push(null);
-                        this.GraphDatasetAll.push({pathway:tPathwayLarge, drugagents:tDrugagentsLarge, baseline:tBaselineLarge, ptspecific:tPtspecificLarge});
+
+                        if (this.pathwayselection.length > 5 && this.pathwayselection.length < 7) {
+                          tRadius = 9;
+                        } else if (this.pathwayselection.length > 6 && this.pathwayselection.length < 9) {
+                          tRadius = 8;
+                        } else if (this.pathwayselection.length > 8 && this.pathwayselection.length < 10) {
+                          tRadius = 7;
+                        } else if (this.pathwayselection.length > 9 && this.pathwayselection.length < 12) {
+                          tRadius = 6;
+                        } else if (this.pathwayselection.length > 11) {
+                          tRadius = 5;
+                        } else {
+                          tRadius = 10;
+                        }
+
+                        this.GraphDatasetAll.push({pathway:tPathwayLarge, drugagents:tDrugagentsLarge, baseline:tBaselineLarge, ptspecific:tPtspecificLarge, radius:tRadius});
 
          },
 
@@ -1030,12 +999,29 @@ import domtoimage from 'dom-to-image';
            // Adding slide for table
            pres.tableToSlides("drugTable");
 
-        //   Adding graph as image in a slide
-           for (let i = 0; i < this.GraphDataset.length; i++) {
-                  let pathw = this.GraphDataset[i].pathway;
-                  let dataUrl = await domtoimage.toPng(document.getElementById(pathw));
-                  await pres.addSlide().addImage({path: dataUrl, x:'1', y:'1', w: '80%', h: '80%'});
-           }
+           // var style = {
+           //   transform: 'scale(.5)',
+           //   top: 0,
+           //   left: 0,
+           //   margin: 0,
+           //   width: '500px',
+           //   height: '500px',
+           // };
+
+           var scale = 1;
+           let node = document.getElementById("pathwayGraph");
+           //   Adding graph as image in a slide
+           let dataUrl = await domtoimage.toPng(node,
+            {
+              width: node.clientWidth*scale,
+              height: node.clientHeight*scale,
+              style: "transform-origin:top left; transform:scale("+scale+");"
+            }
+
+         );
+           await pres.addSlide().addImage({path: dataUrl, x:'1', y:'1', w: '100%', h: '100%'});
+
+
           await pres.writeFile("CNSTAP.pptx");
         },
 

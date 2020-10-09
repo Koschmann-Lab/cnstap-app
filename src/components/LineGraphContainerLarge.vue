@@ -3,7 +3,7 @@
     <span></span>
 
     <line-graph
-      :height="250"
+      :height="300"
       v-if="loaded"
       :chartdata="chartdata"
       :options="options"
@@ -19,7 +19,7 @@ import LineGraph from './LineGraphLarge.vue'
 export default {
   name: 'LineGraphContainerLarge',
   components: { LineGraph },
-  props: ['rawpathway','rawdata','rawbaseline','rawptspecific'],
+  props: ['rawpathway','rawdata','rawbaseline','rawptspecific','rawradius'],
   data: () => ({
     backgroundColor: '#F5DEB3',
     loaded: true,
@@ -84,11 +84,15 @@ export default {
                      gridLines: {
                        drawBorder: false,
                        showBorder: false,
-                       display:false
+                       display:false,
+                       drawOnChartArea: false,
                      },
                      padding: 0,
                      ticks: {
                           padding: 0,
+                          autoSkip: false,
+                          maxRotation: 90,
+                          minRotation: 90,
                           callback:function(label){
                             var drug = label.split(";")[0];
                             return drug;
@@ -103,6 +107,9 @@ export default {
                     },
                     ticks: {
                          padding: 0,
+                         autoSkip: false,
+                         maxRotation: 90,
+                         minRotation: 90,
                          callback:function(label){
                            var pathway = label.split(";")[1];
                            return pathway;
@@ -134,6 +141,8 @@ export default {
   this.chartdata.datasets[0].data.splice(0)
   this.chartdata.datasets[1].data.splice(0)
 
+  this.chartdata.datasets[0].pointRadius = this.rawradius
+  this.chartdata.datasets[1].pointRadius = this.rawradius
 
     for (var p = 0; p < this.rawdata.length; p++){
           if (this.rawdata[p] != null) {
@@ -144,6 +153,8 @@ export default {
           this.chartdata.datasets[0].data.push(this.rawbaseline[p])
           this.chartdata.datasets[1].data.push(this.rawptspecific[p])
     }
+
+
 
   },
   computed: {
