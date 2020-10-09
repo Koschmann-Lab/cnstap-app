@@ -581,32 +581,26 @@
 
       <!-- LineCharts Start -->
       <div>
-        <v-simple-table > <tbody>
-        <tr>
-                <v-simple-table > <tbody><tr>
-                <td class="lightblueleft">
+
+        <v-row class="lightblueleft">
+          <v-col cols=6>
                 Pathway Graph
-                </td>
-                <td class="lightblueright"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px;solid #000;background:black;display:inline-block;"></div>&nbsp;Baseline</div></td>
-                <td class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></td>
-               </tr></tbody></v-simple-table>
-        </tr>
-        <tr>
-          <td class="lightbluecenter">
+              </v-col>
+                <v-col cols=3 class="lightblueright"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px;solid #000;background:black;display:inline-block;"></div>&nbsp;Baseline</div></v-col>
+                <v-col cols=3 class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></v-col>
+
+              </v-row>
             <v-row>
               <v-col
-                v-for="testsetObj in GraphDatasetAll"
-                :key="testsetObj.ptspecific" v-bind:id="testsetObj.pathway"
+                id="largeGraph"
                 cols="12"
               >
-                <LineGraphContainerLarge :rawpathway=testsetObj.pathway :rawdata=testsetObj.drugagents :rawbaseline=testsetObj.baseline :rawptspecific=testsetObj.ptspecific :rawradius=testsetObj.radius >
+                <LineGraphContainerLarge :rawpathway=GraphDatasetAll[0].pathway :rawdata=GraphDatasetAll[0].drugagents :rawbaseline=GraphDatasetAll[0].baseline :rawptspecific=GraphDatasetAll[0].ptspecific :rawradius=GraphDatasetAll[0].radius >
                 </LineGraphContainerLarge>
               </v-col>
-
             </v-row>
-          </td>
-        </tr>
-        </tbody></v-simple-table>
+
+
       </div>
       <!-- LineCharts End -->
 
