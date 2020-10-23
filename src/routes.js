@@ -6,7 +6,7 @@ import UserView from './components/user_view.vue';
 
 const routes = [
     { path: '/', component: Home },
-    { path: '/UserView', component: UserView }
+    { path: '/UserView', name:"userview", component: UserView}
 ];
 
 export default routes;

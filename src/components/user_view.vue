@@ -645,16 +645,21 @@ import domtoimage from 'dom-to-image';
       Footer
     },
 
+    created() {
+
+    },
+
     mounted() {
       this.startIntro();
-
-     },
+      this.drugslist = this.$route.params.drugslist
+      console.log(this.drugslist)  // You can use this.druglist to replace the hard-coded drugs array
+    },
 
 
     data: () => (  {
 
+      drugslist : [],
       dialog: false,
-
       pgTitle: 'CNS-TAP',
 
       ttVitrorow: '(0, 1, or 2) x 2',
