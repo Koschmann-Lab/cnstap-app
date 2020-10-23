@@ -631,7 +631,7 @@ import Footer from '../components/Footer.vue'
 
 
 import pptxgen from "pptxgenjs";
- import domtoimage from 'dom-to-image';
+import domtoimage from 'dom-to-image';
 
   export default {
 
@@ -1003,7 +1003,7 @@ import pptxgen from "pptxgenjs";
            // };
 
            var scale = 1;
-           let node = document.getElementById("pathwayGraph");
+           let node = document.getElementById("largeGraph");
            //   Adding graph as image in a slide
            let dataUrl = await domtoimage.toPng(node,
             {
