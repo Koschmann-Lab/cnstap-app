@@ -92,6 +92,7 @@ import axios from "axios"
     data: () => ({
 
       DRUGSLIST: [],
+      DRUGWEIGHTS: "",
       scrollInvoked: 0,
 
     pgTitle: 'CNS-TAP',
@@ -100,7 +101,7 @@ import axios from "axios"
 
     }),
     created:function(){
-      var data = JSON.stringify({"pathway":"AKT"});
+      var data = JSON.stringify({});
       var self = this
       var config = {
         method: 'post',
@@ -114,6 +115,16 @@ import axios from "axios"
       axios(config)
       .then(function (response) {
         self.drugslist =  response.data.result
+
+    config.url = 'http://localhost:8080/CNSTAPTPC/tumorPatientCalculator/2.0/cnstap' ,
+      axios(config)
+        .then(function (response) {
+          self.drugweights =  response.data.result
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+
       })
       .catch(function (error) {
         console.log(error);
@@ -124,7 +135,7 @@ import axios from "axios"
 
     methods:{
       begin_click:function(){
-        this.$router.push({name:"userview",params:{drugslist:this.drugslist}})
+        this.$router.push({name:"userview",params:{drugslist:this.drugslist, drugweights:this.drugweights}})
       },
 
       onScroll () {
