@@ -587,17 +587,12 @@
                 id="largeGraph"
                 cols="12"
               >
-
-              <!-- introduced a DIV tag to connect the GraphDatasetAll list to the Graph for automatic rendering of the Graph -->
-              <div v-for="testsetObj in GraphDatasetAll"
-                      :key="testsetObj.pathway" v-bind:id="testsetObj.pathway">
-
-                      <!-- Display Graph object -->
-                      <LineGraphContainerLarge :rawpathway=GraphDatasetAll[0].pathway :rawdata=GraphDatasetAll[0].drugagents :rawbaseline=GraphDatasetAll[0].baseline :rawptspecific=GraphDatasetAll[0].ptspecific :rawradius=GraphDatasetAll[0].radius >
-                     </LineGraphContainerLarge>
-
-             </div>
-
+                <!-- introduced a DIV tag to connect the GraphDatasetAll list to the Graph for automatic rendering of the Graph -->
+                <div>
+                  <!-- Display Graph object -->
+                  <LineGraphContainerLarge :rawpathway=GraphDatasetAll[0].pathway :rawdata=GraphDatasetAll[0].drugagents :rawbaseline=GraphDatasetAll[0].baseline :rawptspecific=GraphDatasetAll[0].ptspecific :rawradius=GraphDatasetAll[0].radius >
+                  </LineGraphContainerLarge>
+               </div>
               </v-col>
             </v-row>
       </div>

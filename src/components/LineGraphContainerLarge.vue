@@ -5,7 +5,7 @@
     <line-graph
       :height="300"
       v-if="loaded"
-      :chartdata="chartdata"
+      :chartdata="chartComputedData"
       :options="options"
       />
     </div>
@@ -23,38 +23,6 @@ export default {
   data: () => ({
     backgroundColor: '#F5DEB3',
     loaded: true,
-    chartdata:{
-      labels: ['','MK2006',''],
-
-      datasets: [
-        {
-          label: 'BaseLine',
-          borderColor: '#666',
-          data: [null,20,null],
-          backgroundColor:'#000',
-          fill:false,
-          pointRadius: 10,
-          pointHoverRadius: 10,
-          showLine: false,
-          borderWidth: 1,
-          xAxisID:'xAxis1',
-        },
-        {
-          label: 'Patient Specific',
-          borderColor: '#666',
-          data: [null,40,null],
-          backgroundColor:'#fff',
-          fill:false,
-          pointRadius: 10,
-          pointHoverRadius: 10,
-          showLine: false,
-          borderWidth: 1,
-
-        }
-
-      ]
-    },
-
     options:{
       responsive: true,
       maintainAspectRatio: true,
@@ -136,29 +104,56 @@ export default {
   }),
   created: function(){
     console.log(this.rawdata)
-
-  this.chartdata.labels.splice(0)
-  this.chartdata.datasets[0].data.splice(0)
-  this.chartdata.datasets[1].data.splice(0)
-
-  this.chartdata.datasets[0].pointRadius = this.rawradius
-  this.chartdata.datasets[1].pointRadius = this.rawradius
-
-    for (var p = 0; p < this.rawdata.length; p++){
-          if (this.rawdata[p] != null) {
-              this.chartdata.labels.push(this.rawdata[p])
-          } else {
-             this.chartdata.labels.push("")
-          }
-          this.chartdata.datasets[0].data.push(this.rawbaseline[p])
-          this.chartdata.datasets[1].data.push(this.rawptspecific[p])
-    }
-
-
-
   },
   computed: {
+    chartComputedData: function(){
+      let obj = {
+        labels: ['','MK2006',''],
+        datasets: [
+          {
+            label: 'BaseLine',
+            borderColor: '#666',
+            data: [null,20,null],
+            backgroundColor:'#000',
+            fill:false,
+            pointRadius: 10,
+            pointHoverRadius: 10,
+            showLine: false,
+            borderWidth: 1,
+            xAxisID:'xAxis1',
+          },
+          {
+            label: 'Patient Specific',
+            borderColor: '#666',
+            data: [null,40,null],
+            backgroundColor:'#fff',
+            fill:false,
+            pointRadius: 10,
+            pointHoverRadius: 10,
+            showLine: false,
+            borderWidth: 1,
 
+          }
+        ]
+      }
+      obj.labels.splice(0)
+      obj.datasets[0].data.splice(0)
+      obj.datasets[1].data.splice(0)
+
+      obj.datasets[0].pointRadius = this.rawradius
+      obj.datasets[1].pointRadius = this.rawradius
+
+        for (var p = 0; p < this.rawdata.length; p++){
+              if (this.rawdata[p] != null) {
+                  obj.labels.push(this.rawdata[p])
+              } else {
+                 obj.labels.push("")
+              }
+              obj.datasets[0].data.push(this.rawbaseline[p])
+              obj.datasets[1].data.push(this.rawptspecific[p])
+        }
+      return obj
+    }
   }
 }
 </script>
