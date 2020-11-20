@@ -4,12 +4,14 @@
 
     <v-row class="justify-center align-center">
        <v-col cols="3">
+         <!--  CNSTAP Logo - Start -->
            <h3 class="display-3 font-weight-bold grey--text text--darken-2">
             CNS-TAP
           </h3>
+          <!--  CNSTAP Logo - End -->
        </v-col>
        <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
-         <!-- Introduction button - Start -->
+         <!-- Intro button on the right corner - Start -->
              <template>
                    <div class="text-right">
                          <v-btn
@@ -19,11 +21,11 @@
                          </v-btn>
                    </div>
              </template>
-         <!-- Introduction button - End -->
+         <!-- Intro button on the right corner - End -->
        </v-col>
     </v-row>
 
-<!-- Switches for Notes, Graph and Patient Data - Start -->
+<!-- Switches for Notes, Graph and PPT print - Start -->
 <v-row class="justify-center align-center">
    <v-col cols="2">
 
@@ -33,21 +35,23 @@
         <v-simple-table>
             <tbody>
                 <tr>
-                  <!-- Switches for Notes -->
+                  <!-- Switches for Notes - Start -->
                     <td width="300px" class="lightblueleft">
                           <div v-intro="'Switch to enter custom notes, which will be retained in the generated report.'" v-intro-step="2">
-                                <v-switch v-model="switch1" @change="getdatetime()" inset :label="`Note Space`"></v-switch>
+                                <v-switch v-model="switchNotes" @change="getdatetime()" inset :label="`Note Space`"></v-switch>
                           </div>
                     </td>
-                    <!-- Switches for Graph -->
+                    <!-- Switches for Notes - End -->
+                    <!-- Switches for Graph - Start -->
                     <td width="300px" class="lightblueleft">
                           <div v-intro="'Switch to view graphs that show CNS-Tap baseline and patient specific scores for drugs in selected pathways. Please select at least one pathway to enable this feature.'" v-intro-step="3">
-                                <!-- <v-switch :disabled="this.pathwayselection.length === 0" v-model="switch2" inset :label="`Pathway Graphs`"></v-switch> -->
-                                <v-switch v-model="switch2" inset :label="`Pathway Graphs`"></v-switch>
+                                <!-- <v-switch :disabled="this.pathwayselection.length === 0" v-model="switchPPTprint" inset :label="`Pathway Graphs`"></v-switch> -->
+                                <v-switch v-model="switchPPTprint" inset :label="`Pathway Graphs`"></v-switch>
                           </div>
                     </td>
+                    <!-- Switches for Graph - End -->
+                    <!-- Print buttons for PPT - Start -->
                     <td class="lightblueleft">
-                      <!-- Print buttons for PPT - Start -->
                              <div v-intro="'Click here to generate CNS-TAP report with Data table, Notes, and Graphs.'" v-intro-step="7">
                                <span style="font-size:15px;font-weight:bold">
                                  <v-chip @click="printPPT" :class="'def black--text my-2 caption'">PPT</v-chip>
@@ -55,32 +59,28 @@
                               Generate Report
                                </span>
                             </div>
-                      <!-- Print buttons for PPT - Start -->
                     </td>
+                    <!-- Print buttons for PPT - End -->
                 </tr>
             </tbody>
         </v-simple-table>
       </div>
    </v-col>
 </v-row>
-<!-- Switches for Notes, Graph and Patient Data - End -->
+<!-- Switches for Notes, Graph and PPT print - End -->
 
+<!-- Buttons for Scoring info, Patient Data, Patient type - Start -->
 <div class="d-print-none" >
   <v-row>
     <v-col cols="2" >
     </v-col>
     <v-col cols="10" class="font-weight-bold grey--text text--darken-2 text-right" style="border-top:2px solid #111;">
-
-
-
       <div class="d-print-none" >
          <v-simple-table>
              <tbody>
                  <tr >
-                   <!-- Switches for Group by  -->
+                   <!-- Button for Scoring info - Start  -->
                      <td width="300px" class="lightblueleft">
-
-                           <!-- Information button - Start -->
                           <template>
                               <div class="text-left" v-intro="'Click here to view how each category is scored and weighted in the algorithm.'" v-intro-step="6">
                                 <v-dialog
@@ -126,21 +126,21 @@
                               </div>
 
                           </template>
-                           <!-- Information button - End -->
                      </td>
+                     <!-- Button for Scoring info - End  -->
+                     <!-- Switch for Patient Data - Start  -->
                      <td width="300px" class="lightblueleft">
-
-                       <!-- Switches for Patient Data Start -->
                            <div v-intro="'Switch to input patient specific sequencing data to generate patient specific scores.'" v-intro-step="4">
-                                 <v-switch v-model="switch3" inset :label="`Patient Data Columns`"></v-switch>
+                                 <v-switch v-model="switchPatientdata" inset :label="`Patient Data Columns`"></v-switch>
                            </div>
-                       <!-- Switches for Patient Data End -->
                      </td>
+                     <!-- Switch for Patient Data - End -->
+                     <!-- Switch for Patient type - Start -->
                      <td class="lightblueleft">
                          <div v-intro="'Switch to select the patient age group.'" v-intro-step="8">
                                  <span style="font-size:15px;font-weight:bold">
                                        <v-chip-group
-                                         v-model="switch5"
+                                         v-model="switchPatienttype"
                                          active-class="white black--text"
                                          mandatory
                                        >
@@ -152,20 +152,16 @@
                                        </v-chip-group>
                                  </span>
                           </div>
-
-
                      </td>
+                     <!-- Switch for Patient type - End -->
                  </tr>
              </tbody>
          </v-simple-table>
        </div>
-
-
     </v-col>
   </v-row>
 </div>
-
-<!-- Print buttons for PDF and PPT - End -->
+<!-- Buttons for Scoring info, Patient Data, Patient type - End -->
 
 <!-- Notes area - Start -->
 <div>
@@ -173,7 +169,7 @@
     <v-col cols="2" >
     </v-col>
     <v-col cols="10" >
-       <div v-if="switch1" id="divNotes">
+       <div v-if="switchNotes" id="divNotes">
           <v-textarea
             solo
             name="notes"
@@ -187,8 +183,8 @@
 
 
    <v-row>
+     <!-- Pathways multi selection - Start -->
       <v-col cols="2" >
-<!-- Pathways multi selection - Start -->
         <div class="d-print-none" v-intro="'Select your relevant Pathways. If no Pathway is selected, data for all the Pathways will be displayed in the Data table.'" v-intro-step="1">
           <v-card
              class="pa-1 bluebg"
@@ -217,14 +213,13 @@
                 </v-col>
           </v-row>
         </div>
-<!-- Pathways multi selection - End -->
       </v-col>
+      <!-- Pathways multi selection - End -->
 
       <v-col cols="10" >
-
-<!-- Warning message if PathwayGraph switch is selected without select at least one patheay - Start -->
-    <div id="pathwayGraphMsg" v-if="switch2">
-      <div v-if="GraphDataset.length==0">
+<!-- Warning message if PathwayGraph switch is selected without select at least one pathway - Start -->
+    <div id="pathwayGraphMsg" v-if="switchPPTprint">
+      <div v-if="GraphDatasetAll.length==0">
           <v-alert type="error">
             Please select at least one Pathway from the 'Pathway selection' to display Graphs.
           </v-alert>
@@ -235,10 +230,12 @@
         </v-alert>
       </div>
     </div>
-<!-- Warning message if PathwayGraph switch is selected without select at least one patheay - End -->
+<!-- Warning message if PathwayGraph switch is selected without select at least one pathway - End -->
 
 
-<!-- Main Drug Table - Start -->
+<!-- ***************************** -->
+<!-- Main Drug Table - Start       -->
+<!-- ***************************** -->
   <div v-intro="'This is the data table that displays all the scored attributes for the included drug agents. '" v-intro-step="5">
   <v-data-table
       :headers="computedHeaders"
@@ -261,6 +258,15 @@
                                 <span v-on="on">{{h.text}}</span>
                           </template>
 <span>Relevant Clinical Trial. Go to <a href="http://www.clinicaltrials.gov" target="_blank">www.clinicaltrials.gov</a> to identify applicable trials.</span>
+</v-tooltip>
+            </template>
+
+            <template v-else-if="header.text === 'iTIER'">
+                        <v-tooltip top close-delay=2000 :key="h.text" color="amber lighten-4 black--text">
+                          <template v-slot:activator="{ on }" >
+                                <span v-on="on">{{h.text}}</span>
+                          </template>
+<span>Evidence-based variant <a href="https://www.sciencedirect.com/science/article/pii/S1525157816302239?via%3Dihub#fig2" target="_blank">categorization.</a></span>
 </v-tooltip>
             </template>
 
@@ -287,7 +293,7 @@
 <!-- Main Drug Table - Print headers - End -->
 
 
-    <template v-slot:body.prepend="{headers}" v-if="switch3">
+    <template v-slot:body.prepend="{headers}" v-if="switchPatientdata">
         <tr>
           <td v-for="(header,i) in headers" :key="i">
                 <div class="darkcenter" v-if="header.value == 'icln'">INPUT</div>
@@ -383,8 +389,8 @@
 
         <template v-slot:item.subt="props">
 
-                  <template v-if="switch3">
-                        <template v-if="!switch5">
+                  <template v-if="switchPatientdata">
+                        <template v-if="!switchPatienttype">
                               <div class="blue-grey lighten-4 grey--text-darken-4"><p>{{ props.item.subt }}</p></div>
                         </template>
                         <template v-else>
@@ -392,33 +398,21 @@
                         </template>
                   </template>
                   <template v-else>
-                        <template v-if="!switch5">
+                        <template v-if="!switchPatienttype">
                               <div><p>{{ props.item.subt }}</p></div>
                         </template>
                         <template v-else>
                               <div><p>{{ Number(props.item.subt) - Number(props.item.safety) }}</p></div>
                         </template>
                   </template>
-
-        <!-- <template v-slot:item.subt="props">
-          <template v-if="props.item.editable != 2">
-                      <div class="blue-grey lighten-4 grey--text-darken-4"><p>{{ props.item.subt }}</p></div>
-          </template>
-          <template v-else>
-                      <div><p>{{ props.item.subt }}</p></div>
-          </template> -->
-
       </template>
-
-
 <!-- Main Drug Table - Configure SubT column - End -->
 
 <!-- Main Drug Table - Configure Total column - Start -->
-
       <template v-slot:item.total="props">
 
-        <template v-if="switch3" >
-              <template v-if="!switch5">
+        <template v-if="switchPatientdata" >
+              <template v-if="!switchPatienttype">
                     <div class="blue-grey lighten-4 grey--text-darken-4"><p>{{ props.item.total }}</p></div>
               </template>
               <template v-else>
@@ -426,7 +420,7 @@
               </template>
         </template>
         <template v-else>
-              <template v-if="!switch5">
+              <template v-if="!switchPatienttype">
                     <div><p>{{ props.item.total }}</p></div>
               </template>
               <template v-else>
@@ -571,46 +565,48 @@
 <!-- Main Drug Table - End -->
 
 <!-- ***************************** -->
+<!-- Main Drug Table - End -->
+<!-- ***************************** -->
+
 <!-- ***************************** -->
 <!-- Pathway Graph display - Start -->
 <!-- ***************************** -->
-
 <br><br>
-
-    <div id="pathwayGraph" v-if="switch2">
-
+    <div id="pathwayGraph" v-if="switchPPTprint">
       <!-- LineCharts Start -->
       <div>
-
-        <v-row class="lightblueleft">
-          <v-col cols=6>
+           <v-row class="lightblueleft">
+              <v-col cols=6>
                 Pathway Graph
               </v-col>
                 <v-col cols=3 class="lightblueright"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px;solid #000;background:black;display:inline-block;"></div>&nbsp;Baseline</div></v-col>
                 <v-col cols=3 class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></v-col>
-
-              </v-row>
+            </v-row>
             <v-row>
               <v-col
                 id="largeGraph"
                 cols="12"
               >
-                <LineGraphContainerLarge :rawpathway=GraphDatasetAll[0].pathway :rawdata=GraphDatasetAll[0].drugagents :rawbaseline=GraphDatasetAll[0].baseline :rawptspecific=GraphDatasetAll[0].ptspecific :rawradius=GraphDatasetAll[0].radius >
-                </LineGraphContainerLarge>
+
+              <!-- introduced a DIV tag to connect the GraphDatasetAll list to the Graph for automatic rendering of the Graph -->
+              <div v-for="testsetObj in GraphDatasetAll"
+                      :key="testsetObj.pathway" v-bind:id="testsetObj.pathway">
+
+                      <!-- Display Graph object -->
+                      <LineGraphContainerLarge :rawpathway=GraphDatasetAll[0].pathway :rawdata=GraphDatasetAll[0].drugagents :rawbaseline=GraphDatasetAll[0].baseline :rawptspecific=GraphDatasetAll[0].ptspecific :rawradius=GraphDatasetAll[0].radius >
+                     </LineGraphContainerLarge>
+
+             </div>
+
               </v-col>
             </v-row>
-
-
       </div>
       <!-- LineCharts End -->
 
        </div>
-
 <!-- ***************************** -->
 <!-- Pathway Graph display - End -->
 <!-- ***************************** -->
-<!-- ***************************** -->
-
     </v-col>
 </v-row>
 
@@ -623,46 +619,51 @@
 
 <script>
 
-// import PathwaysGraph from '../components/PathwaysGraph.vue'
-// import LineGraphContainer from '../components/LineGraphContainer.vue'
+// View to build the Graph
 import LineGraphContainerLarge from '../components/LineGraphContainerLarge.vue'
+// View that contains the content for the Scoring info button
 import AlgorithmTable from '../components/Algorithm.vue'
+// View that contains the content for Footer
 import Footer from '../components/Footer.vue'
-
-
+// Library for generating PPT print-out
 import pptxgen from "pptxgenjs";
+// Library for DOM to image
 import domtoimage from 'dom-to-image';
 
   export default {
-
     name: 'UserView',
-
     components: {
-  //    PathwaysGraph,
-  //    LineGraphContainer,
       LineGraphContainerLarge,
       AlgorithmTable,
       Footer
     },
 
-    created() {
-
-    },
-
     mounted() {
+      // Prompt for the Intro routine when the page is loaded
       this.startIntro();
+      // Loading the drugs array from kgrid when page is loaded
       this.drugs = JSON.parse(this.$route.params.drugslist)
+      // Loading the drug weightage from kgrd when page is loaded
       this.drugweights = JSON.parse(this.$route.params.drugweights)
       console.log(this.drugs.length)  // You can use this.druglist to replace the hard-coded drugs array
     },
 
-
     data: () => (  {
 
+      // Variable for Notes
+      customNotes: "",
+      // List that holds the selected Pathways
+      pathwayselection: [],
+      // List of drugs from Kgrid object
       drugslist : [],
       dialog: false,
-      pgTitle: 'CNS-TAP',
+      // main List with drugs for drug table
+      drugs: [],
+      // main object with drug weights
+      drugweights: {},
 
+
+      // Tooltip texts
       ttVitrorow: '(0, 1, or 2) x 2',
       ttVivorow: '(0, 1, or 2) x 3',
       ttSafetyrow: '(0, 1, or 2) x 3',
@@ -673,23 +674,23 @@ import domtoimage from 'dom-to-image';
       ttTIERrow: '(0, 1, or 2) x 3',
       ttTRLrow: '(0 or 1) x 20',
 
-      switch1: false,
-      switch2: false,
-      switch3: false,
-      switch4: true,
-      switch5: true,
-
-      customNotes: "",
-      pathwayselection: [],
-      // hiddenColumns: ['SubT','iCLN','CLN','TIER','TRL','iTIER','iTRL'],
+      switchNotes: false,
+      switchPPTprint: false,
+      switchPatientdata: false,
+      switchPatienttype: true,
 
 
+
+      // List of Columns for Patient type - Adult + No Patient data
       allColumns: ['Pathways','Drug Agents','Vitro','Vivo','CNS','BBB','FDA','Total'],
-      patientColumns: ['Pathways','Drug Agents','Vitro','Vivo','CNS','BBB','FDA','SubT','iCLN','iTIER','iTRL','CLN','TIER','TRL','Total'],
+      // List of Columns for Patient type - Pediatric + No Patient data
       allColumnsPed: ['Pathways','Drug Agents','Vitro','Vivo','Safety','CNS','BBB','FDA','Total'],
+      // List of Columns for Patient type - Adult + Patient data
+      patientColumns: ['Pathways','Drug Agents','Vitro','Vivo','CNS','BBB','FDA','SubT','iCLN','iTIER','iTRL','CLN','TIER','TRL','Total'],
+      // List of Columns for Patient type - Pediatric + Patient data
       patientColumnsPed: ['Pathways','Drug Agents','Vitro','Vivo','Safety','CNS','BBB','FDA','SubT','iCLN','iTIER','iTRL','CLN','TIER','TRL','Total'],
 
-
+      // List of Pathways for the Pathway selection part of the screen
       pathways: [
       { id:1, pathway: "AKT", checked: false },
       { id:2, pathway: "ALK", checked: false },
@@ -710,6 +711,7 @@ import domtoimage from 'dom-to-image';
       { id:17, pathway: "GENERIC CYTOTOXIC", checked: false },
       { id:18, pathway: "RET", checked: false } ],
 
+// List with headers for the drugs table
     headers: [
       {   text: 'Pathways', align: 'center', sortable: true, value: 'pathways', class: 'grey darken-3 white--text', tt: '' },
       {   width: '150px', text: 'Drug Agents', align: 'center', sortable: true, value: 'drugagents', class: 'grey darken-3 white--text', tt: '', groupable: false },
@@ -721,25 +723,21 @@ import domtoimage from 'dom-to-image';
       {   text: 'FDA', align: 'center', sortable: true, value: 'fda', class: 'grey darken-3 white--text', tt: 'FDA approval (0 to 10 points)', groupable: false  },
       {   text: 'SubT', align: 'center', sortable: true, value: 'subt', class: 'grey darken-1 white--text', tt: '', groupable: false  },
       {   text: 'iCLN', align: 'center', sortable: true, value: 'icln', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'Clonality/variant allele fraction - % of tumor with relevant pathway (0 to 5 points)', groupable: false  },
-      {   text: 'iTIER', align: 'center', sortable: true, value: 'itier', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'Variant tier score - Parsons Score (0 to 6 points)', groupable: false  },
+      {   text: 'iTIER', align: 'center', sortable: true, value: 'itier', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'Variant tier score (0 to 6 points)', groupable: false  },
       {   text: 'iTRL', align: 'center', sortable: false, value: 'itrl', class: 'blue-grey lighten-4 grey--text-darken-4', tt: 'Relevant Clinical Trial (0 to 20)', groupable: false  },
       {   text: 'CLN', align: 'center', sortable: true, value: 'cln', class: 'grey darken-3 white--text', tt: 'Clonality/variant allele fraction - % of tumor with relevant pathway', groupable: false  },
-      {   text: 'TIER', align: 'center', sortable: true, value: 'tier', class: 'grey darken-3 white--text', tt: 'Variant tier score - Parsons Score', groupable: false  },
+      {   text: 'TIER', align: 'center', sortable: true, value: 'tier', class: 'grey darken-3 white--text', tt: 'Variant tier score', groupable: false  },
       {   text: 'TRL', align: 'center', sortable: true, value: 'trl', class: 'grey darken-3 white--text', tt: 'Relevant Clinical Trial', groupable: false  },
       {   text: 'Total', align: 'center', sortable: true, value: 'total', class: 'grey darken-1 white--text', tt: '', groupable: false  }, ],
 
-
-      drugs: [],
-      drugweights: {},
-
+    // List for dropdown box in iCLN column
     iCLNitems: [{id: 0, name: '0 - no data or less dominant'},{id: 1, name: '1 - dominant'},{id: 2, name: '2 - fusion'}],
-    iTIERitems: [{id: 0, name: '0 - not scored'},{id: 1, name: '1 - Parsons 3 or 4'},{id: 2, name: '2 - Parsons 1 or 2'}],
+    // List for dropdown box in iTIER column
+    iTIERitems: [{id: 0, name: '0 - Tier IV'},{id: 1, name: '1 - Tier III'},{id: 2, name: '2 - Tier I or Tier II'}],
+    // List for dropdown box in iTRL column
     iTRLitems: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}],
 
-    GraphDataset: [{ pathway: "", drugagents:[]},],
-
-//    GraphDatasetLarge: [{ pathway: "", drugagents:[], baseline: [], ptspecific: []},],
-
+    // List for storing Graph data
     GraphDatasetAll: [{ pathway:[], drugagents:[], baseline: [], ptspecific: [], radius: ""},],
 
 
@@ -754,76 +752,60 @@ import domtoimage from 'dom-to-image';
 // method for loading the drugs in the drug table
       filteredItems() {
         var p;
-       this.filterGraphData();
-//       this.filterPathwaysGraphData();
-
-
+        this.filterGraphData();
         return this.drugs.filter((i) => {
-
-
-            // load all rows, if no Pathway is selected
+        // load all rows, if no Pathway is selected
         if (!this.pathwayselection || this.pathwayselection.length == 0) {
-  // Ignore the first dummy row for adding data to graph, if switch3 is not selected
-            if ((i.editable!= 2) || (this.switch3)){
-                this.GraphDataset.splice(0);
-    //            this.GraphDatasetLarge.splice(0);
+            // Ignore the first dummy row for adding data to graph, if switchPatientdata is not selected
+            if ((i.editable!= 2) || (this.switchPatientdata)){
                 this.GraphDatasetAll.splice(0);
-
                 return true;
             }
-
         } else {
-  // load only rows for the Pathways selected
+        // load only rows for the Pathways selected
             for (p = 0; p < this.pathwayselection.length; p++) {
-  // if pathway is the drug table matches the pathway selected
+                // if pathway is the drug table matches the pathway selected
                 if (i.pathways.trim() === "" || this.pathways[this.pathwayselection[p]].pathway.trim() == i.pathways.trim()) {
-// Do not show the first dummy row, if switch3 is not selected
-                  if ((i.editable!= 2) || (this.switch3)){
+                  // Do not show the first dummy row, if switchPatientdata is not selected
+                  if ((i.editable!= 2) || (this.switchPatientdata)){
                       return true;
                   }
                 }
               }
           }
         })
-
       },
 
       computedHeaders () {
-
-          if (this.switch3) {
-              if(!this.switch5) {
+          if (this.switchPatientdata) {
+              if(!this.switchPatienttype) {
                   return this.headers.filter(header => this.patientColumnsPed.includes(header.text));
               }else {
                   return this.headers.filter(header => this.patientColumns.includes(header.text));
               }
           } else {
-              if(!this.switch5) {
+              if(!this.switchPatienttype) {
                   return this.headers.filter(header => this.allColumnsPed.includes(header.text));
               }else {
                   return this.headers.filter(header => this.allColumns.includes(header.text));
               }
           }
-
       },
 
       clnleft () {
         return this.$refs.cln.getBoundingClientRect().left
       }
-    },
-
-    watch: {
 
     },
 
     methods:{
-
-         switch1_click:function(){this.$router.push("/UserView")  },
-         switch2_click:function(){this.$router.push("/UserView")  },
-         switch3_click:function(){this.$router.push("/UserView")  },
-         switch4_click:function(){this.$router.push("/UserView")  },
+         switchNotes_click:function(){this.$router.push("/UserView")  },
+         switchPPTprint_click:function(){this.$router.push("/UserView")  },
+         switchPatientdata_click:function(){this.$router.push("/UserView")  },
 
          max25chars: v => v.length <= 25 || 'Input too long!',
 
+         // Initiate the Prompt for the Intro routine
          startIntro() {
           if(confirm("Do you want an introduction to the CNS-Tap website?")){
             const introJS = require("intro.js");
@@ -832,15 +814,15 @@ import domtoimage from 'dom-to-image';
            }
          },
 
+         // set DateTime for Notes while initializing
          getdatetime(){
            var dt = new Date().toLocaleString();
            var dateTime = 'Current date and time: '+dt;
            this.customNotes=dateTime;
-       },
+         },
 
+         // Load the lists for GraphData when the main Drugs table is refreshed
          filterGraphData() {
-                      this.GraphDataset.splice(0);
-                  //    this.GraphDatasetLarge.splice(0);
                       this.GraphDatasetAll.splice(0);
 
                       var tDrugagentsLarge = [];
@@ -859,16 +841,12 @@ import domtoimage from 'dom-to-image';
                       tPtspecificLarge.push(null);
                       tPathwayLarge.push(null);
 
-
                       for (var p = 0; p < this.pathwayselection.length; p++){
                             var tDrugagents = [{ agent: "", values:{baseline:0, ptspecific:0}},];
-
                             tDrugagents.splice(0);
-
-
                             for (var d = 0; d < this.drugs.length; d++){
                               if(this.pathways[this.pathwayselection[p]].pathway.trim() == this.drugs[d].pathways.trim()){
-                                  if (!this.switch5) {
+                                  if (!this.switchPatienttype) {
                                       tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:this.drugs[d].subt, ptspecific:this.drugs[d].total}});
                                       tDrugagentsLarge.push(this.drugs[d].drugagents + ';' + this.drugs[d].pathways.trim());
                                       tBaselineLarge.push(this.drugs[d].subt);
@@ -877,17 +855,12 @@ import domtoimage from 'dom-to-image';
                                   } else {
                                       tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:(Number(this.drugs[d].subt) - Number(this.drugs[d].safety)) , ptspecific:(Number(this.drugs[d].total) - Number(this.drugs[d].safety))}});
                                       tDrugagentsLarge.push(this.drugs[d].drugagents + ';' + this.drugs[d].pathways.trim());
-                              //        tDrugagentsLarge.push(this.drugs[d].drugagents);
                                       tBaselineLarge.push((Number(this.drugs[d].subt) - Number(this.drugs[d].safety)));
                                       tPtspecificLarge.push((Number(this.drugs[d].total) - Number(this.drugs[d].safety)));
                                       tPathwayLarge.push(this.drugs[d].pathways.trim());
                                 }
                               }
                             }
-
-                              this.GraphDataset.push({pathway:this.pathways[this.pathwayselection[p]].pathway.trim(), drugagents:tDrugagents});
-                    //          this.GraphDatasetLarge.push({pathway:this.pathways[this.pathwayselection[p]].pathway.trim(), drugagents:tDrugagentsLarge, baseline:tBaselineLarge, ptspecific:tPtspecificLarge});
-                    //         alert(JSON.stringify(this.GraphDatasetLarge));
                         }
                         tDrugagentsLarge.push(null);
                         tBaselineLarge.push(null);
@@ -907,15 +880,13 @@ import domtoimage from 'dom-to-image';
                         } else {
                           tRadius = 10;
                         }
-
                         this.GraphDatasetAll.push({pathway:tPathwayLarge, drugagents:tDrugagentsLarge, baseline:tBaselineLarge, ptspecific:tPtspecificLarge, radius:tRadius});
+              },
 
-         },
-
-// PPT print using pptxgen()
+      // Asynchronour PPT print routine using pptxgen()
       async  printPPT () {
 
-          if (!this.switch2) {
+          if (!this.switchPPTprint) {
                 alert("There are no Pathway Graphs to print. Please select at least one Pathway and toggle on the 'Pathways Graph' switch.");
                 return;
            }
@@ -963,14 +934,12 @@ import domtoimage from 'dom-to-image';
               height: node.clientHeight*scale,
               style: "transform-origin:top left; transform:scale("+scale+");"
             }
-
          );
            await pres.addSlide().addImage({path: dataUrl, x:'1', y:'1', w: '100%', h: '100%'});
-
-
-          await pres.writeFile("CNSTAP.pptx");
+           await pres.writeFile("CNSTAP.pptx");
         },
 
+        // update iCLN value in all rows for the Pathway being edited
         updateICLN: function(value,pPathway){
             for (var d = 0; d < this.drugs.length; d++){
                 if(this.drugs[d].pathways.trim() === pPathway.trim()){
@@ -983,8 +952,7 @@ import domtoimage from 'dom-to-image';
             }
         },
 
-
-
+        // update iTIER value in all rows for the Pathway being edited
         updateITIER: function(value,pPathway){
             for (var d = 0; d < this.drugs.length; d++){
                 if(this.drugs[d].pathways.trim() === pPathway.trim()){
@@ -997,7 +965,7 @@ import domtoimage from 'dom-to-image';
             }
         },
 
-
+        // update iTRL value in all rows for the Pathway being edited
         updateITRL: function(value,pPathway,pDRUGAGENTS){
             for (var d = 0; d < this.drugs.length; d++){
                 if((this.drugs[d].pathways.trim() === pPathway.trim()) && (this.drugs[d].drugagents == pDRUGAGENTS)){
@@ -1012,7 +980,6 @@ import domtoimage from 'dom-to-image';
 </script>
 
 <style scoped>
-
 
 .cellhighlight {
   background-color: grey;
