@@ -396,7 +396,6 @@
 <!-- Main Drug Table - Configure SubT column - Start -->
 
         <template v-slot:item.subt="props">
-
                   <template v-if="switchPatientdata">
                         <template v-if="!switchPatienttype">
                               <div class="blue-grey lighten-4 grey--text-darken-4"><p>{{ props.item.subt }}</p></div>
@@ -617,15 +616,26 @@
      <Footer></Footer>
 <!-- Page Footer - End -->
 
-<template>
-  <v-simple-table id="pptTable" style="display:none">
-    <template v-slot:default>
 
+<template>
+  <v-simple-table id="pptTable">
+    <template v-slot:default>
+      <thead>
+        <tr>
+          <th class="text-left">Name</th>
+          <th class="text-left">Calories</th>
+        </tr>
+      </thead>
       <tbody>
       </tbody>
     </template>
   </v-simple-table>
 </template>
+
+
+
+
+
 
 
 
@@ -668,6 +678,9 @@ import domtoimage from 'dom-to-image';
     },
 
     data: () => (  {
+
+      // Variable to hide some columns while printing pPathway
+      hidePPTColumns: 0,
 
       // Variable for Notes
       customNotes: "",
@@ -795,6 +808,7 @@ import domtoimage from 'dom-to-image';
         })
       },
 
+
       computedHeaders () {
           if (this.switchPatientdata) {
               if(!this.switchPatienttype) {
@@ -814,7 +828,6 @@ import domtoimage from 'dom-to-image';
       clnleft () {
         return this.$refs.cln.getBoundingClientRect().left
       }
-
     },
 
     methods:{
@@ -843,6 +856,7 @@ import domtoimage from 'dom-to-image';
          // Load the lists for GraphData when the main Drugs table is refreshed
          filterGraphData() {
                       this.GraphDatasetAll.splice(0);
+
 
                       var tDrugagentsLarge = [];
                       var tBaselineLarge = [];
@@ -903,173 +917,23 @@ import domtoimage from 'dom-to-image';
               },
 
 
-              FILLpptTable() {
-              var table = document.getElementById("pptTable");
-              table.innerHTML = "";
+      FILLpptTable() {
+        var table = document.getElementById("pptTable");
 
-              var tableHead = document.createElement('THEAD');
-              table.appendChild(tableHead);
-             // var trh = document.createElement('TR');
-             // tableHead.appendChild(trh);
-             // var thh = document.createElement('TH');
-             // thh.colspan="12";
-             // thh.width="100%";
-             // thh.style.textAlign='center';
-             // thh.appendChild(document.createTextNode("DRUGS TABLE"));
-             // trh.appendChild(thh);
+        var rowCount = table.rows.length;
 
-             var trh2 = document.createElement('TR');
-             // head - "Blue ribbon" or "#306EFF"
-             trh2.className = "blue ribbon";
-             tableHead.appendChild(trh2);
-             var thh2 = document.createElement('TH');
-             thh2.width="120";
-             thh2.style.textAlign='left';
-             thh2.appendChild(document.createTextNode("Drug Names"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="120";
-             thh2.style.textAlign='left';
-             thh2.appendChild(document.createTextNode("Pathway"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Tumor line/preclinical data(In vitro)"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Tumor line/preclinical data(In vivo)"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Phase I safety data"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("CNS Data with response"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Brain penetration"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("FDA approval"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Clonality/variant allele fraction(%)"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Variant tier score"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Relevant clinical trial"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Total Points"));
-             trh2.appendChild(thh2);
+        alert(rowCount);
+        var row = table.insertRow(rowCount);
 
+        row.insertCell(0).innerHTML= "col1";
+        row.insertCell(1).innerHTML= "col2";
 
-
-                var tableBody = document.createElement('TBODY');
-                table.appendChild(tableBody);
-
-                    for (var p = 0; p < this.pathwayselection.length; p++){
-
-                    for (var d = 0; d < this.drugs.length; d++){
-                      if(this.pathways[this.pathwayselection[p]].pathway.trim() == this.drugs[d].pathways.trim()){
-                            var tr = document.createElement('TR');
-                            trh2.className = "sea blue";
-                            // body - "Sea blue" or "#C2DFFF"
-                            tableBody.appendChild(tr);
-                                var td = document.createElement('TD');
-                                td.width='120';
-                                td.style.textAlign='left';
-                                td.appendChild(document.createTextNode(this.drugs[d].drugagents));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='120';
-                                td.style.textAlign='left';
-                                td.appendChild(document.createTextNode(this.drugs[d].pathways));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].vitro));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].vivo));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].safety));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].cns));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].bbb));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].fda));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].cln));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].tier));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].trl));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].total));
-                                tr.appendChild(td);
-                        }
-                    }
-
-          }
-
-
-
-
-              },
-
-
+      },
 
       // Asynchronour PPT print routine using pptxgen()
       async  printPPT () {
+
+        alert("printPPT");
 
           if (!this.switchPPTprint) {
                 alert("There are no Pathway Graphs to print. Please select at least one Pathway and toggle on the 'Pathways Graph' switch.");
@@ -1085,12 +949,11 @@ import domtoimage from 'dom-to-image';
            pres.title = 'CNS-Tap Drugtable and Graphs Presentation';
            pres.layout = 'LAYOUT_WIDE';
 
+           // SLIDE: BANNER
            // Adding slide for banner
            let slideBanner = pres.addSlide();
-
           //  let textboxOpts = { x: 1, y: 2, color: "363636", fill: "f1f1f1", align: pres.AlignH.center };
           //  let textboxOpts = { x:0.0, y:0.25, w:'100%', h:1.5, align:'center', fontSize:24, color:'0088CC', fill:{ color:'F1F1F1' } };
-
            let textboxOptsTool = { x:0, y:2, w:'100%', align:'center', fontSize:60, fontFace: "Arial", color:'000000' };
            slideBanner.addText("CNS TAP Tool", textboxOptsTool);
            let textboxOptsRep = { x:0, y:3, w:'100%', align:'center', fontSize:30, fontFace: "Arial", color:'000000' };
@@ -1120,41 +983,50 @@ import domtoimage from 'dom-to-image';
                isTextBox: true,
            });
 
-
+           // SLIDE: NOTES
            // Adding slide for Notes
            let slideNotes = pres.addSlide();
         //   let textboxText1 = "Notes";
-
            await slideNotes.addImage({ x:11, y:0.5, w:2, path: imgURL  });
 
            let textboxOpts1 = { x: 1, y: 1, color: "363636", fontSize: 30, fontFace: "Arial", fill: "f1f1f1", align: pres.AlignH.center };
            slideNotes.addText("Notes", textboxOpts1);
            slideNotes.addText(this.customNotes,{ x: 1, y: 2, align: pres.AlignH.left, color: "363636", fontSize: 15, fontFace: "Arial" });
 
-           // Adding slide for table
-           this.FILLpptTable();
-           pres.tableToSlides("pptTable",{
-             y:0.5,
-             master: "MASTER_SLIDE",
-          //   fill:'F7F7F7',
-          // fill: "sea blue",
-          //   font_size:18,
-          //   color:'6f9fc9',
-             addHeaderToEach: "true",
-             addText: { text: "\nDRUGS TABLE\n\n", options: { color: "363636", fontSize:25, fontFace: "Arial", align: pres.AlignH.center } },
 
-           });
+           // SLIDE: TABLE
+           // Adding slide for table
+
+
+//             let slideTable = pres.addSlide();
+//             await slideTable.addImage({ x:11, y:0.5, w:2, path: imgURL  });
+//             let textboxTab = { x: 1, y: 1, color: "363636", fontSize: 30, fontFace: "Arial", fill: "f1f1f1", align: pres.AlignH.center };
+//             slideTable.addText("Drug Table", textboxTab);
+
+
+           //            pres.tableToSlides("drugTable");
+
+//            alert("before FILLppt");
+//            await this.FILLpptTable();
+//            alert("before tabletoSlides");
+//            await pres.tableToSlides("pptTable");
+
 
 
            // SLIDE: GRAPHS
            let slideGraph = pres.addSlide();
+          // var scale = 1;
            let node = document.getElementById("largeGraph");
            //   Adding graph as image in a slide
+           // alert("Height:" + node.clientHeight + ";Width:"+ node.clientWidth);
            let dataUrl = await domtoimage.toPng(node,
             {
               quality: 0.95,
               width: 850,
               height: 750,
+            //  width: node.clientWidth*scale,
+            //  height: node.clientHeight*scale,
+            //  style: "transform-origin:top left; transform:scale("+scale+");"
             }
          );
 

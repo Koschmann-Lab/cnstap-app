@@ -4,6 +4,8 @@
         <v-col
           class="text-center bluebg"
           cols="12">
+
+
                <table align="center" width="100%">
                    <tr>
                          <td align="left">
