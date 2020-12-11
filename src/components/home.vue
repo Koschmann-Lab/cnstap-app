@@ -83,7 +83,7 @@ import axios from "axios"
     },
 
     data: () => ({
-
+      activatorUrl:"http://localhost:8080",
       DRUGSLIST: [],
       DRUGWEIGHTS: "",
       scrollInvoked: 0,
@@ -96,20 +96,22 @@ import axios from "axios"
     created:function(){
       var data = JSON.stringify({});
       var self = this
-      var config = {
-        method: 'post',
-        url: 'http://localhost:8080/CNSTAPIDT/intrinsicDrugTable/2.0/intrinsicDrugTable',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        data : data
-      };
-
+      axios.get('./json/config.json').then(res=>{
+        self.activatorUrl=res.data.activator_url
+        console.log("=== Activator URL :"+self.activatorUrl)
+        var config = {
+          method: 'post',
+          url: self.activatorUrl + '/CNSTAPIDT/intrinsicDrugTable/2.0/intrinsicDrugTable',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          data : data
+        };
       axios(config)
       .then(function (response) {
         self.drugslist =  response.data.result
 
-    config.url = 'http://localhost:8080/CNSTAPTPC/tumorPatientCalculator/2.0/cnstap' ,
+    config.url = self.activatorUrl +'/CNSTAPTPC/tumorPatientCalculator/2.0/cnstap' ,
       axios(config)
         .then(function (response) {
           self.drugweights =  response.data.result
@@ -122,6 +124,7 @@ import axios from "axios"
       .catch(function (error) {
         console.log(error);
       });
+    })
 
 
     },

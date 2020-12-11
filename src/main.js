@@ -4,7 +4,6 @@ import vuetify from './plugins/vuetify';
 
 import VueIntro from 'vue-introjs'
 
-
 import VueRouter from 'vue-router'
 import routes from './routes';
 
@@ -17,7 +16,6 @@ const router = new VueRouter({mode: 'hash', routes});
 import 'intro.js/introjs.css';
 
 Vue.config.productionTip = false
-
 
 new Vue({
   vuetify,
