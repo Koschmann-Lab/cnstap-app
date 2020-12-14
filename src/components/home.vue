@@ -88,7 +88,7 @@ import axios from "axios"
       DRUGWEIGHTS: "",
       scrollInvoked: 0,
 
-    pgTitle: 'CNS-TAP',
+    pgTitle: 'Test CNS-TAP',
     pgSubTitle: 'Central Nervous System Targeted Agent Prediction Tool',
 
     }),
