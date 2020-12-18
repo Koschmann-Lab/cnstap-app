@@ -254,6 +254,7 @@
       dense
       id="drugTable"
       group-by="pathways"
+      :loading=loading
     >
 <!-- Main Drug Table - Print headers - Start -->
     <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }" ref = "h.value" >
@@ -647,6 +648,7 @@ import pptxgen from "pptxgenjs";
 // Library for DOM to image
 import domtoimage from 'dom-to-image';
 
+import axios from "axios";
 
   export default {
     name: 'UserView',
@@ -656,19 +658,56 @@ import domtoimage from 'dom-to-image';
       Footer
     },
 
+        created:function(){
+          var data = JSON.stringify({});
+          var self = this
+          axios.get('./json/config.json').then(res=>{
+            self.activatorUrl=res.data.activator_url
+            console.log("=== Activator URL :"+self.activatorUrl)
+            var config = {
+              method: 'post',
+              url: self.activatorUrl + '/CNSTAPIDT/intrinsicDrugTable/2.0/intrinsicDrugTable',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              data : data
+            };
+          axios(config)
+          .then(function (response) {
+            // self.drugslist =  response.data.result
+            self.drugs = JSON.parse(response.data.result)
+        config.url = self.activatorUrl +'/CNSTAPTPC/tumorPatientCalculator/2.0/cnstap' ,
+          axios(config)
+            .then(function (response) {
+              self.drugweights =  JSON.parse(response.data.result)
+              self.loading=false
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+        })
+
+
+        },
     mounted() {
       // Prompt for the Intro routine when the page is loaded
       this.startIntro();
       // Loading the drugs array from kgrid when page is loaded
-      this.drugs = JSON.parse(this.$route.params.drugslist)
-      // Loading the drug weightage from kgrd when page is loaded
-      this.drugweights = JSON.parse(this.$route.params.drugweights)
+      // this.drugs = JSON.parse(this.$route.params.drugslist)
+      // // Loading the drug weightage from kgrd when page is loaded
+      // this.drugweights = JSON.parse(this.$route.params.drugweights)
       console.log(this.drugs.length)  // You can use this.druglist to replace the hard-coded drugs array
       this.getdatetime();
     },
 
     data: () => (  {
-
+      activatorUrl:"",
+      loading: true,
       // Variable for Notes
       customNotes: "",
       // List that holds the selected Pathways

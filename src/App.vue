@@ -47,8 +47,11 @@ export default {
   height: 40px;
 }
 
-.v-data-table.customable tr  {
+.v-data-table.customtable tr  {
   height: 30px;
 }
 
+.v-data-table.customtable  tr  td {
+  padding: 0;
+}
 </style>
