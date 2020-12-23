@@ -1,17 +1,15 @@
-
 const express = require('express');
 const app = express();
 // morgan logs all requests in the terminal
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 var path = require('path');
-var serveStatic = require('serve-static');
 
-app.use(serveStatic(__dirname + "/web",{'index': ['index.html']}));
+app.use(express.static(path.join(__dirname, 'web')))
+
 var port = process.env.PORT || 8080;
 app.listen(port);
 console.log('server started '+ port);
-
 
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended:false}));
