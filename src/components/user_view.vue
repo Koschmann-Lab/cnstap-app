@@ -303,11 +303,11 @@
 
 
     <template v-slot:body.prepend="{headers}" v-if="switchPatientdata">
-        <tr>
+        <tr class='inputinforow'>
           <td v-for="(header,i) in headers" :key="i">
                 <div class="darkcenter" v-if="header.value == 'icln'">INPUT</div>
-                <div class="darkcenter" v-if="header.value == 'itier'">PATIENT</div>
-                <div class="darkcenter" v-if="header.value == 'itrl'">DATA</div>
+                <div class="darkcenter" v-else-if="header.value == 'itier'">PATIENT</div>
+                <div class="darkcenter" v-else-if="header.value == 'itrl'">DATA</div>
                 <div v-else class="lightbluecenter"></div>
             </td></tr>
     </template>
@@ -497,7 +497,7 @@
                      item-text='name'
                      @change="updateITIER($event,props.item.pathways)"
                    ></v-select>
-                   </p>
+                 </p>
                </div>
           </template>
           <template v-if="props.item.editable === 2">
@@ -1405,7 +1405,8 @@ import axios from "axios";
 
 td p {
   margin: 0;
-  padding:10px;
+  padding:5px;
+  height:30px;
 }
 
 .v-text-area {
@@ -1421,14 +1422,18 @@ td p {
   text-align: center;
   justify: center;
   width: 80px;
+  border: none;
 }
 
+.vsel {
+  padding: 5px 0px;
+  height: 30px;
+}
 option {
     align-content: center;
     align-items: center;
     text-align: center;
     justify: center;
-
 }
 
 .v-select-list {

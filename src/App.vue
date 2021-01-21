@@ -41,14 +41,20 @@ export default {
   border-left:1px solid #dddddd;
 }
 
+.v-data-table.customtable > .v-data-table__wrapper > table > tbody > tr.inputinforow > td {
+  padding: 0px;
+  height: 20px;
+  border: none;
+}
+
+.v-data-table.customtable > .v-data-table__wrapper > table > tbody > tr > td {
+  padding: 0px;
+  height: 30px;
+}
 .v-data-table.customtable th {
   font-size: 0.8rem;
   padding: 1;
   height: 40px;
-}
-
-.v-data-table.customtable tr  {
-  height: 30px;
 }
 
 .v-data-table.customtable  tr  td {
