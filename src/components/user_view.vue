@@ -1192,7 +1192,7 @@ import axios from "axios";
            let dataUrl = await domtoimage.toPng(node,
             {
               quality: 0.95,
-              width: 850,
+              width: 990,
               height: 750,
             }
          );
@@ -1200,7 +1200,7 @@ import axios from "axios";
            let textboxGra = { x: 1, y: 0.5, color: "363636", fontSize: 30, fontFace: "Arial", fill: "f1f1f1", align: pres.AlignH.center };
            slideGraph.addText("Graph", textboxGra);
            await slideGraph.addImage({ x:11, y:0.5, w:2, path: imgURL  });
-           await slideGraph.addImage({path: dataUrl, x:'1', y:'1.5', w: '100%', h: '100%'});
+           await slideGraph.addImage({path: dataUrl, x:1, y:1, w: '60%', h: '72%'});
 
            await pres.writeFile("CNSTAP.pptx");
         },
