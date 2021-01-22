@@ -19,7 +19,7 @@ import LineGraph from './LineGraphLarge.vue'
 export default {
   name: 'LineGraphContainerLarge',
   components: { LineGraph },
-  props: ['rawpathway','rawdata','rawbaseline','rawptspecific','rawradius'],
+  props: ['rawpathway','rawdata','rawbaseline','rawptspecific','rawradius','rawcolorpathway'],
   data: () => ({
     backgroundColor: '#F5DEB3',
     loaded: true,
@@ -50,17 +50,20 @@ export default {
                      showBorder: false,
 
                      gridLines: {
-                       drawBorder: false,
-                       showBorder: false,
-                       display:false,
+            //           drawBorder: false,
+            //           showBorder: false,
+            //           display:false,
                        drawOnChartArea: false,
+                       drawTicks: true,
+
                      },
-                     padding: 0,
+            //         padding: 0,
                      ticks: {
-                          padding: 0,
-                          autoSkip: false,
+                          display: true,
+                          padding: 10,
+                          autoSkip: true,
                           maxRotation: 90,
-                          minRotation: 90,
+                          minRotation: 40,
                           callback:function(label){
                             var drug = label.split(";")[0];
                             return drug;
@@ -71,13 +74,14 @@ export default {
                  {
                    id: 'xAxis2',
                    gridLines: {
-                      drawOnChartArea: false, // only want the grid lines for one axis to show up
+                      drawOnChartArea: true, // only want the grid lines for one axis to show up
                     },
                     ticks: {
-                         padding: 0,
-                         autoSkip: false,
+                         display: true,
+                         padding: 10,
+                         autoSkip: true,
                          maxRotation: 90,
-                         minRotation: 90,
+                         minRotation: 40,
                          callback:function(label){
                            var pathway = label.split(";")[1];
                            return pathway;
@@ -91,6 +95,10 @@ export default {
                      drawBorder: true,
                      showBorder: false,
                      display:true,
+                   },
+                   scaleLabel: {
+                      display: true,
+                      labelString: 'CNS-TAP Score'
                    },
                    ticks: {
                        suggestedMin: 0,
@@ -106,15 +114,19 @@ export default {
     console.log(this.rawdata)
   },
   computed: {
+
     chartComputedData: function(){
+
       let obj = {
         labels: ['','MK2006',''],
         datasets: [
           {
             label: 'BaseLine',
-            borderColor: '#666',
+        //    borderColor: '#666',
+            borderColor: this.rawcolorpathway,
             data: [null,20,null],
-            backgroundColor:'#000',
+        //    backgroundColor:'#000',
+            backgroundColor: this.rawcolorpathway,
             fill:false,
             pointRadius: 10,
             pointHoverRadius: 10,
@@ -124,7 +136,8 @@ export default {
           },
           {
             label: 'Patient Specific',
-            borderColor: '#666',
+      //      borderColor: '#666',
+            borderColor: this.rawcolorpathway,
             data: [null,40,null],
             backgroundColor:'#fff',
             fill:false,
@@ -136,6 +149,8 @@ export default {
           }
         ]
       }
+
+
       obj.labels.splice(0)
       obj.datasets[0].data.splice(0)
       obj.datasets[1].data.splice(0)
@@ -143,12 +158,14 @@ export default {
       obj.datasets[0].pointRadius = this.rawradius
       obj.datasets[1].pointRadius = this.rawradius
 
+
         for (var p = 0; p < this.rawdata.length; p++){
               if (this.rawdata[p] != null) {
                   obj.labels.push(this.rawdata[p])
               } else {
                  obj.labels.push("")
               }
+
               obj.datasets[0].data.push(this.rawbaseline[p])
               obj.datasets[1].data.push(this.rawptspecific[p])
         }

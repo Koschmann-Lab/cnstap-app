@@ -1,10 +1,19 @@
 
 <!--
-    1. Logo insertion on front slide, and table formatting on third slide
+    1. PPT drug <table>
+      a. Change header font to TNR Bold 12 pt white font
+      b. Change header color to #4472C4
+      c. Change body font to TNR 12 pt black font
+      d. change body background color to #B4C7E7
+    2. Replace Notes text box with Rich Text box
+    3. Report Changes
+      a. Move Notes to last slide
+      b Table overflow
+      c. Graph Resolution
+      d. DONE - Add "CNS-TAP Score" as Y-axis label
+      e. DONE - Improve pathway designation on graph - color coding by pathway or
+      f. DONE - adjusting second x-axis
     1a. Fix bug where the graph does not load in ppt for the first time
-    2. DONE - Date and timestamp on notes page or front slide whichever is easier
-    3. DONE - The custom notes that are inputted by the user should show up in the
-    ppt slide 2
     4. DONE - New disclaimer added to Footer
 -->
 <template>
@@ -64,6 +73,9 @@
                                <span style="font-size:15px;font-weight:bold">
                                  <v-chip @click="printPPT" :class="'def black--text my-2 caption'">PPT</v-chip>
                                &nbsp; &nbsp;
+                               <v-chip @click="printPDF" :class="'def black--text my-2 caption'">PDF</v-chip>
+                             &nbsp; &nbsp;
+
                               Generate Report
                                </span>
                             </div>
@@ -226,8 +238,9 @@
 
       <v-col cols="10" >
 <!-- Warning message if PathwayGraph switch is selected without select at least one pathway - Start -->
-    <div id="pathwayGraphMsg" v-if="switchPPTprint">
-      <div v-if="GraphDatasetAll.length==0">
+  <div id="pathwayGraphMsg" v-if="switchPPTprint">
+      <!-- div v-if="GraphDatasetAll.length==0" -->
+      <div v-if="pathwayselection.length==0">
           <v-alert type="error">
             Please select at least one Pathway from the 'Pathway selection' to display Graphs.
           </v-alert>
@@ -581,7 +594,7 @@
 <!-- Pathway Graph display - Start -->
 <!-- ***************************** -->
 <br><br>
-    <div id="pathwayGraph" v-if="switchPPTprint">
+    <div id="pathwayGraph" ref="content" v-if="switchPPTprint && pathwayselection.length>0">
       <!-- LineCharts Start -->
       <div>
            <v-row class="lightblueleft">
@@ -591,6 +604,15 @@
                 <v-col cols=3 class="lightblueright"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px;solid #000;background:black;display:inline-block;"></div>&nbsp;Baseline</div></v-col>
                 <v-col cols=3 class="lightblueleft"><div style="display:inline-block;"><div style="width:30px;height:10px;border:1px solid #000;background:white;display:inline-block;"></div>&nbsp;Patient Specific</div></v-col>
             </v-row>
+
+            <v-row class="lightblueleft">
+                   <div v-for="p in pathwayGraphLegend" v-bind:key="p.pathway">
+                      <v-chip :color="p.colorPathway" class="ma-2" text-color="black">
+                          {{ p.pathway }}
+                      </v-chip>
+                   </div>
+             </v-row>
+
             <v-row>
               <v-col
                 id="largeGraph"
@@ -599,7 +621,7 @@
                 <!-- introduced a DIV tag to connect the GraphDatasetAll list to the Graph for automatic rendering of the Graph -->
                 <div>
                   <!-- Display Graph object -->
-                  <LineGraphContainerLarge :rawpathway=GraphDatasetAll[0].pathway :rawdata=GraphDatasetAll[0].drugagents :rawbaseline=GraphDatasetAll[0].baseline :rawptspecific=GraphDatasetAll[0].ptspecific :rawradius=GraphDatasetAll[0].radius >
+                  <LineGraphContainerLarge :rawpathway=GraphDatasetAll[0].pathway :rawdata=GraphDatasetAll[0].drugagents :rawbaseline=GraphDatasetAll[0].baseline :rawptspecific=GraphDatasetAll[0].ptspecific :rawradius=GraphDatasetAll[0].radius :rawcolorpathway=GraphDatasetAll[0].colorPathway >
                   </LineGraphContainerLarge>
                </div>
               </v-col>
@@ -637,12 +659,22 @@
 
 <script>
 
+// jsPDF library for generating jsPDF
+import  jsPDF  from 'jspdf';
+//import autoTable from 'jspdf-autotable';
+import 'jspdf-autotable';
+// import html2canvas from 'jspdf-html2canvas';
+// import html2canvas from 'html2canvas'
+
+
+
+
 // View to build the Graph
-import LineGraphContainerLarge from '../components/LineGraphContainerLarge.vue'
+import LineGraphContainerLarge from '../components/LineGraphContainerLarge.vue';
 // View that contains the content for the Scoring info button
-import AlgorithmTable from '../components/Algorithm.vue'
+import AlgorithmTable from '../components/Algorithm.vue';
 // View that contains the content for Footer
-import Footer from '../components/Footer.vue'
+import Footer from '../components/Footer.vue';
 // Library for generating PPT print-out
 import pptxgen from "pptxgenjs";
 // Library for DOM to image
@@ -703,9 +735,13 @@ import axios from "axios";
       // this.drugweights = JSON.parse(this.$route.params.drugweights)
       console.log(this.drugs.length)  // You can use this.druglist to replace the hard-coded drugs array
       this.getdatetime();
+
     },
 
     data: () => (  {
+
+      pathwayGraphLegend: [{ pathway:[], colorPathway: []},],
+
       activatorUrl:"",
       loading: true,
       // Variable for Notes
@@ -796,7 +832,7 @@ import axios from "axios";
     iTRLitems: [{id: 0, name: '0 - none'},{id: 1, name: '1 - yes'}],
 
     // List for storing Graph data
-    GraphDatasetAll: [{ pathway:[], drugagents:[], baseline: [], ptspecific: [], radius: ""},],
+    GraphDatasetAll: [{ pathway:[], drugagents:[], baseline: [], ptspecific: [], radius: "", colorPathway: []},],
 
 
   }),
@@ -888,21 +924,27 @@ import axios from "axios";
                       var tPtspecificLarge = [];
                       var tPathwayLarge = [];
                       var tRadius = 10;
+                      var tcolorPathway = [];
 
                       tDrugagentsLarge.splice(0);
                       tBaselineLarge.splice(0);
                       tPtspecificLarge.splice(0);
                       tPathwayLarge.splice(0);
+                      tcolorPathway.splice(0);
 
                       tDrugagentsLarge.push(null);
                       tBaselineLarge.push(null);
                       tPtspecificLarge.push(null);
                       tPathwayLarge.push(null);
+                      tcolorPathway.push(null);
+
+                      var colorArray = ['#990','#66F','#F19','#E71','#933','#F00','#C1D','#472','#3AF','#E3F','#9F4','#990','#66F','#F19','#E71','#933','#F00','#C1D','#472','#3AF','#E3F','#9F4'];
 
                       for (var p = 0; p < this.pathwayselection.length; p++){
                             var tDrugagents = [{ agent: "", values:{baseline:0, ptspecific:0}},];
                             tDrugagents.splice(0);
                             for (var d = 0; d < this.drugs.length; d++){
+
                               if(this.pathways[this.pathwayselection[p]].pathway.trim() == this.drugs[d].pathways.trim()){
                                   if (!this.switchPatienttype) {
                                       tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:this.drugs[d].subt, ptspecific:this.drugs[d].total}});
@@ -910,12 +952,14 @@ import axios from "axios";
                                       tBaselineLarge.push(this.drugs[d].subt);
                                       tPtspecificLarge.push(this.drugs[d].total);
                                       tPathwayLarge.push(this.drugs[d].pathways.trim());
+                                      tcolorPathway.push(colorArray[p]);
                                   } else {
                                       tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:(Number(this.drugs[d].subt) - Number(this.drugs[d].safety)) , ptspecific:(Number(this.drugs[d].total) - Number(this.drugs[d].safety))}});
                                       tDrugagentsLarge.push(this.drugs[d].drugagents + ';' + this.drugs[d].pathways.trim());
                                       tBaselineLarge.push((Number(this.drugs[d].subt) - Number(this.drugs[d].safety)));
                                       tPtspecificLarge.push((Number(this.drugs[d].total) - Number(this.drugs[d].safety)));
                                       tPathwayLarge.push(this.drugs[d].pathways.trim());
+                                      tcolorPathway.push(colorArray[p]);
                                 }
                               }
                             }
@@ -924,6 +968,7 @@ import axios from "axios";
                         tBaselineLarge.push(null);
                         tPtspecificLarge.push(null);
                         tPathwayLarge.push(null);
+                        tcolorPathway.push(null);
 
                         if (this.pathwayselection.length > 5 && this.pathwayselection.length < 7) {
                           tRadius = 9;
@@ -938,9 +983,29 @@ import axios from "axios";
                         } else {
                           tRadius = 10;
                         }
-                        this.GraphDatasetAll.push({pathway:tPathwayLarge, drugagents:tDrugagentsLarge, baseline:tBaselineLarge, ptspecific:tPtspecificLarge, radius:tRadius});
-              },
 
+                        // Loading pathwayGraphLegend[] array for adding Legend to the Graph
+                        this.pathwayGraphLegend.splice(0);
+                        var currentPathway = "";
+                        for (var y=0;y < tPathwayLarge.length; y++) {
+                            if (tPathwayLarge[y] != null) {
+                                 if (currentPathway != tPathwayLarge[y]) {
+                                    this.pathwayGraphLegend.push({pathway:tPathwayLarge[y], colorPathway:tcolorPathway[y]});
+                                    currentPathway = tPathwayLarge[y];
+                                 } else {
+                                   // Formatting the Pathway xAxis in the Graph
+                                   tDrugagentsLarge[y] = tDrugagentsLarge[y].split(";")[0];
+                                 }
+                            }
+                         }
+
+
+                        this.GraphDatasetAll.push({pathway:tPathwayLarge, drugagents:tDrugagentsLarge, baseline:tBaselineLarge, ptspecific:tPtspecificLarge, radius:tRadius, colorPathway:tcolorPathway });
+
+
+
+
+              },
 
               FILLpptTable() {
               var table = document.getElementById("pptTable");
@@ -1107,6 +1172,321 @@ import axios from "axios";
 
 
 
+              // // PDF print using window.print()
+              //          printPDF1: function () {
+              //              window.print();
+              //          },
+              //
+              // // PDF print using printJS
+              //         printPDF2 () {
+              //
+              //            printJS({printable:['drugTable'],type:'html',header: 'CNS-TAP'});
+              //
+              //            // Adding graph as image in a slide
+              //             domtoimage.toPng(document.getElementById('pathwayGraph'))
+              //                 .then(function (dataUrl) {
+              //
+              //                 //  printJS({printable:['drugTable'],type:'html',header: 'CNS-TAP'},{printable:[dataUrl], type:'image'})
+              // //                printJS({printable:['drugTable'],type:'html',header: 'CNS-TAP'});
+              //                 printJS(dataUrl,'image');
+              //
+              // //                    pres.addSlide().addImage({path: dataUrl, w: '100%', h: '100%'});
+              //                  })
+              //                  .catch(function (error) {
+              //                      alert("error");
+              //                      console.error('oops, something went wrong!', error);
+              //                  });
+              //
+              //         },
+              //
+              // // PDF print using DIV tag printing
+              //         async printPDF3() {
+              //               var divDrugTableContents = document.getElementById("drugTable").innerHTML;
+              //               //var divGraph = document.getElementById("AKT");
+              //
+              //               var a = window.open('', '', 'height=5, width=10');
+              //
+              //               a.document.write('<html>');
+              //               a.document.write('<body > <h1>CNS-TAP</h1><br><br>');
+              //               a.document.write('<h2>Drug Table</h2><br>');
+              //               a.document.write(divDrugTableContents);
+              //               a.document.write('<br><br><h2>Notes</h2><br>');
+              //               a.document.write(this.customNotes);
+              //               a.document.write('<br><br><h2>Pathway Graphs</h2><br>');
+              //
+              //               //   Adding graph as image in a slide
+              //                  for (let i = 0; i < this.GraphDataset.length; i++) {
+              //                         let pathw = this.GraphDataset[i].pathway;
+              //                         let dataUrl = await domtoimage.toPng(document.getElementById(pathw));
+              //                         await a.document.write("<br><img src='" + dataUrl + "'/>");
+              //                  }
+              //               a.document.write('</body></html>');
+              //               a.document.close();
+              //               setTimeout(function () { a.print(); }, 500);
+              //               a.onfocus = function () { setTimeout(function () { a.close(); }, 300); }
+              //         },
+              //
+              // // PDF print using iFrame printing
+              //         async printPDF4 () {
+              //
+              //                   var objFra = document.createElement('iframe');
+              //                   objFra.style.visibility = 'hidden';
+              //                   objFra.src = "about:blank";
+              //
+              //
+              //                   document.body.appendChild(objFra);
+              //                   objFra.contentWindow.document.open();
+              //                   objFra.contentWindow.document.write("<br><h1>CNS-Tap report</h1><br><br>");
+              //
+              //                   objFra.contentWindow.document.write("<br><br><h2>Drug Table</h2><br>");
+              //                   var tableContents = document.getElementById("drugTable").innerHTML;
+              //                   objFra.contentWindow.document.write(tableContents);
+              //
+              //                   objFra.contentWindow.document.write("<br><br><h2>Notes</h2><br>");
+              //                   objFra.contentWindow.document.write(this.customNotes);
+              //
+              //                   objFra.contentWindow.document.write("<br><br><h2>Pathway Graphs</h2><br>");
+              //
+              //                   //   Adding graph as image in a slide
+              //                      for (let i = 0; i < this.GraphDataset.length; i++) {
+              //                             let pathw = this.GraphDataset[i].pathway;
+              //                             let dataUrl = await domtoimage.toPng(document.getElementById(pathw));
+              //                             await objFra.contentWindow.document.write("<br><img src='" + dataUrl + "'/>");
+              //                      }
+              //
+              //                   objFra.contentWindow.document.close();
+              //                   objFra.contentWindow.focus();
+              //                   objFra.contentWindow.print();
+              //         },
+
+// PDF print ends
+
+
+      async printPDF () {
+
+        var doc = new jsPDF('landscape');
+        doc.page = 1;
+
+        doc.setFontSize(62);
+        var pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
+        doc.text('CNS TAP Tool',pageWidth/2,60,'center');
+
+//        doc.text("CNS TAP Tool",80,60,"center");
+
+        doc.setFontSize(35);
+//        doc.text(130,90, "Report","center");
+        doc.text('Report',pageWidth/2,90,'center');
+
+
+        let imgURL = "data:image/png;base64,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";
+
+        doc.addImage(imgURL, (pageWidth/2)-25, 120, 50, 35);
+        // FOOTER
+        let DisclaimerText = "Information obtained from the CNS TAP Tool is intended to systematically organize published research or ongoing clinical trials \ron brain tumor precision medicine therapies from clinicians and researchers. Drug selections and scores made by the CNS TAP Tool \rare not intended to guide clinical care outside of a research basis. Additional questions or information about this tool can be \robtained by contacting Dr. Carl Koschmann. (ckoschmann@med.umich.edu).";
+        doc.setFontSize(12);
+        doc.text(DisclaimerText, pageWidth/2, 170, 'center');
+        var str = "Page " + doc.page;
+        doc.setFontSize(10);
+        doc.text(str, (pageWidth/2)-5, doc.internal.pageSize.height - 10);//key is the interal pageSize function
+
+        doc.addPage();
+        doc.page ++;
+        // HEADER
+        doc.setFontSize(22);
+        doc.text(20,20, "CNS Targeted Agent Prediction");
+        doc.text(20,30, "CNS-TAP Tool: Optimizing Drug Selection");
+        doc.addImage(imgURL, pageWidth - 60, 5, 50, 35);
+
+        doc.setFontSize(16);
+        doc.text(20,40, "Drug Table");
+
+        // doc.autoTable({ html: '#drugTable' });
+//        autoTable(doc, { html: '#drugTable' })
+
+//    build body array
+      var DrugTableBody = [];
+      for (var p = 0; p < this.pathwayselection.length; p++){
+          for (var d = 0; d < this.drugs.length; d++){
+                if(this.pathways[this.pathwayselection[p]].pathway.trim() == this.drugs[d].pathways.trim()){
+
+                      DrugTableBody.push([this.drugs[d].drugagents,
+                       this.drugs[d].pathways,
+                       this.drugs[d].vitro,
+                       this.drugs[d].vivo,
+                       this.drugs[d].safety,
+                       this.drugs[d].cns,
+                       this.drugs[d].bbb,
+                       this.drugs[d].fda,
+                       this.drugs[d].cln,
+                       this.drugs[d].tier,
+                       this.drugs[d].trl,
+                       this.drugs[d].total]);
+
+                }
+          }
+
+      }
+
+        doc.autoTable({
+          margin: { top: 50 },
+          head: [['Drug Names',
+                  'Pathway',
+                  'Tumor line/preclinical data(In vitro)',
+                  'Tumor line/preclinical data(In vivo)',
+                  'Phase I safety data',
+                  'CNS Data with response',
+                  'Brain penetration',
+                  'FDA approval',
+                  'Clonality/variant allele fraction(%)',
+                  'Variant tier score',
+                  'Relevant clinical trial',
+                  'Total Points'
+                ]],
+          body: DrugTableBody,
+        });
+
+
+        // FOOTER
+        doc.setFontSize(12);
+        doc.text(DisclaimerText, pageWidth/2, 170, 'center');
+        str = "Page " + doc.page;
+        doc.setFontSize(10);
+        doc.text(str, (pageWidth/2)-5, doc.internal.pageSize.height - 10);//key is the interal pageSize function
+
+        doc.addPage();
+        doc.page ++;
+        // HEADER
+        doc.setFontSize(22);
+        doc.text(20,20, "CNS Targeted Agent Prediction");
+        doc.text(20,30, "CNS-TAP Tool: Optimizing Drug Selection");
+        doc.addImage(imgURL, pageWidth - 60, 5, 50, 35);
+
+        doc.setFontSize(16);
+        doc.text(20,40, "Pathway Graph");
+
+        domtoimage
+            .toPng(this.$refs.content)
+            .then(function(dataUrl) {
+              var img = new Image();
+              img.src = dataUrl;
+          doc.addImage(img, "JPEG", 20, 20);
+        });
+
+
+
+        // FOOTER
+        doc.setFontSize(12);
+        doc.text(DisclaimerText, pageWidth/2, 170, 'center');
+        str = "Page " + doc.page;
+        doc.setFontSize(10);
+        doc.text(str, (pageWidth/2)-5, doc.internal.pageSize.height - 10);//key is the interal pageSize function
+
+        //id = pathwayGraph
+
+
+      //     const doc1 = new jsPDF();
+      //     /** WITH CSS */
+      //     var canvasElement = document.createElement('canvas');
+      //      html2canvas(this.$refs.content, { canvas: canvasElement
+      //        }).then(function (canvas) {
+      //      const img = canvas.toDataURL("image/jpeg", 0.8);
+      //       var imgWidth = (canvas.width * 25.4) / 240;
+      //       var imgHeight = (canvas.height * 25.4) / 240;
+      //      doc1.addImage(img,'JPEG',20,20,imgWidth, imgHeight);
+      //   //   doc1.save("sample.pdf");
+      //
+      //
+      //
+      //     });
+      //
+      //
+      //     const doc2 = new jsPDF();
+      //    const contentHtml = this.$refs.content.innerHTML;
+      //    doc2.fromHTML(contentHtml, 15, 15, {
+      //      width: 640
+      //    });
+      // //   doc2.save("jample1.pdf");
+      //
+
+
+        // html2canvas("#pathwayGraph", {
+        //                 background: "#ffffff",
+        //                 onrendered: function(canvas) {
+        //                     var myImage = canvas.toDataURL("image/jpeg");
+        //                     var imgWidth = (canvas.width * 25.4) / 240;
+        //                     var imgHeight = (canvas.height * 25.4) / 240;
+        //                     doc.addImage(myImage, 'JPEG', 15, 2, imgWidth, imgHeight); // 2: 19
+        //                 }
+        //             });
+
+
+
+              // html2canvas($("#pathwayGraph")).then(function (canvas) {
+              //   var imgData = canvas.toDataURL("image/jpeg");
+              //   doc.addImage(imgData, 'JPEG', 0, 20);
+              //   doc.addPage();
+              // });
+
+                // function getPDFFileButton () {
+                //     return html2canvas($("#toSaveAsPDF"), {
+                //         background: "#ffffff",
+                //         onrendered: function(canvas) {
+                //             var myImage = canvas.toDataURL("image/jpeg");
+                //             var imgWidth = (canvas.width * 25.4) / 240;
+                //             var imgHeight = (canvas.height * 25.4) / 240;
+                //             var table = new jsPDF('p', 'mm', 'a4');
+                //             table.addImage(myImage, 'JPEG', 15, 2, imgWidth, imgHeight); // 2: 19
+                //             table.save('Statistiques.pdf');
+                //         }
+                //     });
+                // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+        doc.addPage();
+        doc.page ++;
+        // HEADER
+        doc.setFontSize(22);
+        doc.text(20,20, "CNS Targeted Agent Prediction");
+        doc.text(20,30, "CNS-TAP Tool: Optimizing Drug Selection");
+        doc.addImage(imgURL, pageWidth - 60, 5, 50, 35);
+
+        doc.setFontSize(16);
+        doc.text(20,40, "Editorial Comments/CNS Tap Recommendation");
+        // FOOTER
+        doc.setFontSize(12);
+        doc.text(DisclaimerText, pageWidth/2, 170, 'center');
+        str = "Page " + doc.page;
+        doc.setFontSize(10);
+        doc.text(str, (pageWidth/2)-5, doc.internal.pageSize.height - 10);//key is the interal pageSize function
+
+
+
+        // Optional - set properties on the document
+        doc.setProperties({
+            title: 'CNS TAP Tool Report',
+            subject: 'CNS TAP Targeted Agent Prediction',
+            author: 'Karthik Ravi',
+            keywords: 'cns tap, tumor, patient, generated, javascript, web 2.0, vue.js',
+            creator: 'Karthik Ravi'
+        });
+
+        doc.save('CNSTAP_' + new Date().getTime() + '.pdf')
+
+
+      },
+
+
       // Asynchronour PPT print routine using pptxgen()
       async  printPPT () {
 
@@ -1180,7 +1560,7 @@ import axios from "axios";
           //   font_size:18,
           //   color:'6f9fc9',
              addHeaderToEach: "true",
-             addText: { text: "\nDRUGS TABLE\n\n", options: { color: "363636", fontSize:25, fontFace: "Arial", align: pres.AlignH.center } },
+             addText: { text: "\nCNS-TAP Tool\n\n", options: { color: "363636", fontSize:25, fontFace: "Arial", align: pres.AlignH.center } },
 
            });
 
