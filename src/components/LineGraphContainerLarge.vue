@@ -87,7 +87,9 @@ export default {
                            return pathway;
                          }
                     },
-                 }],
+                 }
+
+               ],
 
                  yAxes: [{
                      display: true,
@@ -144,7 +146,7 @@ export default {
             pointRadius: 10,
             pointHoverRadius: 10,
             showLine: false,
-            borderWidth: 1,
+            borderWidth: 3,
 
           }
         ]

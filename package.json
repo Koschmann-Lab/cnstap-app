@@ -30,6 +30,7 @@
     "vue-js-popover": "^1.2.1",
     "vue-popper-component": "^0.1.0",
     "vue-router": "^3.3.2",
+    "vue2-editor": "^2.10.2",
     "vuetify": "^2.2.11"
   },
   "devDependencies": {
