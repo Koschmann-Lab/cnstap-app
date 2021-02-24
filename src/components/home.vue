@@ -31,11 +31,15 @@ The Central Nervous System Targeted Agent Prediction (CNS TAP) tool is a formali
               </p>
 
                 <template>
-                          <v-card
+                          <!-- v-card
                           v-scroll.self="onScroll"
                           class="overflow-y-auto blue-grey lighten-3"
-                          max-height="110"
-                          >
+                            max-height="220" -->
+
+                            <v-card
+                            v-scroll.self="onScroll"
+                            class="overflow-y-auto blue-grey lighten-3"
+                              max-height="220">
 
                           <v-card-text>
                           <div class="mb-4">

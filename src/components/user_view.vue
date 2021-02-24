@@ -1,18 +1,6 @@
 
 <!--
-    1. Adjust graph scaling in pdf
-    2. Move baseline next to  patient specific in the graph key
-    3. Report Changes
-      a. DONE - Move Notes to last slide
-      b Table overflow
-      c. DONE - Graph Resolution
-      d. DONE - Add "CNS-TAP Score" as Y-axis label
-      e. DONE - Improve pathway designation on graph - color coding by pathway or
-      f. DONE - adjusting second x-axis
-    1a. DONE - Fix bug where the graph does not load in ppt for the first time
-    4. DONE - New disclaimer added to Footer
-    5. Print Notes in PDF as html text and not Image
-    6. PDF preview function
+    1. Print Notes in PDF as html text and not Image
 -->
 <template>
   <v-container>
@@ -52,14 +40,14 @@
                 <tr>
                   <!-- Switches for Notes - Start -->
                     <td width="300px" class="lightblueleft">
-                          <div v-intro="'Switch to enter custom notes, which will be retained in the generated report.'" v-intro-step="2">
+                          <div v-intro="'Switch to enter custom notes, which will be retained in the generated report.'" v-intro-step="3">
                                 <v-switch v-model="switchNotes" @change="getdatetime()" inset :label="`Note Space`"></v-switch>
                           </div>
                     </td>
                     <!-- Switches for Notes - End -->
                     <!-- Switches for Graph - Start -->
                     <td width="300px" class="lightblueleft">
-                          <div v-intro="'Switch to view graphs that show CNS-Tap baseline and patient specific scores for drugs in selected pathways. Please select at least one pathway to enable this feature.'" v-intro-step="3">
+                          <div v-intro="'Switch to view graphs that show CNS-Tap baseline and patient specific scores for drugs in selected pathways. Please select at least one pathway to enable this feature.'" v-intro-step="4">
                                 <!-- <v-switch :disabled="this.pathwayselection.length === 0" v-model="switchPPTprint" inset :label="`Pathway Graphs`"></v-switch> -->
                                 <v-switch v-model="switchPPTprint" inset :label="`Pathway Graphs`"></v-switch>
                           </div>
@@ -67,7 +55,7 @@
                     <!-- Switches for Graph - End -->
                     <!-- Print buttons for PPT - Start -->
                     <td class="lightblueleft">
-                             <div v-intro="'Click here to generate CNS-TAP PDF report with Data table, Notes, and Graphs.'" v-intro-step="7">
+                             <div v-intro="'Click here to generate CNS-TAP PDF report with Data table, Notes, and Graphs.'" v-intro-step="5">
                                <span style="font-size:15px;font-weight:bold">
                                  <!-- v-chip @click="printPPT" :class="'def black--text my-2 caption'">PPT</v-chip -->
                                &nbsp; &nbsp;
@@ -147,7 +135,7 @@
                      <!-- Button for Scoring info - End  -->
                      <!-- Switch for Patient Data - Start  -->
                      <td width="300px" class="lightblueleft">
-                           <div v-intro="'Switch to input patient specific sequencing data to generate patient specific scores.'" v-intro-step="4">
+                           <div v-intro="'Switch to input patient specific sequencing data to generate patient specific scores.'" v-intro-step="7">
                                  <v-switch v-model="switchPatientdata" inset :label="`Patient Data Columns`"></v-switch>
                            </div>
                      </td>
@@ -194,7 +182,8 @@
       <div >
 
           <div v-if="switchNotes"  >
-              <vue-editor id="divNotes" v-model="customNotes"></vue-editor>
+              <vue-editor id="divNotes" v-model="customNotes" :editor-toolbar="customToolbar" :maxLength="25" ></vue-editor>
+              <!-- vue-editor id="divNotes" v-model="customNotes"  ></vue-editor -->
           </div>
 
     </div>
@@ -219,10 +208,12 @@
    <v-row>
       <v-col cols="2" >
 
+
+
         <!-- FDA switch - Start -->
-        <!-- div v-intro="'Switch to filter FDA approved drugs only.'" v-intro-step="8">
+        <div v-intro="'Switch to filter FDA approved drugs only.'" v-intro-step="2">
               <v-switch v-model="switchFDAapproved" inset :label="`FDA Approved`"></v-switch>
-        </div -->
+        </div>
         <!-- FDA switch - End -->
 
         <!-- Pathways multi selection - Start -->
@@ -279,7 +270,7 @@
 <!-- ***************************** -->
 <!-- Main Drug Table - Start       -->
 <!-- ***************************** -->
-  <div v-intro="'This is the data table that displays all the scored attributes for the included drug agents. '" v-intro-step="5">
+  <div v-intro="'This is the data table that displays all the scored attributes for the included drug agents. '" v-intro-step="9">
   <v-data-table
       :headers="computedHeaders"
       :items="filteredItems"
@@ -698,7 +689,8 @@ import AlgorithmTable from '../components/Algorithm.vue';
 // View that contains the content for Footer
 import Footer from '../components/Footer.vue';
 // Library for generating PPT print-out
-import pptxgen from "pptxgenjs";
+// import pptxgen from "pptxgenjs";
+
 // Library for DOM to image
 import domtoimage from 'dom-to-image';
 
@@ -732,6 +724,31 @@ import axios from "axios";
           .then(function (response) {
             // self.drugslist =  response.data.result
             self.drugs = JSON.parse(response.data.result)
+            self.drugs.forEach(function(e){
+              let pathway = e.pathways
+              let indexcheck = self.pathways.findIndex(function(p){
+                return p.pathway == pathway
+              })
+              console.log(pathway, indexcheck)
+              if(indexcheck==-1){
+                let id = self.pathways.length
+                let obj = {}
+                obj.id=id+1
+                obj.pathway=pathway
+                obj.checked=false
+                self.pathways.push(obj)
+              }
+            })
+            self.pathways.sort(function(a,b){
+              if (a.pathway > b.pathway) {
+                return 1;
+              }
+              if (a.pathway < b.pathway) {
+                return -1;
+              }
+              return 0;
+            })
+            console.log(self.pathways)
         config.url = self.activatorUrl +'/CNSTAPTPC/tumorPatientCalculator/2.0/cnstap' ,
           axios(config)
             .then(function (response) {
@@ -771,6 +788,23 @@ import axios from "axios";
       loading: true,
       // Variable for Notes
       customNotes: "",
+      customToolbar: [
+            [{'size': ['small', false, 'large']}],
+      //      [{ header: [false, 1, 2, 3] }],
+            ["bold", "italic", "underline", "strike"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            [
+                { align: "" },
+                { align: "center" },
+                { align: "right" },
+                { align: "justify" }
+            ],
+            ["blockquote", "code-block"],
+            [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
+            ["link"],
+            [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
+            [{ color: [] }, { background: [] }], // dropdown with defaults from theme
+          ],
 
       // List that holds the selected Pathways
       pathwayselection: [],
@@ -799,7 +833,7 @@ import axios from "axios";
       switchPatientdata: false,
       switchPatienttype: true,
   // FDA Approval code
-  //    switchFDAapproved: false,
+      switchFDAapproved: false,
 
 
 
@@ -813,26 +847,7 @@ import axios from "axios";
       patientColumnsPed: ['Pathways','Drug Agents','Vitro','Vivo','Safety','CNS','BBB','FDA','SubT','iCLN','iTIER','iTRL','CLN','TIER','TRL','Total'],
 
       // List of Pathways for the Pathway selection part of the screen
-      pathways: [
-      { id:1, pathway: "AKT", checked: false },
-      { id:2, pathway: "ALK", checked: false },
-      { id:3, pathway: "BRAF", checked: false },
-      { id:4, pathway: "CDK", checked: false },
-      { id:5, pathway: "CNS Generic", checked: false },
-      { id:6, pathway: "EGFR", checked: false },
-      { id:7, pathway: "FGFR", checked: false },
-      { id:8, pathway: "EGFR/HER2/HER4/cMET", checked: false },
-      { id:9, pathway: "HDAC", checked: false },
-      { id:10, pathway: "INI1", checked: false },
-      { id:11, pathway: "MEK", checked: false },
-      { id:12, pathway: "PDGFR", checked: false },
-      { id:13, pathway: "PI3K/mTOR", checked: false },
-      { id:14, pathway: "MET", checked: false },
-      { id:15, pathway: "MET/VEGF2", checked: false },
-      { id:16, pathway: "Chk1", checked: false },
-      { id:17, pathway: "GENERIC CYTOTOXIC", checked: false },
-      { id:18, pathway: "RET", checked: false },
-      { id:19, pathway: "PD-1", checked: false } ],
+      pathways: [],
 
 // List with headers for the drugs table
     headers: [
@@ -875,31 +890,51 @@ import axios from "axios";
 // method for loading the drugs in the drug table
       filteredItems() {
         var p;
+        var prevPathway = "";
+
         this.filterGraphData();
+
         return this.drugs.filter((i) => {
         // load all rows, if no Pathway is selected
         if (!this.pathwayselection || this.pathwayselection.length == 0) {
             // Ignore the first dummy row for adding data to graph, if switchPatientdata is not selected
-
             if ((i.editable!= 2) || (this.switchPatientdata)){
-//            FDA approved code
-//              if (((this.switchFDAapproved) && (i.fda!=0)) || (!this.switchFDAapproved)  ) {
-                  this.GraphDatasetAll.splice(0);
-                  return true;
-//                }
+                  // Check for FDA Approved flag
+                  if ((this.switchFDAapproved && i.fda > 0) || (!this.switchFDAapproved)) {
+                                      // reset editable flag, so that the top drug is the only one editable
+                                      i.editable = 0;
+                                      if (prevPathway != i.pathways.trim()) {
+                                          i.editable = 1;
+                                      }
+                                      prevPathway = i.pathways.trim();
+                                      this.GraphDatasetAll.splice(0);
+                                      return true;
+                  }
             }
         } else {
         // load only rows for the Pathways selected
             for (p = 0; p < this.pathwayselection.length; p++) {
                 // if pathway is the drug table matches the pathway selected
                 if (i.pathways.trim() === "" || this.pathways[this.pathwayselection[p]].pathway.trim() == i.pathways.trim()) {
+
                   // Do not show the first dummy row, if switchPatientdata is not selected
-                    if ((i.editable!= 2) || (this.switchPatientdata)){
-  //            FDA approved code
-  //                      if (((this.switchFDAapproved) && (i.fda!=0)) || (!this.switchFDAapproved)  ) {
-                          return true;
-//                      }
-                  }
+                  //    if ((i.editable!= 2) || (this.switchPatientdata)){
+                  //          return true;
+                  //    }
+
+                        // Ignore the first dummy row for adding data to graph, if switchPatientdata is not selected
+                        if ((i.editable!= 2) || (this.switchPatientdata)){
+                              // Check for FDA Approved flag
+                              if ((this.switchFDAapproved && i.fda > 0) || (!this.switchFDAapproved)) {
+                                                  // reset editable flag, so that the top drug is the only one editable
+                                                  i.editable = 0;
+                                                  if (prevPathway != i.pathways.trim()) {
+                                                      i.editable = 1;
+                                                  }
+                                                  prevPathway = i.pathways.trim();
+                                                  return true;
+                              }
+                        }
                 }
               }
           }
@@ -929,6 +964,7 @@ import axios from "axios";
     },
 
     methods:{
+
          switchNotes_click:function(){this.$router.push("/UserView")  },
          switchPPTprint_click:function(){this.$router.push("/UserView")  },
          switchPatientdata_click:function(){this.$router.push("/UserView")  },
@@ -948,7 +984,8 @@ import axios from "axios";
          getdatetime(){
            var dt = new Date().toLocaleString();
            var dateTime = dt + '\n';
-           this.customNotes="<h2>"+ dateTime + "</h2><br>";
+           // this.customNotes="<h2>"+ dateTime + "</h2><br>";
+           this.customNotes= dateTime + "<br>";
          },
 
          // Load the lists for GraphData when the main Drugs table is refreshed
@@ -982,21 +1019,25 @@ import axios from "axios";
                             for (var d = 0; d < this.drugs.length; d++){
 
                               if(this.pathways[this.pathwayselection[p]].pathway.trim() == this.drugs[d].pathways.trim()){
-                                  if (!this.switchPatienttype) {
-                                      tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:this.drugs[d].subt, ptspecific:this.drugs[d].total}});
-                                      tDrugagentsLarge.push(this.drugs[d].drugagents + ';' + this.drugs[d].pathways.trim());
-                                      tBaselineLarge.push(this.drugs[d].subt);
-                                      tPtspecificLarge.push(this.drugs[d].total);
-                                      tPathwayLarge.push(this.drugs[d].pathways.trim());
-                                      tcolorPathway.push(colorArray[p]);
-                                  } else {
-                                      tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:(Number(this.drugs[d].subt) - Number(this.drugs[d].safety)) , ptspecific:(Number(this.drugs[d].total) - Number(this.drugs[d].safety))}});
-                                      tDrugagentsLarge.push(this.drugs[d].drugagents + ';' + this.drugs[d].pathways.trim());
-                                      tBaselineLarge.push((Number(this.drugs[d].subt) - Number(this.drugs[d].safety)));
-                                      tPtspecificLarge.push((Number(this.drugs[d].total) - Number(this.drugs[d].safety)));
-                                      tPathwayLarge.push(this.drugs[d].pathways.trim());
-                                      tcolorPathway.push(colorArray[p]);
+                                // Check for FDA Approved flag
+                                if ((this.switchFDAapproved && this.drugs[d].fda > 0) || (!this.switchFDAapproved)) {
+                                        if (!this.switchPatienttype) {
+                                            tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:this.drugs[d].subt, ptspecific:this.drugs[d].total}});
+                                            tDrugagentsLarge.push(this.drugs[d].drugagents + ';' + this.drugs[d].pathways.trim());
+                                            tBaselineLarge.push(this.drugs[d].subt);
+                                            tPtspecificLarge.push(this.drugs[d].total);
+                                            tPathwayLarge.push(this.drugs[d].pathways.trim());
+                                            tcolorPathway.push(colorArray[p]);
+                                        } else {
+                                            tDrugagents.push({agent:this.drugs[d].drugagents, values:{baseline:(Number(this.drugs[d].subt) - Number(this.drugs[d].safety)) , ptspecific:(Number(this.drugs[d].total) - Number(this.drugs[d].safety))}});
+                                            tDrugagentsLarge.push(this.drugs[d].drugagents + ';' + this.drugs[d].pathways.trim());
+                                            tBaselineLarge.push((Number(this.drugs[d].subt) - Number(this.drugs[d].safety)));
+                                            tPtspecificLarge.push((Number(this.drugs[d].total) - Number(this.drugs[d].safety)));
+                                            tPathwayLarge.push(this.drugs[d].pathways.trim());
+                                            tcolorPathway.push(colorArray[p]);
+                                      }
                                 }
+
                               }
                             }
                         }
@@ -1041,7 +1082,7 @@ import axios from "axios";
 
               },
 
-              FILLpptTable() {
+      FILLpptTable() {
               var table = document.getElementById("pptTable");
               table.innerHTML = "";
 
@@ -1259,6 +1300,8 @@ import axios from "axios";
       for (var p = 0; p < this.pathwayselection.length; p++){
           for (var d = 0; d < this.drugs.length; d++){
                 if(this.pathways[this.pathwayselection[p]].pathway.trim() == this.drugs[d].pathways.trim()){
+                    // Check for FDA Approved flag
+                    if ((this.switchFDAapproved && this.drugs[d].fda > 0) || (!this.switchFDAapproved)) {
                       DrugTableBody.push([this.drugs[d].drugagents,
                        this.drugs[d].pathways,
                        this.drugs[d].vitro,
@@ -1271,7 +1314,7 @@ import axios from "axios";
                        this.drugs[d].tier,
                        this.drugs[d].trl,
                        this.drugs[d].total]);
-
+                    }
                 }
           }
 
@@ -1347,95 +1390,110 @@ import axios from "axios";
 // *************** NOTES page in PDF ****************
 // **************************************************
 
+
         doc.setFontSize(16);
         doc.text(20,40, "Editorial Comments/CNS Tap Recommendation");
 
-        if (document.getElementById("divNotes") == null) { alert("There is no Notes object to print."); return; }
-
-        let nodeNotes = document.getElementById("divNotes");
-
-        var widthPixel = nodeNotes.scrollWidth;
-        var heightPixel = nodeNotes.scrollHeight;
-
-// alert("width:" + widthPixel);
-// alert("height:" + heightPixel);
-// alert("AR:" + widthPixel/heightPixel);
 
 
-        let dataUrlNotes;
-        for (var t=0;t<2;t++) {
-             dataUrlNotes = await domtoimage.toPng(nodeNotes,
-               {
-                quality: 1,
-                width: widthPixel,
-                height: heightPixel,
-                dpi:  96 * 3,
-              }
-             );
-        }
-        doc.addImage(dataUrlNotes,20,50, (widthPixel * ((heightPixel/4)/heightPixel)) ,(heightPixel/4));
+  // ********************************************
+  // ***** Working code
 
+  if (document.getElementById("divNotes") == null) { alert("There is no Notes object to print."); return; }
+  let nodeNotes = document.getElementById("divNotes");
 
-
-
-        // let dataUrlNotes = await domtoimage.toPng(nodeNotes,
-        // {
-        //    quality: 1,
-        //    width: 990,
-        //    height: 500,
-        //  }
-        // );
-        // //    let dataUrl1 = await domtoimage.toPng(node1);
-        //    doc.addImage(dataUrlNotes, 20,50);
-
-
-// alert(node1.scrollHeight);
-// alert(node1.scrollWidth);
-
-// Node width: 962 default
-// Node height: 200 default
+       var widthPixelG = nodeNotes.scrollWidth;
+       var heightPixelG = nodeNotes.scrollHeight;
+       let dataUrlNotes;
+       for (var tG=0;tG<2;tG++) {
+            dataUrlNotes = await domtoimage.toPng(nodeNotes,
+              {
+               quality: 1,
+               width: widthPixelG,
+               height: heightPixelG,
+               dpi:  96 * 3,
+             }
+            );
+       }
+       // setting up the image height for large notes
+       var imgHeight = heightPixelG * 210 / widthPixelG;
+       if (imgHeight < 100) {
+              doc.addImage(dataUrlNotes,20,50);
+        } else {
+              imgHeight = 100;
+              doc.addImage(dataUrlNotes,20,50,210,imgHeight);
+       }
+    //    doc.addImage(dataUrlNotes,20,50,210,imgHeight);
+    //    doc.addImage(dataUrlNotes,20,50);
+//       doc.addImage(dataUrlNotes,20,50, (widthPixelG * (150/heightPixelG)) ,150);
 
 
 
+// ********************************************
+// ***** Trial code
+
+// **************************************************
+// *************** NOTES page 2 in PDF ****************
+// **************************************************
 
 
-        // var NotesSource = '<html><body><p>' + this.customNotes + '</p></body></html>';
-        // doc.text(20,60, NotesSource);
+        // doc.addPage();
+        // doc.page ++;
+
+    //    doc.setFontSize(16);
+    //    doc.text(20,40, "Editorial Page 2/CNS Tap Recommendation");
 
 
-  //       // printing multi page image
-  //   //    var imgData = canvas.toDataURL('image/png');
-  // //      var imgWidth = 250;
-  //       var pageHeight = 500;
-  //       // var imgHeight = canvas.height * imgWidth / canvas.width;
-  //     //  var imgHeight =
-  //
-  //       var heightLeft = pageHeight;
-  // //      var doc = new jsPDF('p', 'mm');
-  //       var position = 50; // give some top padding to first page
-  //
-  //       doc.addImage(dataUrl1, 'PNG', 20, position, 250, 150);
-  //       heightLeft -= pageHeight;
-  //
-  //       while (heightLeft >= 0) {
-  //         position += 150; // top padding for other pages
-  //         doc.addPage();
-  //         doc.addImage(dataUrl1, 'PNG', 20, position, 250, 150);
-  //        heightLeft -= pageHeight;
-  //       }
+              // doc.html(this.customNotes,{
+              //        x: 20,
+              //        y: 50,
+              //        width: 200,
+              // });
 
 
 
 
 
+      // var imgData = canvas.toDataURL('image/png');
+
+    //   var widthPixel = nodeNotes.scrollWidth;
+    //   var heightPixel = nodeNotes.scrollHeight;
+    //   let imgData = await domtoimage.toPng(nodeNotes,
+    //           {
+    //            quality: 1,
+    //            width: widthPixel,
+    //            height: heightPixel,
+    //            dpi:  96 * 3,
+    //          }
+    //         );
+    //
+    //   var imgWidth = 210;
+    // //  var pageHeight = 295;
+    //
+    //   var pageHeight = 100;
+    //   var imgHeight = heightPixel * imgWidth / widthPixel;
+    //   var heightLeft = imgHeight;
+    //   // var doc = new jsPDF('p', 'mm');
+    //   var position = 50; // give some top padding to first page
+    //
+    //   doc.addImage(imgData, 'PNG', 20, position, imgWidth, pageHeight);
+    //
+    //
+    //   alert("heightLeft: " + heightLeft);
+    //   heightLeft -= pageHeight;
+    //
+    //   while (heightLeft > 0) {
+    // //    position = heightLeft - imgHeight; // top padding for other pages
+    //     doc.addPage();
+    //     doc.addImage(imgData, 'PNG', 20, position, imgWidth, pageHeight);
+    //     heightLeft -= pageHeight;
+    //     alert("LOOP heightLeft: " + heightLeft);
+    //
+    //   }
 
 
 
-
-
-
-
-
+// *******************
 
       // *******************************************************************
       // *************** Final preparation for printing PDF ****************
@@ -1468,6 +1526,7 @@ import axios from "axios";
         var popup_window=window.open(doc.output('bloburl', {'filename' : PDFfilename}));
         try {
             await popup_window.focus();
+
         } catch (e) {
             alert("Pop-up Blocker is enabled! PDF will be downladed without 'Preview'");
             doc.output('save', PDFfilename);
@@ -1489,103 +1548,6 @@ import axios from "axios";
           return y + "-" + m + "-" + d + "-" + h + "-" + mi + "-" + s;
       },
 
-      // Asynchronour PPT print routine using pptxgen()
-      async  printPPT () {
-
-          if (!this.switchPPTprint) {
-                alert("There are no Pathway Graphs to print. Please select at least one Pathway and toggle on the 'Pathways Graph' switch.");
-                return;
-           }
-
-          // 1. Create a new Presentation
-           let pres = new pptxgen();
-           pres.author = 'Karthik Ravi';
-           pres.company = 'Koschmann Labs';
-           pres.revision = '1';
-           pres.subject = 'CNS-Tap report';
-           pres.title = 'CNS-Tap Drugtable and Graphs Presentation';
-           pres.layout = 'LAYOUT_WIDE';
-
-           // Adding slide for banner
-           let slideBanner = pres.addSlide();
-
-          //  let textboxOpts = { x: 1, y: 2, color: "363636", fill: "f1f1f1", align: pres.AlignH.center };
-          //  let textboxOpts = { x:0.0, y:0.25, w:'100%', h:1.5, align:'center', fontSize:24, color:'0088CC', fill:{ color:'F1F1F1' } };
-
-           let textboxOptsTool = { x:0, y:2, w:'100%', align:'center', fontSize:60, fontFace: "Arial", color:'000000' };
-           slideBanner.addText("CNS TAP Tool", textboxOptsTool);
-           let textboxOptsRep = { x:0, y:3, w:'100%', align:'center', fontSize:30, fontFace: "Arial", color:'000000' };
-           slideBanner.addText("Report", textboxOptsRep);
-
-          // let dUrl = "@/assets/Rogel-Vertical.png";
-          // slideBanner.addImage({ path: "Rogel-Vertical.png" });
-           // slideBanner.addimage({ path: "../assets/Rogel-Vertical.png" });
-          // slideBanner.addImage({ path: "../assets/Rogel-Vertical.png", x:6.25, y:4 });
-
-          let imgURL = "data:image/png;base64,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";
-
-          await slideBanner.addImage({ x:5.75, y:4, w:2, path: imgURL  });
-
-           let DisclaimerText = "Information obtained from the CNS TAP Tool is intended to systematically organize published research or ongoing clinical trials on brain tumor precision medicine therapies from clinicians and researchers. Drug selections and scores made by the CNS TAP Tool are not intended to guide clinical care outside of a research basis. Additional questions or information about this tool can be obtained by contacting Dr. Carl Koschmann. (ckoschmann@med.umich.edu).";
-           slideBanner.addText(DisclaimerText, {
-               x: 0.5,
-               y: 6.0,
-               w: "90%",
-               align: "center",
-               margin: 0.5,
-               fontFace: "Arial",
-               fontSize: 15,
-               color: "000000",
-               bold: false,
-               underline: false,
-               isTextBox: true,
-           });
-
-
-           // Adding slide for Notes
-           let slideNotes = pres.addSlide();
-        //   let textboxText1 = "Notes";
-
-           await slideNotes.addImage({ x:11, y:0.5, w:2, path: imgURL  });
-
-           let textboxOpts1 = { x: 1, y: 1, color: "363636", fontSize: 30, fontFace: "Arial", fill: "f1f1f1", align: pres.AlignH.center };
-           slideNotes.addText("Notes", textboxOpts1);
-           slideNotes.addText(this.customNotes,{ x: 1, y: 2, align: pres.AlignH.left, color: "363636", fontSize: 15, fontFace: "Arial" });
-
-           // Adding slide for table
-           this.FILLpptTable();
-           pres.tableToSlides("pptTable",{
-             y:0.5,
-             master: "MASTER_SLIDE",
-          //   fill:'F7F7F7',
-          // fill: "sea blue",
-          //   font_size:18,
-          //   color:'6f9fc9',
-             addHeaderToEach: "true",
-             addText: { text: "\nCNS-TAP Tool\n\n", options: { color: "363636", fontSize:25, fontFace: "Arial", align: pres.AlignH.center } },
-
-           });
-
-
-           // SLIDE: GRAPHS
-           let slideGraph = pres.addSlide();
-           let node = document.getElementById("largeGraph");
-           //   Adding graph as image in a slide
-           let dataUrl = await domtoimage.toPng(node,
-            {
-              quality: 0.95,
-              width: 990,
-              height: 750,
-            }
-         );
-
-           let textboxGra = { x: 1, y: 0.5, color: "363636", fontSize: 30, fontFace: "Arial", fill: "f1f1f1", align: pres.AlignH.center };
-           slideGraph.addText("Graph", textboxGra);
-           await slideGraph.addImage({ x:11, y:0.5, w:2, path: imgURL  });
-           await slideGraph.addImage({path: dataUrl, x:1, y:1, w: '60%', h: '72%'});
-
-           await pres.writeFile("CNSTAP.pptx");
-        },
 
         // update iCLN value in all rows for the Pathway being edited
         updateICLN: function(value,pPathway){

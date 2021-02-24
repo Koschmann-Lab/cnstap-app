@@ -61,7 +61,7 @@
           </tr>
           <tr>
             <td style="font-weight:bold;">Variant Tier Score</td>
-            <td>0 = Tier IV<br>1 = Tier III<br>2 = Tier I or Tier II
+            <td>0 = Tier IV - Benign Variants<br>1 = Tier III - Variants of Unknown Clinical Significance<br>2 = Tier I or Tier II - Variants of Potential or Stong Clinical Significance
             </td>
             <td>3</td>
             <td>0 to 6</td>
