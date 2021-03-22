@@ -10,6 +10,7 @@
           {{ pgSubTitle }}
         </div>
         </v-col>
+
     </v-row>
 
     <v-row justify="center" class="text-left">
@@ -61,12 +62,46 @@ The Central Nervous System Targeted Agent Prediction (CNS TAP) tool is a formali
   </v-row>
 
   <v-row class="text-center">
-      <v-col class="mb-4">
+
+
+      <v-col cols="4" class="font-weight-bold grey--text text--darken-2 text-right">
+            <template>
+                  <div class="text-right">
+                        <v-btn
+                          icon
+                          @click="showUserManual()">
+                                <v-icon large color="grey darken-2">mdi-book-open-variant</v-icon>
+                        </v-btn>
+                  </div>
+                  <div>User Manual</div>
+            </template>
+
+      </v-col>
+
+
+      <v-col class="mb-4" cols="4">
        <v-btn @click="begin_click" large class="darken-4 grey white--text">
         <h1 class="display-1 text-capitalize">Begin</h1>
        <v-icon large right>mdi-login</v-icon>
        </v-btn>
       </v-col>
+
+      <v-col cols="4" class="font-weight-bold grey--text text--darken-2 text-left">
+            <template>
+                  <div class="text-left">
+                        <v-btn
+                          icon
+                          @click="showUserVideo()">
+                                <v-icon large color="grey darken-2">mdi-video</v-icon>
+                        </v-btn>
+                  </div>
+                  <div>Instructional Video</div>
+            </template>
+
+      </v-col>
+
+
+
    </v-row>
 
    <Footer></Footer>
@@ -75,6 +110,7 @@ The Central Nervous System Targeted Agent Prediction (CNS TAP) tool is a formali
 </template>
 
 <script>
+
 
 import Footer from '../components/Footer.vue'
 
@@ -103,9 +139,19 @@ import Footer from '../components/Footer.vue'
         this.$router.push({name:"userview",params:{drugslist:this.drugslist, drugweights:this.drugweights}})
       },
 
+      showUserManual:function(){
+        var pdf = './CNSTAP_User_Manual.pdf';
+        window.open(pdf);
+      },
+
+      showUserVideo:function(){
+        var mp4 = './CNSTAP_User_Video.mp4';
+        window.open(mp4);
+      },
+
       onScroll () {
           this.scrollInvoked++
-        }
+      }
   }
 }
 

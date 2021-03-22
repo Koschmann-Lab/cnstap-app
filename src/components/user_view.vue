@@ -135,7 +135,7 @@
                      <!-- Button for Scoring info - End  -->
                      <!-- Switch for Patient Data - Start  -->
                      <td width="300px" class="lightblueleft">
-                           <div v-intro="'Switch to input patient specific sequencing data to generate patient specific scores.'" v-intro-step="7">
+                           <div v-intro="'Switch to input patient specific sequencing data to generate patient specific scores. This is Optional and you can generate the report without Patient specific data.'" v-intro-step="7">
                                  <v-switch v-model="switchPatientdata" inset :label="`Patient Data Columns`"></v-switch>
                            </div>
                      </td>
@@ -326,6 +326,21 @@
             </template>
     </template>
 <!-- Main Drug Table - Print headers - End -->
+
+<!-- Main Drug Table - Custom Group header - Start -->
+<template v-slot:group.header="{ groupBy, group, headers, isOpen, toggle, remove }">
+	<td :colspan="headers.length">
+		<v-btn icon small @click="toggle">
+			<v-icon v-if="isOpen">mdi-minus</v-icon>
+			<v-icon v-else>mdi-plus</v-icon>
+		</v-btn>
+		{{ group }}
+		<v-btn icon small @click="remove">
+			<v-icon>mdi-close</v-icon>
+		</v-btn>
+	</td>
+</template>
+<!-- Main Drug Table - Custom Group header - End -->
 
 
     <template v-slot:body.prepend="{headers}" v-if="switchPatientdata">
@@ -840,11 +855,11 @@ import axios from "axios";
       // List of Columns for Patient type - Adult + No Patient data
       allColumns: ['Pathways','Drug Agents','Vitro','Vivo','CNS','BBB','FDA','Total'],
       // List of Columns for Patient type - Pediatric + No Patient data
-      allColumnsPed: ['Pathways','Drug Agents','Vitro','Vivo','Safety','CNS','BBB','FDA','Total'],
+      allColumnsPed: ['Pathways','Drug Agents','Vitro','Vivo','Peds Safety','CNS','BBB','FDA','Total'],
       // List of Columns for Patient type - Adult + Patient data
       patientColumns: ['Pathways','Drug Agents','Vitro','Vivo','CNS','BBB','FDA','SubT','iCLN','iTIER','iTRL','CLN','TIER','TRL','Total'],
       // List of Columns for Patient type - Pediatric + Patient data
-      patientColumnsPed: ['Pathways','Drug Agents','Vitro','Vivo','Safety','CNS','BBB','FDA','SubT','iCLN','iTIER','iTRL','CLN','TIER','TRL','Total'],
+      patientColumnsPed: ['Pathways','Drug Agents','Vitro','Vivo','Peds Safety','CNS','BBB','FDA','SubT','iCLN','iTIER','iTRL','CLN','TIER','TRL','Total'],
 
       // List of Pathways for the Pathway selection part of the screen
       pathways: [],
@@ -855,7 +870,7 @@ import axios from "axios";
       {   width: '150px', text: 'Drug Agents', align: 'center', sortable: true, value: 'drugagents', class: 'grey darken-3 white--text', tt: '', groupable: false },
       {   text: 'Vitro', align: 'center', sortable: true, value: 'vitro', class: 'grey darken-3 white--text', tt: 'In vitro Pre-Clinical Data (0 to 4 points)', groupable: false   },
       {   text: 'Vivo', align: 'center', sortable: true, value: 'vivo', class: 'grey darken-3 white--text', tt: 'In vivo Pre-Clinical Data (0 to 6 points)', groupable: false  },
-      {   text: 'Safety', align: 'center', sortable: true, value: 'safety', class: 'grey darken-3 white--text', tt: 'Phase 1 Safety Data (0 to 6 points)', groupable: false  },
+      {   text: 'Peds Safety', align: 'center', sortable: true, value: 'safety', class: 'grey darken-3 white--text', tt: 'Pediatric Phase 1 Safety Data (0 to 6 points)', groupable: false  },
       {   text: 'CNS', align: 'center', sortable: true, value: 'cns', class: 'grey darken-3 white--text', tt: 'CNS Data with Response (-10 to 10 points)', groupable: false  },
       {   text: 'BBB', align: 'center', sortable: true, value: 'bbb', class: 'grey darken-3 white--text', tt: 'Brain penetration (0 to 10 points)', groupable: false  },
       {   text: 'FDA', align: 'center', sortable: true, value: 'fda', class: 'grey darken-3 white--text', tt: 'FDA approval (0 to 10 points)', groupable: false  },
@@ -1082,161 +1097,6 @@ import axios from "axios";
 
               },
 
-      FILLpptTable() {
-              var table = document.getElementById("pptTable");
-              table.innerHTML = "";
-
-              var tableHead = document.createElement('THEAD');
-              table.appendChild(tableHead);
-
-             var trh2 = document.createElement('TR');
-             // head - "Blue ribbon" or "#306EFF"
-             trh2.className = "blue ribbon";
-             tableHead.appendChild(trh2);
-             var thh2 = document.createElement('TH');
-             thh2.width="120";
-             thh2.style.textAlign='left';
-             thh2.appendChild(document.createTextNode("Drug Names"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="120";
-             thh2.style.textAlign='left';
-             thh2.appendChild(document.createTextNode("Pathway"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Tumor line/preclinical data(In vitro)"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Tumor line/preclinical data(In vivo)"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Phase I safety data"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("CNS Data with response"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Brain penetration"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("FDA approval"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Clonality/variant allele fraction(%)"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Variant tier score"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Relevant clinical trial"));
-             trh2.appendChild(thh2);
-             thh2 = document.createElement('TH');
-             thh2.width="50";
-             thh2.style.textAlign='center';
-             thh2.appendChild(document.createTextNode("Total Points"));
-             trh2.appendChild(thh2);
-
-
-
-                var tableBody = document.createElement('TBODY');
-                table.appendChild(tableBody);
-
-                    for (var p = 0; p < this.pathwayselection.length; p++){
-
-                    for (var d = 0; d < this.drugs.length; d++){
-                      if(this.pathways[this.pathwayselection[p]].pathway.trim() == this.drugs[d].pathways.trim()){
-                            var tr = document.createElement('TR');
-                            trh2.className = "sea blue";
-                            // body - "Sea blue" or "#C2DFFF"
-                            tableBody.appendChild(tr);
-                                var td = document.createElement('TD');
-                                td.width='120';
-                                td.style.textAlign='left';
-                                td.appendChild(document.createTextNode(this.drugs[d].drugagents));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='120';
-                                td.style.textAlign='left';
-                                td.appendChild(document.createTextNode(this.drugs[d].pathways));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].vitro));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].vivo));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].safety));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].cns));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].bbb));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].fda));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].cln));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].tier));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].trl));
-                                tr.appendChild(td);
-                                td = document.createElement('TD');
-                                td.width='50';
-                                td.style.textAlign='center';
-                                td.appendChild(document.createTextNode(this.drugs[d].total));
-                                tr.appendChild(td);
-                        }
-                    }
-
-          }
-
-
-
-
-      },
-
 
       async printPDF () {
 
@@ -1325,15 +1185,15 @@ import axios from "axios";
 
           head: [['Drug Names',
                   'Pathway',
-                  'Tumor line/preclinical data(In vitro)',
-                  'Tumor line/preclinical data(In vivo)',
-                  'Phase I safety data',
-                  'CNS Data with response',
+                  'Tumor line/\npreclinical data\n(In vitro)',
+                  'Tumor line/\npreclinical data\n(In vivo)',
+                  'Phase I\nsafety data',
+                  'CNS Data\nwith response',
                   'Brain penetration',
                   'FDA approval',
-                  'Clonality/variant allele fraction(%)',
+                  'Clonality/\nvariant allele\nfraction(%)',
                   'Variant tier score',
-                  'Relevant clinical trial',
+                  'Relevant\nclinical trial',
                   'Total Points'
                 ]],
 
@@ -1355,6 +1215,8 @@ import axios from "axios";
                     textColor: 0,
                     fillColor: "#B4C7E7",
                 },
+
+
         });
 
         doc.addPage();
@@ -1789,6 +1651,16 @@ option {
 }
 .v-tooltip__content {
   pointer-events: initial;
+}
+
+body {
+-webkit-transform: rotate(90deg);
+width: 100%;
+height: 100%;
+overflow: hidden;
+position: absolute;
+top: 0;
+left: 0;
 }
 
 </style>
