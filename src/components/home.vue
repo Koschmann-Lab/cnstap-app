@@ -145,7 +145,7 @@ import Footer from '../components/Footer.vue'
       },
 
       showUserVideo:function(){
-        var mp4 = './CNSTAP_User_Video.mp4';
+        var mp4 = 'https://www.youtube.com/watch?v=558jVNYlTSk';
         window.open(mp4);
       },
 
