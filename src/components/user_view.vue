@@ -15,7 +15,7 @@
        </v-col>
        <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
          <!-- Intro button on the right corner - Start -->
-             <template>
+             <!-- template>
                    <div class="text-right">
                          <v-btn
                            icon
@@ -23,7 +23,108 @@
                                  <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
                          </v-btn>
                    </div>
+             </template -->
+             <template>
+                 <div class="text-right" >
+                   <v-dialog
+                     v-model="dialogHelp"
+                     width="600"
+                   >
+                     <template v-slot:activator="{ on, attrs }">
+                       <v-btn
+                         icon
+                         v-bind="attrs"
+                         v-on="on"
+                       >
+                       <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
+                       </v-btn>
+                       <!--span style="font-size:15px;font-weight:bold">Help!</span-->
+
+                     </template>
+
+                     <v-card outlined>
+                       <v-card-title class="headline grey lighten-2">
+                         Help Information on CNS-TAP
+                       </v-card-title>
+                       <v-card-text>
+                         Please select from the following options:
+                       </v-card-text>
+                       <v-card-text>
+
+                             <!-- HelpTable></HelpTable -->
+
+                             <template>
+                                 <v-simple-table fixed-header height="100px">
+                                     <template v-slot:default>
+
+                                       <tbody>
+                                       <tr>
+                                         <td>
+                                           <template>
+                                                 <div class="text-center">
+                                                       <v-btn
+                                                         icon
+                                                         @click="showUserManual()">
+                                                               <v-icon large color="grey darken-2">mdi-book-open-variant</v-icon>
+                                                       </v-btn>
+                                                 </div>
+                                                 <div class="text-center">User Manual</div>
+                                           </template>
+
+                                         </td>
+                                         <td>
+                                             <template>
+                                                   <div class="text-center">
+                                                         <v-btn
+                                                           icon
+                                                           @click="startIntroHelp()">
+                                                                 <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
+                                                         </v-btn>
+                                                   </div>
+                                                   <div class="text-center">Website Tutorial</div>
+
+                                             </template>
+                                         </td>
+                                         <td>
+                                             <template>
+                                                   <div class="text-center">
+                                                         <v-btn
+                                                           icon
+                                                           @click="showUserVideo()">
+                                                                 <v-icon large color="grey darken-2">mdi-video</v-icon>
+                                                         </v-btn>
+                                                   </div>
+                                                   <div class="text-center">Instructional Video</div>
+
+                                             </template>
+                                         </td>
+                                       </tr>
+                                     </tbody>
+                                     </template>
+                               </v-simple-table>
+                             </template>
+
+
+                       </v-card-text>
+                       <v-divider></v-divider>
+
+                       <v-card-actions>
+                         <v-spacer></v-spacer>
+                         <v-btn
+                           color="primary"
+                           text
+                           @click="dialogHelp = false"
+                         >
+                           CLOSE
+                         </v-btn>
+                       </v-card-actions>
+                     </v-card>
+                   </v-dialog>
+                 </div>
+
              </template>
+
+
          <!-- Intro button on the right corner - End -->
        </v-col>
     </v-row>
@@ -701,6 +802,8 @@ import { VueEditor } from "vue2-editor";
 import LineGraphContainerLarge from '../components/LineGraphContainerLarge.vue';
 // View that contains the content for the Scoring info button
 import AlgorithmTable from '../components/Algorithm.vue';
+// import HelpTable from '../components/Help.vue';
+
 // View that contains the content for Footer
 import Footer from '../components/Footer.vue';
 // Library for generating PPT print-out
@@ -717,7 +820,8 @@ import axios from "axios";
       LineGraphContainerLarge,
       AlgorithmTable,
       Footer,
-      VueEditor
+      VueEditor,
+//      HelpTable
     },
 
 
@@ -826,6 +930,7 @@ import axios from "axios";
       // List of drugs from Kgrid object
       drugslist : [],
       dialog: false,
+      dialogHelp: false,
       // main List with drugs for drug table
       drugs: [],
       // main object with drug weights
@@ -988,12 +1093,21 @@ import axios from "axios";
 
          // Initiate the Prompt for the Intro routine
          startIntro() {
+          this.dialogHelp = false;
           if(confirm("Do you want an introduction to the CNS-Tap website?")){
             const introJS = require("intro.js");
             introJS.introJs().start();
             this.$vuetify.goTo(0);
            }
          },
+
+         startIntroHelp() {
+          this.dialogHelp = false;
+            const introJS = require("intro.js");
+            introJS.introJs().start();
+            this.$vuetify.goTo(0);
+         },
+
 
          // set DateTime for Notes while initializing
          getdatetime(){
@@ -1447,6 +1561,20 @@ import axios from "axios";
                 }
             }
         },
+
+        showUserManual:function(){
+          this.dialogHelp = false;
+          var pdf = './CNSTAP_User_Manual.pdf';
+          window.open(pdf);
+        },
+
+        showUserVideo:function(){
+          this.dialogHelp = false;
+          var mp4 = 'https://www.youtube.com/watch?v=558jVNYlTSk';
+          window.open(mp4);
+        },
+
+
     },
 }
 </script>
