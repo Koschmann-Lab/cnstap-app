@@ -14,16 +14,9 @@
           <!--  CNSTAP Logo - End -->
        </v-col>
        <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
+
          <!-- Intro button on the right corner - Start -->
-             <!-- template>
-                   <div class="text-right">
-                         <v-btn
-                           icon
-                           @click="startIntro()">
-                                 <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
-                         </v-btn>
-                   </div>
-             </template -->
+
              <template>
                  <div class="text-right" >
                    <v-dialog
@@ -54,7 +47,7 @@
                              <!-- HelpTable></HelpTable -->
 
                              <template>
-                                 <v-simple-table fixed-header height="100px">
+                                 <v-simple-table fixed-header height="60px">
                                      <template v-slot:default>
 
                                        <tbody>
@@ -888,7 +881,8 @@ import axios from "axios";
         },
     mounted() {
       // Prompt for the Intro routine when the page is loaded
-      this.startIntro();
+      this.dialogHelp=true;
+      //this.startIntro();
       // Loading the drugs array from kgrid when page is loaded
       // this.drugs = JSON.parse(this.$route.params.drugslist)
       // // Loading the drug weightage from kgrd when page is loaded
