@@ -35,7 +35,7 @@
     "vue-popper-component": "^0.1.0",
     "vue-router": "^3.5.1",
     "vue2-editor": "^2.10.2",
-    "vuetify": "^2.2.11"
+    "vuetify": "^2.5.3"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.4.0",
