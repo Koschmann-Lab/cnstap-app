@@ -5,10 +5,9 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 var history = require('connect-history-api-fallback');
 var path = require('path');
-app.use(express.static(path.join(__dirname, 'web')))
 
 // Middleware for serving '/dist' directory
-const staticFileMiddleware = express.static(path.join(__dirname, 'dist'));
+const staticFileMiddleware = express.static(path.join(__dirname, 'web'));
 
 // 1st call for unredirected requests
 app.use(staticFileMiddleware);
