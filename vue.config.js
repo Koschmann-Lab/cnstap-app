@@ -1,7 +1,7 @@
 module.exports = {
   "outputDir":"web",
-  // "publicPath":'/',
-    "transpileDependencies": [
+  "publicPath":'/',
+  "transpileDependencies": [
       "vuetify"
     ]
 }
