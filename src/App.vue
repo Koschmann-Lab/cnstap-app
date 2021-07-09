@@ -1,20 +1,35 @@
 <template>
   <v-app>
-    <v-content>
+    <v-main>
       <router-view></router-view>
-    </v-content>
+    </v-main>
   </v-app>
 </template>
 
 <script>
-
-
 export default {
   name: 'App',
-  data: () => ({
-
-  })
-
+  data: function () {
+    return { authenticated: false }
+  },
+  created() { this.isAuthenticated() },
+  watch: {
+    '$route': 'isAuthenticated'
+  },
+  methods: {
+    async isAuthenticated(){
+      this.authenticated = await this.$auth.isAuthenticated()
+    },
+    login () {
+      this.$auth.signInWithRedirect()
+    },
+    signUp () {
+      this.$router.push('signUp')
+    },
+    async logout () {
+      await this.$auth.signOut()
+    }
+  }
 };
 </script>
 
@@ -22,7 +37,6 @@ export default {
 #app {
     background-color: #E4ECFF;
 }
-
 
 .v-select {
   font-size: 0.8rem;
@@ -33,7 +47,6 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
 
 .v-data-table.customtable td {
   font-size: 0.8rem;
@@ -51,6 +64,7 @@ export default {
   padding: 0px;
   height: 30px;
 }
+
 .v-data-table.customtable th {
   font-size: 0.8rem;
   padding: 1;
