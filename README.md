@@ -8,7 +8,7 @@ The Central Nervous System Targeted Agent Prediction (CNS TAP) tool is a formali
 
 # Technical Overview of CNS-TAP
 
-CNS-TAP has several components, illustrated below:
+CNS-TAP has several interworking components, illustrated below:
 
 ![alt text](https://github.com/Koschmann-Lab/cnstap-app/blob/master/images/Parts%20and%20landscape.png)
 
@@ -20,7 +20,7 @@ Okta is the application used for user registration and authentication. You can v
 
 ## HEROKU FOR WEB APP DEPLOYMENT
 
-Heroku is the platform used to host and depoly the code for the CNS-TAP web application. There are two heroku apps, depicted below, CNSTAP-UI and CNSTAPACTIVATOR. CNSTAP-UI is the app that deploys the code for the front end of the app; it is linked directly to the github repository cnstap-app. CNSTAPACTIVATOR is the app that deploys the knowledge objects for the app; It takes the code from the github release section of the cnstap-objects github repository. In Heroku, you can monitor the status of the app and ensure it is up and running.
+Heroku is the platform used to host and deploy the code for the CNS-TAP web application. There are two heroku apps, depicted below, CNSTAP-UI and CNSTAPACTIVATOR. CNSTAP-UI is the app that deploys the code for the front end of the app; it is linked directly to the github repository cnstap-app. CNSTAPACTIVATOR is the app that deploys the knowledge objects for the app; It takes the code from the github release section of the cnstap-objects github repository. In Heroku, you can monitor the status of the app and ensure it is up and running.
 
 ![alt text](https://github.com/Koschmann-Lab/cnstap-app/blob/master/images/Heroku%20dashboard.png)
 
