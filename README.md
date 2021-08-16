@@ -8,21 +8,27 @@ The Central Nervous System Targeted Agent Prediction (CNS TAP) tool is a formali
 
 # Technical Overview of CNS-TAP
 
-CNS-TAP has several components, detailed below:
+CNS-TAP has several components, illustrated below:
 
 ![alt text](https://github.com/Koschmann-Lab/cnstap-app/blob/master/images/Parts%20and%20landscape.png)
 
 ## OKTA FOR USER AUTHENTICATION AND EMAIL VERIFICATION
 
-Insert image of people tab here....
+Okta is the application used for user registration and authentication. You can visit the dashboard by going to [www.developer.okta.com/login/](https://developer.okta.com/login/). Here, you can manage new users registered in the app and monitory overall user engagement. The Okta dashboard is shown below:
+
+![alt text](https://github.com/Koschmann-Lab/cnstap-app/blob/master/images/Okta%20dashboard.png)
 
 ## HEROKU FOR WEB APP DEPLOYMENT
 
-Mention that heroku is linked to github release section...
+Heroku is the platform used to host and depoly the code for the CNS-TAP web application. There are two heroku apps, depicted below, CNSTAP-UI and CNSTAPACTIVATOR. CNSTAP-UI is the app that deploys the code for the front end of the app; it is linked directly to the github repository cnstap-app. CNSTAPACTIVATOR is the app that deploys the knowledge objects for the app; It takes the code from the github release section of the cnstap-objects github repository. In Heroku, you can monitor the status of the app and ensure it is up and running.
+
+![alt text](https://github.com/Koschmann-Lab/cnstap-app/blob/master/images/Heroku%20dashboard.png)
 
 ## GOOGLE DOMAINS FOR THE DOMAIN NAME
 
-Insert image of what it looks like...
+Google Domains is what we used to purchase the domain name cnstap.org. This is what allows the end user to view the app at cnstap.org. Depicted below are details of our domain and life span:
+
+![alt text](https://github.com/Koschmann-Lab/cnstap-app/blob/master/images/Google%20Domains%20dashboard.png)
 
 ## Project setup
 ```
