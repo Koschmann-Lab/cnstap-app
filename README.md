@@ -10,7 +10,7 @@ The Central Nervous System Targeted Agent Prediction (CNS TAP) tool is a formali
 
 CNS-TAP has several components, detailed below:
 
-Insert image here...
+![alt text](https://github.com/Koschmann-Lab/cnstap-app/blob/master/images/Parts%20and%20landscape.png)
 
 ## OKTA FOR USER AUTHENTICATION AND EMAIL VERIFICATION
 
