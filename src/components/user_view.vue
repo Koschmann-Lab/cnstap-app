@@ -13,12 +13,25 @@
           </h3>
           <!--  CNSTAP Logo - End -->
        </v-col>
+
        <v-col cols="9" class="font-weight-bold grey--text text--darken-2 text-right">
 
-         <!-- Intro button on the right corner - Start -->
 
              <template>
                  <div class="text-right" >
+
+                     <v-btn
+                       icon
+                       v-bind="attrs"
+                       v-on="on"
+                       @click="batch_click"
+                     >
+                     <v-icon large color="grey darken-2">mdi-file-cog-outline</v-icon>
+                     </v-btn>
+                    Batch Client
+
+
+                   <!-- Intro button on the right corner - Start -->
                    <v-dialog
                      v-model="dialogHelp"
                      width="600"
@@ -28,6 +41,7 @@
                          icon
                          v-bind="attrs"
                          v-on="on"
+                         class="pl-15"
                        >
                        <v-icon large color="grey darken-2">mdi-comment-question</v-icon>
                        </v-btn>
@@ -114,6 +128,8 @@
                      </v-card>
                    </v-dialog>
                  </div>
+
+
 
              </template>
 
@@ -1078,6 +1094,8 @@ import axios from "axios";
     },
 
     methods:{
+
+         batch_click:function(){this.$router.push("/BatchView")  },
 
          switchNotes_click:function(){this.$router.push("/UserView")  },
          switchPPTprint_click:function(){this.$router.push("/UserView")  },
