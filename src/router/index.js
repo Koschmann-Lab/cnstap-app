@@ -6,8 +6,10 @@ import authConfig from '@/config'
 import Home from '../components/home.vue';
 import UserView from '../components/user_view.vue';
 import BatchView from '../components/batch_view.vue';
+import VueMeta from 'vue-meta';
 
 Vue.use(Router)
+Vue.use(VueMeta)
 const oktaAuth = new OktaAuth(authConfig.oidc)
 Vue.use(OktaVue, { oktaAuth })
 

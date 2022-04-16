@@ -9,6 +9,18 @@
 <script>
 export default {
   name: 'App',
+  metaInfo: {
+    title: 'CNS-TAP',
+    titleTemplate: '%s | Formalized decision-making algorithm for neuro-oncologists',
+    htmlAttrs: {
+     lang: 'en-US'
+   },
+   meta: [
+     { charset: 'utf-8' },
+     { name: 'description', content: 'The Central Nervous System Targeted Agent Prediction (CNS TAP) tool is a formalized decision-making algorithm to assist clinicians with selecting the optimal targeted therapy for neuro-oncology patients based on drug properties, clinical and pre-clinical data, and patient-specific sequencing data.' },
+     { name: 'author', content: 'Karthik Ravi @ University of Michigan: 2019' }
+   ]
+  },
   data: function () {
     return { authenticated: false }
   },
